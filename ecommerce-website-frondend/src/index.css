@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom focus menu-item trên header antd */
+.ant-menu-item-selected {
+    background-color: #ffffff33 !important; 
+}
+
+.ant-menu-title-content {
+    color: white !important; 
+    font-weight: bold;;
+
+}
+
+.ant-menu-item {
+    border-radius: 12% !important;
+
+}
+
+.ant-menu-item::after {
+    content: none !important;
+}
+
+.ant-menu-item:hover {
+    color: white !important; 
+    background-color: #ffffff33 !important; 
+    border-radius: 12% !important;
+}
+/* ****************************************************** */
+
+/* Loại bỏ viền focus của header antd*/
+.ant-menu-item:focus,
+.ant-menu-item:focus-visible,
+.ant-menu-submenu-title:focus,
+.ant-menu-submenu-title:focus-visible {
+    outline: none; 
+}
+/* ****************************************************** */
+
+
+/* Cố định header */
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+.layout-content {
+    padding-top: 70px;
+}
+/* ****************************************************** */
+
+:where(.css-dev-only-do-not-override-ni1kz0).ant-card .ant-card-body {
+    padding: 0.8rem;
+}
+
+/* Cho hiển thị text trên 2 dòng nếu dài hơn thì ... */
+.text-two-lines {
+    display: -webkit-box;          
+    -webkit-line-clamp: 2;         
+    -webkit-box-orient: vertical;  
+    overflow: hidden;              
+    text-overflow: ellipsis;       
+    white-space: normal;           
+}
+
