@@ -66,3 +66,23 @@
     white-space: normal;           
 }
 
+/* Xử lí form thêm địa chỉ trong ModalAddresForm */
+.suggestion-list {
+    position: absolute; /* Lớp phủ */
+    z-index: 1000; /* Hiển thị trên các thành phần khác */
+    background: #fff; /* Màu nền */
+    border: 1px solid #d9d9d9; /* Đường viền */
+    border-radius: 4px; /* Góc bo */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Đổ bóng */
+    max-height: 200px; /* Giới hạn chiều cao */
+    overflow-y: auto; /* Thanh cuộn dọc */
+    width: 100%; /* Độ rộng khớp với input */
+}
+.suggestion-list-item {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+.suggestion-list-item:hover {
+    background-color: #f5f5f5; /* Hiệu ứng hover */
+}
+

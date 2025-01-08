@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGetAllToolByUserId } from "../hooks/useGetAllToolByUserId";
 import { useUniqueOrderIds } from "../hooks/useUniqueOrderIds";
-import { useGetOrderToolByOrderId } from "../../checkout/hooks/useGetOrderToolByOrderId";
+import { useGetOrderToolByOrderId } from "../../checkout/hooks/orders/useGetOrderToolByOrderId";
 import { Button, Tag } from "antd";
 import { useUpdateOrder } from "../hooks/useUpdateOrder";
 

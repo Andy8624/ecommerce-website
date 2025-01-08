@@ -3,10 +3,9 @@ import { Form, Input, Button, Select, Divider, Typography } from "antd";
 import { CreditCardOutlined, DollarOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCreateOrder } from "../hooks/useCreateOrder";
 import { useSelector } from "react-redux";
-import { useAddressUser } from "../hooks/useAddressUser";
 import { useCreateOrderCourse } from "../../seller/hooks/useCreateOrderCourse";
+import { useCreateAddressUser } from "../hooks/addresses/useCreateAddressUser";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -20,10 +19,10 @@ const OnlinePayment = () => {
     const { course } = location.state || {};
     const totalAmount = course?.discountedPrice || course?.price;
 
-    const { addresses } = useAddressUser(userId)
+    const { addresses } = useCreateAddressUser(userId)
     const addressId = addresses?.[0].addressId;
 
-    const { createOrder } = useCreateOrder();
+    const { createOrder } = useCreateOrderCourse();
     const { createOrderCourse } = useCreateOrderCourse();
     const handlePaymentSubmit = async () => {
         const courseOrder = {

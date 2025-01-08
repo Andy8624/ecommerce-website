@@ -1,8 +1,7 @@
 import { Form, Button, Select } from 'antd';
 import { useState } from 'react';
 import ModalAddressForm from './ModalAddressForm';
-import { useCreateAddressUser } from '../hooks/useCreateAddressUser';
-
+import { useCreateAddressUser } from '../hooks/addresses/useCreateAddressUser';
 const { Option } = Select;
 
 const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading, setSelectedAddress, setPaymentMethod }) => {

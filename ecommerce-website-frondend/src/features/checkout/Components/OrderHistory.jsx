@@ -1,14 +1,14 @@
 import { Typography, message, Empty, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useGetOrderByUserId } from '../hooks/useGetOrderByUserId';
-import { useGetOrderToolByOrderId } from '../hooks/useGetOrderToolByOrderId';
-import { useGetToolByToolId } from '../hooks/useGetToolByToolId';
+import { useGetOrderByUserId } from '../hooks/orders/useGetOrderByUserId';
+import { useGetOrderToolByOrderId } from '../hooks/orders/useGetOrderToolByOrderId';
+import { useGetToolByToolId } from '../hooks/tools/useGetToolByToolId';
 import { useUpdateOrder } from '../../seller/hooks/useUpdateOrder';
 import OrderDetailSelectStatus from './OrderDetailSelectStatus';
 import OrderHistoryList from './OrderHistoryList';
-import { useGetOrderCourseByOrderId } from '../hooks/useGetOrderCourseByOrderId';
-import { useGetCourseByCourseId } from '../hooks/useGetCourseByCourseId';
+import { useGetOrderCourseByOrderId } from '../hooks/orders/useGetOrderCourseByOrderId';
+import { useGetCourseByCourseId } from '../hooks/courses/useGetCourseByCourseId';
 
 const { Title } = Typography;
 

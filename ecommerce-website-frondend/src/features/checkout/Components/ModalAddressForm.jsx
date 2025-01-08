@@ -1,13 +1,9 @@
-import { Form, Input, Modal, Select } from 'antd';
+import { Form, Input, Modal, Spin } from 'antd';
 import { useEffect, useState } from 'react';
-import axios from 'axios'; // Nhập axios
-
-const { Option } = Select;
+import { useDistrictFromGHN, useProviceFromGHN, useWardFromGHN } from '../hooks/addresses/useAddressFromGHN';
 
 const ModalAddressForm = ({ isVisible, onOk, onCancel }) => {
-    const [cities, setCities] = useState([]);
-    const [districts, setDistricts] = useState([]);
-    const [wards, setWards] = useState([]);
+    const [form] = Form.useForm(); // Tạo instance của Form để quản lý
     const [newAddress, setNewAddress] = useState({
         street: '',
         ward: '',
@@ -15,105 +11,203 @@ const ModalAddressForm = ({ isVisible, onOk, onCancel }) => {
         city: '',
     });
 
-    // Thêm trạng thái để lưu tên
-    const [selectedCityName, setSelectedCityName] = useState('');
-    const [selectedDistrictName, setSelectedDistrictName] = useState('');
-    const [selectedWardName, setSelectedWardName] = useState('');
+    const [activeField, setActiveField] = useState(''); // Trạng thái xác định input nào đang hiển thị gợi ý
+    const [suggestions, setSuggestions] = useState([]);
+    const [selectedCityId, setSelectedCityId] = useState(null);
+    const [selectedDistrictId, setSelectedDistrictId] = useState(null);
+
+    // Hooks lấy dữ liệu
+    const { isLoadingProvince, province } = useProviceFromGHN();
+    const { isLoadingDistrict, districts } = useDistrictFromGHN(selectedCityId);
+    const { isLoadingWard, wards } = useWardFromGHN(selectedDistrictId);
+
+    const handleInputClick = (field) => {
+        setActiveField(field);
+
+        if (field === 'city') {
+            setSuggestions(province.map((city) => ({ id: city.ProvinceID, name: city.ProvinceName })));
+        } else if (field === 'district' && districts) {
+            setSuggestions(districts.map((district) => ({ id: district.DistrictID, name: district.DistrictName })));
+        } else if (field === 'ward' && wards) {
+            setSuggestions(wards.map((ward) => ({ id: ward.WardCode, name: ward.WardName })));
+        }
+    };
+
+    const handleInputChange = (e, field) => {
+        const value = e.target.value.toLowerCase();
+        setNewAddress((prev) => ({ ...prev, [field]: value }));
+
+        if (field === 'city' && province) {
+            const filteredCities = province.filter((city) =>
+                city.ProvinceName.toLowerCase().includes(value)
+            );
+            setSuggestions(filteredCities.map((city) => ({ id: city.ProvinceID, name: city.ProvinceName })));
+        } else if (field === 'district' && districts) {
+            const filteredDistricts = districts.filter((district) =>
+                district.DistrictName.toLowerCase().includes(value)
+            );
+            setSuggestions(filteredDistricts.map((district) => ({ id: district.DistrictID, name: district.DistrictName })));
+        } else if (field === 'ward' && wards) {
+            const filteredWards = wards.filter((ward) =>
+                ward.WardName.toLowerCase().includes(value)
+            );
+            setSuggestions(filteredWards.map((ward) => ({ id: ward.WardCode, name: ward.WardName })));
+        }
+    };
+
+    const handleSuggestionClick = (suggestion, field) => {
+        if (field === 'city') {
+            setNewAddress((prev) => ({ ...prev, city: suggestion.name, district: '', ward: '' }));
+            form.setFieldsValue({ city: suggestion.name }); // Cập nhật Form
+            setSelectedCityId(suggestion.id);
+        } else if (field === 'district') {
+            setNewAddress((prev) => ({ ...prev, district: suggestion.name, ward: '' }));
+            form.setFieldsValue({ district: suggestion.name }); // Cập nhật Form
+            setSelectedDistrictId(suggestion.id);
+        } else if (field === 'ward') {
+            setNewAddress((prev) => ({ ...prev, ward: suggestion.name }));
+            form.setFieldsValue({ ward: suggestion.name }); // Cập nhật Form
+        }
+
+        setSuggestions([]);
+        setActiveField(''); // Ẩn gợi ý sau khi chọn
+    };
 
     useEffect(() => {
-        fetchCities(); // khi render lần đầu thì bắt đầu lấy dữ liệu thành phố
-    }, []);
-
-    const fetchCities = async () => {
-        try {
-            const response = await axios.get('https://esgoo.net/api-tinhthanh/1/0.htm');
-            setCities(response.data.data);
-        } catch (error) {
-            console.error('Lỗi khi lấy thành phố:', error);
+        if (isVisible) {
+            form.setFieldsValue({ city: '', district: '', ward: '', street: '' }); // Reset giá trị form khi mở lại
+            setNewAddress({ city: '', district: '', ward: '', street: '' }); // Reset state
+            setSelectedCityId(null);
+            setSelectedDistrictId(null);
         }
-    };
+    }, [isVisible]);
 
-    const fetchDistricts = async (cityId) => {
+    const handleOk = async () => {
         try {
-            const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${cityId}.htm`); // Cập nhật URL API cho quận
-            setDistricts(response.data.data);
+            const values = await form.validateFields(); // Kiểm tra tính hợp lệ của toàn bộ Form
+            onOk(values); // Gửi giá trị hợp lệ lên component cha
+            form.resetFields(); // Reset Form
         } catch (error) {
-            console.error('Lỗi khi lấy quận/huyện:', error);
+            console.error('Lỗi khi kiểm tra Form:', error);
         }
-    };
-
-    const fetchWards = async (districtId) => {
-        try {
-            const response = await axios.get(`https://esgoo.net/api-tinhthanh/3/${districtId}.htm`); // Cập nhật URL API cho phường
-            setWards(response.data.data);
-        } catch (error) {
-            console.error('Lỗi khi lấy phường/xã:', error);
-        }
-    };
-
-    const handleCityChange = (value) => {
-        const selectedCity = cities.find(city => city.id === value);
-        setSelectedCityName(selectedCity ? selectedCity.name : ''); // Cập nhật tên thành phố
-        setNewAddress((prev) => ({ ...prev, city: value, district: '', ward: '' }));
-        fetchDistricts(value); // Lấy quận khi thành phố được chọn
-    };
-
-    const handleDistrictChange = (value) => {
-        const selectedDistrict = districts.find(district => district.id === value);
-        setSelectedDistrictName(selectedDistrict ? selectedDistrict.name : ''); // Cập nhật tên quận
-        setNewAddress((prev) => ({ ...prev, district: value, ward: '' }));
-        fetchWards(value); // Lấy phường khi quận được chọn
-    };
-
-    const handleWardChange = (value) => {
-        const selectedWard = wards.find(ward => ward.id === value);
-        setSelectedWardName(selectedWard ? selectedWard.name : ''); // Cập nhật tên phường
-        setNewAddress((prev) => ({ ...prev, ward: value }));
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setNewAddress((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleOk = () => {
-        // Tạo địa chỉ hoàn chỉnh
-        const completeAddress = {
-            street: newAddress.street,
-            ward: selectedWardName,
-            district: selectedDistrictName,
-            city: selectedCityName,
-        };
-        onOk(completeAddress); // Gửi địa chỉ hoàn chỉnh lên component cha
-        setNewAddress({ street: '', ward: '', district: '', city: '' });
-        setSelectedCityName('');
-        setSelectedDistrictName('');
-        setSelectedWardName('');
     };
 
     return (
         <Modal title="Thêm địa chỉ mới" open={isVisible} onOk={handleOk} onCancel={onCancel}>
-            <Form layout="vertical">
-                <Form.Item label="Thành phố">
-                    <Select value={newAddress.city} onChange={handleCityChange} placeholder="Chọn thành phố">
-                        {cities.map(city => <Option key={city.id} value={city.id}>{city.name}</Option>)}
-                    </Select>
-                </Form.Item>
-                <Form.Item label="Quận/Huyện">
-                    <Select value={newAddress.district} onChange={handleDistrictChange} placeholder="Chọn quận/huyện">
-                        {districts.map(district => <Option key={district.id} value={district.id}>{district.name}</Option>)}
-                    </Select>
-                </Form.Item>
-                <Form.Item label="Phường/Xã">
-                    <Select value={newAddress.ward} onChange={handleWardChange} placeholder="Chọn phường/xã">
-                        {wards.map(ward => <Option key={ward.id} value={ward.id}>{ward.name}</Option>)}
-                    </Select>
-                </Form.Item>
-                <Form.Item label="Đường">
-                    <Input name="street" value={newAddress.street} onChange={handleChange} placeholder="Nhập đường" />
+            <Form form={form} layout="vertical" initialValues={newAddress}>
+                <div style={{ position: 'relative' }}>
+                    <Spin spinning={isLoadingProvince}>
+                        <Form.Item
+                            label="Thành phố"
+                            name="city"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập thành phố!' },
+                            ]}
+                        >
+                            <Input
+                                onClick={() => handleInputClick('city')}
+                                onChange={(e) => handleInputChange(e, 'city')}
+                                placeholder="Nhập thành phố"
+                                disabled={isLoadingProvince} // Disable khi đang tải
+                            />
+                        </Form.Item>
+                    </Spin>
+                    {activeField === 'city' && suggestions.length > 0 && (
+                        <div className="suggestion-list">
+                            {suggestions.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="suggestion-list-item"
+                                    onClick={() => handleSuggestionClick(item, 'city')}
+                                >
+                                    {item.name}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Spin spinning={isLoadingDistrict}>
+                        <Form.Item
+                            label="Quận/Huyện"
+                            name="district"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập quận/huyện!' },
+                            ]}
+                        >
+                            <Input
+                                onClick={() => handleInputClick('district')}
+                                onChange={(e) => handleInputChange(e, 'district')}
+                                placeholder="Nhập quận/huyện"
+                                disabled={!selectedCityId || isLoadingDistrict} // Disable khi không có city hoặc đang tải
+                            />
+                        </Form.Item>
+                    </Spin>
+                    {activeField === 'district' && suggestions.length > 0 && (
+                        <div className="suggestion-list">
+                            {suggestions.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="suggestion-list-item"
+                                    onClick={() => handleSuggestionClick(item, 'district')}
+                                >
+                                    {item.name}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Spin spinning={isLoadingWard}>
+                        <Form.Item
+                            label="Phường/Xã"
+                            name="ward"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập phường/xã!' },
+                            ]}
+                        >
+                            <Input
+                                onClick={() => handleInputClick('ward')}
+                                onChange={(e) => handleInputChange(e, 'ward')}
+                                placeholder="Nhập phường/xã"
+                                disabled={!selectedDistrictId || isLoadingWard} // Disable khi không có district hoặc đang tải
+                            />
+                        </Form.Item>
+                    </Spin>
+                    {activeField === 'ward' && suggestions.length > 0 && (
+                        <div className="suggestion-list">
+                            {suggestions.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="suggestion-list-item"
+                                    onClick={() => handleSuggestionClick(item, 'ward')}
+                                >
+                                    {item.name}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <Form.Item
+                    label="Đường"
+                    name="street"
+                    rules={[
+                        { required: true, message: 'Vui lòng nhập đường!' },
+                    ]}
+                >
+                    <Input
+                        onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                        placeholder="Nhập đường"
+                    />
                 </Form.Item>
             </Form>
-        </Modal>
+
+
+
+        </Modal >
     );
 };
 

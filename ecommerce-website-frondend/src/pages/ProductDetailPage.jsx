@@ -2,7 +2,7 @@ import { Button, Col, Divider, InputNumber, Row, Typography, Carousel } from "an
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TOOL_URL } from "../utils/Config";
-import { useGetToolByToolId } from "../features/checkout/hooks/useGetToolByToolId";
+import { useGetToolByToolId } from "../features/checkout/hooks/tools/useGetToolByToolId";
 import { handleAddToCart } from "../features/cart/handleAddtoCart";
 import { useSelector } from "react-redux";
 import { useCart } from "../features/cart/hooks/useCart";

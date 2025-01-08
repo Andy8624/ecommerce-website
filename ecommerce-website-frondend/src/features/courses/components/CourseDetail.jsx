@@ -6,8 +6,8 @@ import { formatDurationToObject, formatDurationToString } from "../hooks/formatD
 import LoginModal from "../../../components/LoginModal";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useGetCourseFromYoutube } from "../../checkout/hooks/useGetCourseFromYoutube";
-import { useGetOrderCourseByCourseId } from "../../checkout/hooks/useGetOrderCourseByCourseId";
+import { useGetCourseFromYoutube } from "../../checkout/hooks/courses/useGetCourseFromYoutube";
+import { useGetOrderCourseByCourseId } from "../../checkout/hooks/orders/useGetOrderCourseByCourseId";
 
 const CourseDetail = () => {
     const currentUserId = useSelector(state => state?.account?.user?.id);
