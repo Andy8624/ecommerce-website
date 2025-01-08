@@ -17,10 +17,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.dlk.ecommerce.domain")
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 //@SpringBootApplication
-public class Ct466Application {
+public class EcommerceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Ct466Application.class, args);
+		SpringApplication.run(EcommerceApplication.class, args);
 	}
 
 }

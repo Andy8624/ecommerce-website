@@ -1,1 +1,1 @@
-rootProject.name = "ct466"
+rootProject.name = "ecommerce"

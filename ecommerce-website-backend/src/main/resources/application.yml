@@ -1,61 +1,52 @@
-spring.application.name=ecommerce
+spring:
+  application:
+    name: ecommerce
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/EcommerceApp
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-# C?u hình CSDL
-spring.datasource.url=jdbc:mysql://localhost:3306/EcommerceApp
-spring.datasource.username=root
-spring.datasource.password=123456
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          auto: update
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
-spring.jpa.hibernate.ddl-auto=update
-#spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.hbm2ddl.auto=update
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 10GB
 
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
 
-###
+dlk:
+  jwt:
+    base64-secret: qoAEABDke07+AVLepXB4aCMtsT0wMAqR5x2VFyldsnx6e75YQkJH2UcZKTjEyoNgG71SBCXfq5N6NVZxWOfsHQ==
+    access-token-validity-in-seconds: 8640000
+    refresh-token-validity-in-seconds: 8640000
 
-###
-#config jwt
-#openssl rand -base64 64
-dlk.jwt.base64-secret=qoAEABDke07+AVLepXB4aCMtsT0wMAqR5x2VFyldsnx6e75YQkJH2UcZKTjEyoNgG71SBCXfq5N6NVZxWOfsHQ==
+  upload-file:
+    base-uri: file:///home/duonglapkhang/Desktop/Document/CTU/NienLuanNganh/project/ct46605-project-KhangDuong283/upload/
 
-#100 days
-dlk.jwt.access-token-validity-in-seconds=8640000
-dlk.jwt.refresh-token-validity-in-seconds=8640000
-###
-
-
-#config upload file
-###
-# Kích th??c t?i ?a 1 file default = 1GB
-spring.servlet.multipart.max-file-size=500MB
-
-# Kích th??c t?i ?a g?i nhi?u file default = 10 GB (form data)
-spring.servlet.multipart.max-request-size=10GB
-
-#base path
-dlk.upload-file.base-uri=file:///home/duonglapkhang/Desktop/Document/CTU/NienLuanNganh/project/ct46605-project-KhangDuong283/upload/
-
-###
-
-###
-#Config pagination
-#Start page = 1
-# Chi anh huong bên trong controller (tu dong tru 1 page trong pageable)
-spring.data.web.pageable.one-indexed-parameters=true
-
-###
-#
-
-###
-#Config email with Gmail
-#spring.mail.host=smtp.gmail.com
-#spring.mail.port=587
-#spring.mail.username=duonglapkhang283@gmail.com
-#spring.mail.password=uuiiialqqwiomurj
-#spring.mail.properties.mail.smtp.auth=true
-#spring.mail.properties.mail.smtp.starttls.enable=true
-###
-#
+# Config email with Gmail (commented out)
+# spring:
+#   mail:
+#     host: smtp.gmail.com
+#     port: 587
+#     username: duonglapkhang283@gmail.com
+#     password: uuiiialqqwiomurj
+#     properties:
+#       mail:
+#         smtp:
+#           auth: true
+#           starttls:
+#             enable: true
