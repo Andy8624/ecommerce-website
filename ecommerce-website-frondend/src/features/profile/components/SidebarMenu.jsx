@@ -71,13 +71,9 @@ const SidebarMenu = ({ selectedMenu, setSelectedMenu }) => {
                 selectedKeys={[selectedMenu]}
                 onClick={(e) => setSelectedMenu(e.key)}
                 className="profile-menu"
-            >
-                {menuItems.map((item) => (
-                    <Menu.Item key={item.key} icon={item.icon}>
-                        {item.label}
-                    </Menu.Item>
-                ))}
-            </Menu>
+                items={menuItems}
+            />
+
         </Sider>
     );
 };
