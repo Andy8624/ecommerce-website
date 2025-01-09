@@ -80,7 +80,7 @@ const ModalAddressForm = ({ isVisible, onOk, onCancel }) => {
             setSelectedCityId(null);
             setSelectedDistrictId(null);
         }
-    }, [isVisible]);
+    }, [isVisible, form]);
 
     const handleOk = async () => {
         try {

@@ -7,7 +7,7 @@ export const login = (email, password) => {
 export const getAccount = () => {
     const path = `/api/v1/auth/account`;
     const res = axios.get(path);
-    // console.log(res);
+    console.log(res.data);
     return res;
 
 }

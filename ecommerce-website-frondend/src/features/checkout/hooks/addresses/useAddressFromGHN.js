@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { callWardFromGHN, callDistrictFromGHN, callProvinceFromGHN } from "../../../../services/AddressService";
+import { callWardFromGHN, callDistrictFromGHN, callProvinceFromGHN } from "../../../../services/GHNService";
 
 export function useProviceFromGHN() {
     const { isLoading: isLoadingProvince, data: province, error: errorProvince } = useQuery({

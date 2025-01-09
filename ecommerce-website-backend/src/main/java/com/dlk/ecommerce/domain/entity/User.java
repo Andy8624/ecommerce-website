@@ -1,12 +1,15 @@
 package com.dlk.ecommerce.domain.entity;
 
+import com.dlk.ecommerce.util.constant.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -38,6 +41,17 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     boolean isActive = true;
+
+    @Pattern(
+            regexp = "^\\+?[0-9]{7,15}$",
+            message = "Phone number must be valid and contain 7 to 15 digits"
+    )
+    String phone = null;
+
+    LocalDate birthdate = null;
+
+    @Enumerated(EnumType.STRING)
+    Gender gender;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     String refreshToken;

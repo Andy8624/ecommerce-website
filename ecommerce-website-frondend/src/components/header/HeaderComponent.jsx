@@ -51,16 +51,17 @@ const HeaderComponent = () => {
     const menuItemsForDropdown = [
         {
             key: '1',
-            label: <span className="block text-base px-1 py-1">Thông tin tài khoản</span>,
+            label: <span className="block text-base px-1 py-1">Tài khoản của tôi</span>,
+            onClick: () => navigate('/profile'),
         },
         {
             key: '2',
-            label: <span className="block text-base px-1 py-1">Đơn hàng của bạn</span>,
+            label: <span className="block text-base px-1 py-1">Đơn mua</span>,
             onClick: () => navigate('/order-history'),
         },
         ...(role === 'SELLER' ? [{
             key: '5',
-            label: <span className="block text-base px-1 py-1">Quản lý bán hàng</span>,
+            label: <span className="block text-base px-1 py-1">Kênh người bán</span>,
             onClick: () => navigate('/seller'),
         }] : [{
             key: '4',

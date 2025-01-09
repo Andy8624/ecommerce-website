@@ -10,3 +10,8 @@ export const callUpdateUserRoleByUserId = async (data) => {
     console.log(res);
     return res?.data;
 }
+
+export const callUpdateUserProfile = async (data, userId) => {
+    const res = await axios.put(`/api/v1/users/${userId}`, data);
+    return res?.data;
+}

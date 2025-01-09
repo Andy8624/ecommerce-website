@@ -35,8 +35,8 @@ dlk:
     refresh-token-validity-in-seconds: 8640000
 
   upload-file:
-    base-uri: file:///home/duonglapkhang/Desktop/Document/CTU/NienLuanNganh/project/ct46605-project-KhangDuong283/upload/
-
+#    base-uri: file:///home/duonglapkhang/Desktop/Document/CTU/NienLuanNganh/project/ct46605-project-KhangDuong283/upload/
+    base-uri: file:///home/duonglapkhang/Desktop/LV/ecommerce-website/upload/
 # Config email with Gmail (commented out)
 # spring:
 #   mail:

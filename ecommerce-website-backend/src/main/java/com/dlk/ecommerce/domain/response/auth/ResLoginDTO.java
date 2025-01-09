@@ -1,10 +1,12 @@
 package com.dlk.ecommerce.domain.response.auth;
 
 import com.dlk.ecommerce.domain.entity.Permission;
+import com.dlk.ecommerce.util.constant.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -24,6 +26,11 @@ public class ResLoginDTO {
         String id;
         String email;
         String fullName;
+        LocalDate birthdate;
+        String cartId;
+        String imageUrl;
+        String phone;
+        Gender gender;
         RoleInUserLogin role;
     }
 

@@ -78,11 +78,65 @@
     overflow-y: auto; /* Thanh cuộn dọc */
     width: 100%; /* Độ rộng khớp với input */
 }
+
 .suggestion-list-item {
     padding: 8px 16px;
     cursor: pointer;
 }
+
 .suggestion-list-item:hover {
     background-color: #f5f5f5; /* Hiệu ứng hover */
+}
+
+/* Profile Page */
+/* Đặt màu chữ và icon mặc định */
+.profile-menu .ant-menu-item {
+    color: #333 !important; /* Màu chữ mặc định */
+    font-weight: 500;
+}
+
+.profile-menu .ant-menu-item .ant-menu-item-icon {
+    color: #333 !important; /* Màu icon mặc định */
+}
+
+/* Khi một mục được chọn */
+.profile-menu .ant-menu-item-selected .ant-menu-title-content,
+.profile-menu .ant-menu-item-selected .ant-menu-item-icon {
+    color: #1890ff !important; /* Màu chữ và icon khi mục được chọn */
+    font-weight: bold !important; /* Đậm chữ khi chọn */
+}
+
+/* Khi hover vào một mục */
+.profile-menu .ant-menu-item:hover .ant-menu-title-content,
+.profile-menu .ant-menu-item:hover .ant-menu-item-icon {
+    color: #1890ff !important; /* Màu chữ và icon khi hover */
+    font-weight: bold !important; /* Đậm chữ khi hover */
+}
+
+/* Nền khi mục được chọn hoặc hover */
+.profile-menu .ant-menu-item-selected,
+.profile-menu .ant-menu-item:hover {
+    background-color: #f0f0f0 !important; /* Màu nền nhạt khi chọn hoặc hover */
+    border-radius: 8px !important; /* Bo góc cho mục */
+    transition: all 0.3s ease !important; /* Hiệu ứng mượt */
+}
+
+/* Loại bỏ viền focus */
+.profile-menu .ant-menu-item:focus,
+.profile-menu .ant-menu-item:focus-visible {
+    outline: none !important;
+}
+
+/* Mục không được chọn hoặc hover */
+.profile-menu .ant-menu-item:not(.ant-menu-item-selected):not(:hover) .ant-menu-title-content,
+.profile-menu .ant-menu-item:not(.ant-menu-item-selected):not(:hover) .ant-menu-item-icon {
+    color: #333 !important; /* Màu chữ và icon mặc định khi không chọn hoặc hover */
+}
+
+/* Tăng thêm hiệu ứng chuyển động */
+.profile-menu .ant-menu-item,
+.profile-menu .ant-menu-title-content,
+.profile-menu .ant-menu-item-icon {
+    transition: all 0.3s ease !important;
 }
 

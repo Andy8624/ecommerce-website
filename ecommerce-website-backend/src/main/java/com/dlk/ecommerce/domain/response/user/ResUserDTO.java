@@ -1,10 +1,12 @@
 package com.dlk.ecommerce.domain.response.user;
 
 
+import com.dlk.ecommerce.util.constant.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +24,9 @@ public class ResUserDTO {
     Instant updatedAt;
     String createdBy;
     String updatedBy;
+    String phone;
+    LocalDate birthdate;
+    Gender gender;
 
     @Data
     @NoArgsConstructor

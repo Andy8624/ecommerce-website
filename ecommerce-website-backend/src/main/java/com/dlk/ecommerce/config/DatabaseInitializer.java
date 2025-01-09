@@ -190,8 +190,8 @@ public class DatabaseInitializer implements CommandLineRunner {
                     permissionRepository.findByName("Get a tooltypes by id"),
                     permissionRepository.findByName("Restore tooltypes by id"),
                     permissionRepository.findByName("Get tooltypes with pagination"),
-                    permissionRepository.findByName("Update user role")
-
+                    permissionRepository.findByName("Update user role"),
+                    permissionRepository.findByName("Update a user")
             );
             Role sellerRole = new Role();
             sellerRole.setName("SELLER");
@@ -220,7 +220,8 @@ public class DatabaseInitializer implements CommandLineRunner {
                     permissionRepository.findByName("Get an order by ID"),
                     permissionRepository.findByName("Restore a tool"),
                     permissionRepository.findByName("Get a user by id"),
-                    permissionRepository.findByName("Update user role")
+                    permissionRepository.findByName("Update user role"),
+                    permissionRepository.findByName("Update a user")
             );
             Role buyerRole = new Role();
             buyerRole.setName("BUYER");

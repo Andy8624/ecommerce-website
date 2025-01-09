@@ -10,6 +10,10 @@ const initialState = {
         id: "",
         email: "",
         fullName: "",
+        phone: "",
+        imageUrl: "",
+        birthdate: "",
+        gender: "",
         cartId: "",
         role: {
             id: "",
@@ -38,6 +42,10 @@ export const accountSlice = createSlice({
             state.user.id = action?.payload?.id;
             state.user.email = action.payload.email;
             state.user.fullName = action.payload.fullName;
+            state.user.phone = action.payload.phone;
+            state.user.imageUrl = action.payload.imageUrl;
+            state.user.birthdate = action.payload.birthdate;
+            state.user.gender = action.payload.gender;
             state.user.cartId = action.payload.cartId;
             state.user.role = action.payload.role;
 
@@ -50,6 +58,10 @@ export const accountSlice = createSlice({
                 id: "",
                 email: "",
                 fullName: "",
+                phone: "",
+                imageUrl: "",
+                birthdate: "",
+                gender: "",
                 cartId: "",
                 role: {
                     id: "",
@@ -79,6 +91,10 @@ export const accountSlice = createSlice({
                 state.user.id = action?.payload?.user?.id;
                 state.user.email = action.payload.user?.email;
                 state.user.fullName = action.payload.user?.fullName;
+                state.user.phone = action.payload.user?.phone;
+                state.user.imageUrl = action.payload.user?.imageUrl;
+                state.user.birthdate = action.payload.user?.birthdate;
+                state.user.gender = action.payload.user?.gender;
                 state.user.cartId = action.payload.user?.cartId;
                 state.user.role = action.payload.user?.role;
                 state.user.role.permissions = action?.payload?.user?.role?.permissions ?? [];

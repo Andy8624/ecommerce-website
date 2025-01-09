@@ -26,6 +26,7 @@ import Statistics from "../features/seller/components/Statistics";
 import CoursePage from "../pages/CoursePage";
 import CourseDetail from "../features/courses/components/CourseDetail";
 import OnlinePayment from "../features/checkout/Components/OnlinePayment";
+import Profile from "../pages/Profile";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
             {
                 path: "course-detail",
                 element: <CourseDetail />
+            },
+            {
+                path: "profile",
+                element: <Profile />,
             }
         ]
     },

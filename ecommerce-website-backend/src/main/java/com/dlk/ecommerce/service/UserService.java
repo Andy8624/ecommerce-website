@@ -18,6 +18,7 @@ import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import com.turkraft.springfilter.parser.FilterParser;
 import com.turkraft.springfilter.parser.node.FilterNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -97,8 +99,22 @@ public class UserService {
 
     public ResUpdateUserDTO updateUser(User user, String id) throws IdInvalidException {
         User dbUser = fetchUserById(id);
-        dbUser.setFullName(user.getFullName());
-        dbUser.setImageUrl(user.getImageUrl());
+        log.info("User: {}", user);
+        if (user.getFullName() != null) {
+            dbUser.setFullName(user.getFullName());
+        }
+        if (user.getImageUrl() != null) {
+            dbUser.setImageUrl(user.getImageUrl());
+        }
+        if (user.getPhone() != null) {
+            dbUser.setPhone(user.getPhone());
+        }
+        if (user.getBirthdate() != null) {
+            dbUser.setBirthdate(user.getBirthdate());
+        }
+        if (user.getGender() != null) {
+            dbUser.setGender(user.getGender());
+        }
         dbUser.setActive(user.isActive());
         User updatedUser = userRepository.save(dbUser);
         return UserMapper.mapToUpdateUserDTO(updatedUser);

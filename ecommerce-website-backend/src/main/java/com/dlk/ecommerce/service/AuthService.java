@@ -62,6 +62,11 @@ public class AuthService {
                     dbUser.getUserId(),
                     dbUser.getEmail(),
                     dbUser.getFullName(),
+                    dbUser.getBirthdate(),
+                    dbUser.getCart().getCartId(),
+                    dbUser.getImageUrl(),
+                    dbUser.getPhone(),
+                    dbUser.getGender(),
                     roleInUserLogin
             );
             res.setUser(userLogin);
@@ -107,8 +112,12 @@ public class AuthService {
             userLogin.setId(dbUser.getUserId());
             userLogin.setEmail(dbUser.getEmail());
             userLogin.setFullName(dbUser.getFullName());
+            userLogin.setBirthdate(dbUser.getBirthdate());
+            userLogin.setCartId(dbUser.getCart().getCartId());
+            userLogin.setImageUrl(dbUser.getImageUrl());
+            userLogin.setPhone(dbUser.getPhone());
+            userLogin.setGender(dbUser.getGender());
             userLogin.setRole(roleInUserLogin);
-
             userGetAccount.setUser(userLogin);
         }
 
@@ -142,6 +151,11 @@ public class AuthService {
                 dbUser.getUserId(),
                 dbUser.getEmail(),
                 dbUser.getFullName(),
+                dbUser.getBirthdate(),
+                dbUser.getCart().getCartId(),
+                dbUser.getImageUrl(),
+                dbUser.getPhone(),
+                dbUser.getGender(),
                 roleInUserLogin
         );
         res.setUser(userLogin);
