@@ -60,7 +60,7 @@ public class Tool extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+//    @JsonIgnore
     User user;
 
     @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)

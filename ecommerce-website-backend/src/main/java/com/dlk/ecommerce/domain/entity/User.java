@@ -32,6 +32,7 @@ public class User extends BaseEntity {
     String email;
 
     @NotBlank(message = "Password could not be blank")
+    @JsonIgnore
     String password;
 
     String imageUrl;
@@ -54,6 +55,7 @@ public class User extends BaseEntity {
     Gender gender;
 
     @Column(columnDefinition = "MEDIUMTEXT")
+    @JsonIgnore
     String refreshToken;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
