@@ -1,11 +1,11 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import { useCartTool } from '../features/cart/hooks/useCartTool';
 import { useSelector } from 'react-redux';
 import { useCart } from '../features/cart/hooks/useCart';
 
-const CartContext = createContext();
+export const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
+const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
 
     const userId = useSelector(state => state?.account?.user?.id);
@@ -16,7 +16,6 @@ export const CartProvider = ({ children }) => {
 
     useEffect(() => {
         if (cartTools) {
-            // Cập nhật `cartItems` khi `cartTools` thay đổi
             const newItems = cartTools.map(item => ({
                 id: item.cartToolId,
                 type: 'product',
@@ -25,7 +24,23 @@ export const CartProvider = ({ children }) => {
                 discountPrice: item.tool.discountedPrice,
                 quantity: item.quantity,
                 image: item.tool.imageUrl,
-                toolId: item.tool.toolId
+                toolId: item.tool.toolId,
+                ownerUser: {
+                    userId: item.tool.user.userId,
+                    email: item.tool.user.email,
+                    fullName: item.tool.user.fullName,
+                    imageUrl: item.tool.user.imageUrl,
+                    gender: item.tool.user.gender,
+                    phone: item.tool.user.phone,
+                },
+                role: {
+                    roleId: item.tool.user.role.roleId,
+                    name: item.tool.user.role.name
+                },
+                toolType: {
+                    toolTypeId: item.tool.toolType.toolTypeId,
+                    name: item.tool.toolType.name
+                }
             }));
             setCartItems(newItems);
             setCartQuantity(newItems.length);
@@ -45,4 +60,4 @@ export const CartProvider = ({ children }) => {
     );
 };
 
-export const useCartContext = () => useContext(CartContext);
+export default CartProvider; 

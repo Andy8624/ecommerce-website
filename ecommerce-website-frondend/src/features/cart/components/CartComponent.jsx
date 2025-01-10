@@ -1,44 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import CartList from './CartList';
 import CartSummary from './CartSummary';
-import { useCart } from '../hooks/useCart';
-import { useSelector } from 'react-redux';
-import { useCartTool } from '../hooks/useCartTool';
 import SelectComponent from './SelectComponent';
 import { useUpdateCartItem } from '../hooks/useUpdateCartItem';
-import { useCartContext } from '../../../components/CartProvider';
 import useDeleteCartTool from '../hooks/useDeleteCartTool';
 import { useNavigate } from 'react-router-dom';
+import { useCartContext } from '../../../hooks/useCartContext';
 
 const CartComponent = () => {
     const navigate = useNavigate();
-    const { cartItems, setCartItems, cartQuantity, setCartQuantity, selectedItems, setSelectedItems } = useCartContext();
-
-    const userId = useSelector(state => state?.account?.user?.id);
-    const { carts } = useCart(userId);
-    const { cartTools } = useCartTool(carts?.cartId);
-    // console.log(cartTools);
-
-    useEffect(() => {
-        if (cartTools?.result) {
-            const newItems = cartTools.result.map(item => ({
-                id: item.cartToolId,
-                type: 'product',
-                name: item.tool.name,
-                price: item.tool.price,
-                discountPrice: item.tool.discountedPrice,
-                quantity: item.quantity,
-                image: item.tool.imageUrl,
-                toolId: item.tool.toolId
-            }));
-            setCartItems(prevCartItems => {
-                const uniqueNewItems = newItems.filter(newItem =>
-                    !prevCartItems.some(existingItem => existingItem.id === newItem.id)
-                );
-                return [...prevCartItems, ...uniqueNewItems];
-            });
-        }
-    }, [cartTools?.result, setCartItems]);
+    const {
+        cartItems, setCartItems,
+        cartQuantity, setCartQuantity,
+        selectedItems, setSelectedItems
+    } = useCartContext();
 
     const { updateCartItem } = useUpdateCartItem();
     const updateQuantity = (id, quantity) => {
@@ -66,8 +41,10 @@ const CartComponent = () => {
     };
 
     const getTotal = () => {
-        return cartItems.reduce((total, item) =>
-            selectedItems.includes(item.id) ? total + (item.discountPrice || item.price) * item.quantity : total, 0
+        return cartItems.reduce(
+            (total, item) =>
+                selectedItems.includes(item.id) ? total + (item.discountPrice || item.price) * item.quantity : total
+            , 0
         );
     };
 

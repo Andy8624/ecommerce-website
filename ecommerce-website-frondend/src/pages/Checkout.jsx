@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Layout, Card, Typography } from 'antd';
-import { useCartContext } from '../components/CartProvider';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useDeleteCartTool from '../features/cart/hooks/useDeleteCartTool';
 import CheckoutSummary from '../features/checkout/Components/CheckoutSummary';
@@ -11,6 +10,7 @@ import { useAddressUser } from '../features/checkout/hooks/addresses/useAddressU
 import { useGetAllPaymentMethod } from '../features/checkout/hooks/payment-methods/usePaymentMethod';
 import { useCreateOrderTool } from '../features/checkout/hooks/orders/useCreateOrderTool';
 import { toast } from 'react-toastify';
+import { useCartContext } from '../hooks/useCartContext';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -48,14 +48,25 @@ const CheckoutPage = () => {
 
 
 
-    const totalAmount =
-        isBuyNow ?
-            (buyNowItem?.quantity * (buyNowItem?.product?.discountedPrice || buyNowItem?.product?.price))
-            : (cartItems?.reduce((total, item) =>
-                selectedItems.includes(item.id) ?
-                    total + (item.discountPrice || item.price) * item?.quantity :
-                    total
-                , 0));
+    let totalAmount = 0;
+
+    if (isBuyNow) {
+        const buyNowPrice = buyNowItem?.product?.discountedPrice || buyNowItem?.product?.price;
+        totalAmount = buyNowItem?.quantity * buyNowPrice;
+        console.log(buyNowItem);
+
+    } else {
+        // Lấy danh sách sản phẩm được chọn trong giỏ hàng
+        const selectedCartItems = cartItems?.filter(item => selectedItems.includes(item.id));
+        // console.log(selectedCartItems);
+
+        // Tính tổng giá trị từ danh sách sản phẩm được chọn
+        totalAmount = selectedCartItems?.reduce((total, item) => {
+            const itemPrice = item.discountPrice || item.price;
+            return total + itemPrice * item?.quantity;
+        }, 0);
+    }
+
 
     useEffect(() => {
         setTimeout(() => {

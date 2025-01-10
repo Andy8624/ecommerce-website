@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useCreateOrderCourse } from "../../seller/hooks/useCreateOrderCourse";
-import { useCreateAddressUser } from "../hooks/addresses/useCreateAddressUser";
+import { useCreateOrder } from "../hooks/orders/useCreateOrder";
+import { useAddressUser } from "../hooks/addresses/useAddressUser";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -19,13 +20,13 @@ const OnlinePayment = () => {
     const { course } = location.state || {};
     const totalAmount = course?.discountedPrice || course?.price;
 
-    const { addresses } = useCreateAddressUser(userId)
+    const { addresses } = useAddressUser(userId)
     const addressId = addresses?.[0].addressId;
 
-    const { createOrder } = useCreateOrderCourse();
+    const { createOrder } = useCreateOrder();
     const { createOrderCourse } = useCreateOrderCourse();
     const handlePaymentSubmit = async () => {
-        const courseOrder = {
+        const order = {
             status: "SUCCESS",
             shippingCost: 0,
             user: {
@@ -39,8 +40,8 @@ const OnlinePayment = () => {
             },
             type: "COURSE",
         }
-        const res = await createOrder(courseOrder)
-        const orderId = res.orderId;
+        const res = await createOrder(order)
+        const orderId = res?.orderId;
         const orderCourse = {
             order: {
                 orderId

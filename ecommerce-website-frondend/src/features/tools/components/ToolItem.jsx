@@ -5,12 +5,12 @@ import { useCheckExistCartTool } from "../../cart/hooks/useCheckExistCartTool";
 import { useUpdateCartItem } from "../../cart/hooks/useUpdateCartItem";
 import { useSelector } from "react-redux";
 import { useCart } from "../../cart/hooks/useCart";
-import { useCartContext } from "../../../components/CartProvider";
 import { TOOL_URL } from "../../../utils/Config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleAddToCart } from "../../cart/handleAddtoCart";
 import LoginModal from "../../../components/LoginModal";
+import { useCartContext } from "../../../hooks/useCartContext";
 
 const { Meta } = Card;
 

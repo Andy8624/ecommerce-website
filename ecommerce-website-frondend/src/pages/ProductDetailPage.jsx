@@ -6,12 +6,12 @@ import { useGetToolByToolId } from "../features/checkout/hooks/tools/useGetToolB
 import { handleAddToCart } from "../features/cart/handleAddtoCart";
 import { useSelector } from "react-redux";
 import { useCart } from "../features/cart/hooks/useCart";
-import { useCartContext } from "../components/CartProvider";
 import { useCreateCartTool } from "../features/cart/hooks/useCreateCartTool";
 import { useUpdateCartItem } from "../features/cart/hooks/useUpdateCartItem";
 import { useCheckExistCartTool } from "../features/cart/hooks/useCheckExistCartTool";
 import { truncateDescription } from "../utils/truncaseDesc";
 import { toast } from "react-toastify";
+import { useCartContext } from "../hooks/useCartContext";
 
 const { Title, Text, Paragraph } = Typography;
 

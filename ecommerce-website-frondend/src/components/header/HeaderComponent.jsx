@@ -6,13 +6,13 @@ import { store } from "../../redux/store"
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogoutUser } from '../../redux/slices/accountSlice';
 import { toast } from 'react-toastify';
-import { useCartContext } from '../CartProvider';
 import { useUpdateUserRoleByUserId } from '../../features/auth/hooks/useUpdateUserRoleByUserId';
 import { useEffect, useState } from 'react';
 import { useGetRegisterCourses } from '../../hooks/useGetRegisterCourses';
 import { useGetPlayListDetail } from '../../hooks/useGetPlayListDetail';
 import { searchToolByName } from '../../services/ToolService';
 import { TOOL_URL } from '../../utils/Config';
+import { useCartContext } from '../../hooks/useCartContext';
 
 const { Header } = Layout;
 const menuItems = [

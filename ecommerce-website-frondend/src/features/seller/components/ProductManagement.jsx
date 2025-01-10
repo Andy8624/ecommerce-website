@@ -50,7 +50,9 @@ const ProductManagement = () => {
             <Button onClick={openCreateModal} type="primary" className="mb-3">
                 Thêm sản phẩm
             </Button>
+
             <ProductTable tools={tools} onEdit={handleEdit} onDelete={handleDelete} isDeleting={isDeleting} />
+
             <ProductForm
                 userId={userId}
                 visible={isModalVisible}

@@ -16,10 +16,7 @@ const { Title } = Typography;
 const ProfileContent = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state?.account?.user);
-
     const { getUserById } = useGetUserById(user?.id);
-    // console.log(getUserById);
-
     const { updateProfile, isUpdating } = useUpdateProfile();
     const [avatarUrl, setAvatarURl] = useState(getUserById?.imageUrl || null); // Avatar URL state
     useEffect(() => {
@@ -28,7 +25,6 @@ const ProfileContent = () => {
 
     const [previewUrl, setPreviewUrl] = useState(null); // Preview URL state
     const [selectedFile, setSelectedFile] = useState(null); // File được chọn để upload sau
-
 
     // Kiểm tra file trước khi upload
     const beforeUpload = (file) => {
@@ -57,29 +53,28 @@ const ProfileContent = () => {
     const handleFinish = async (values) => {
         let uploadedImageUrl = avatarUrl;
 
+        const processedValues = Object.fromEntries(
+            Object.entries(values).map(([key, value]) => [key, value === "" ? null : value])
+        );
+        console.log(processedValues);
         try {
             // Nếu có ảnh được chọn, upload ảnh trước
             if (selectedFile) {
                 const uploadedFileName = await uploadFile(selectedFile, "avatars");
                 uploadedImageUrl = uploadedFileName; // URL ảnh được cập nhật từ server
             }
-
             // Gửi thông tin hồ sơ cùng URL ảnh
             const formattedValues = {
-                ...values,
-                birthdate: values?.birthdate
-                    ? dayjs(values?.birthdate).tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD")
+                ...processedValues,
+                birthdate: processedValues?.birthdate
+                    ? dayjs(processedValues?.birthdate).tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD")
                     : null,
                 imageUrl: uploadedImageUrl, // Cập nhật URL ảnh vào profile
             };
-
             await updateProfile({ data: formattedValues, userId: user?.id });
             message.success("Hồ sơ đã được cập nhật thành công!");
-
             // Gọi lại fetchAccount để cập nhật Redux
             dispatch(fetchAccount());
-
-
         } catch (error) {
             console.error("Lỗi khi cập nhật hồ sơ:", error);
             message.error("Có lỗi xảy ra, vui lòng thử lại!");

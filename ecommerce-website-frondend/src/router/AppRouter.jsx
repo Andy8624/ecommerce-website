@@ -27,6 +27,7 @@ import CoursePage from "../pages/CoursePage";
 import CourseDetail from "../features/courses/components/CourseDetail";
 import OnlinePayment from "../features/checkout/Components/OnlinePayment";
 import Profile from "../pages/Profile";
+import AddProductPage from "../pages/AddProductPage";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -110,7 +111,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "products",
-                element: <ProductManagement />
+                element: <ProductManagement />,
+            },
+            {
+                path: "products/new",
+                element: <AddProductPage />
             },
             {
                 path: "orders",
@@ -123,8 +128,7 @@ const router = createBrowserRouter([
             {
                 path: "statistics",
                 element: <Statistics />,
-            }
-
+            },
         ]
     },
     {
