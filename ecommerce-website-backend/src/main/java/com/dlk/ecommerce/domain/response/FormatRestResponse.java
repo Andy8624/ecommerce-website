@@ -58,6 +58,12 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
             res.setMessage(message != null ? message.value() : "API call successful");
         }
 
+
+        String path = request.getURI().getPath();
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
+            return body;
+        }
+
         return res;
     }
 }

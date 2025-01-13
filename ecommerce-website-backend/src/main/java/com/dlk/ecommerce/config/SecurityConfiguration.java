@@ -32,8 +32,10 @@ public class SecurityConfiguration {
             "/api/v1/carts/**",
             "/api/v1/cart-tools/**",
             "/resources/**",
-            "/api/v1/files/**"
-
+            "/api/v1/files/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
     };
 
     @Bean
