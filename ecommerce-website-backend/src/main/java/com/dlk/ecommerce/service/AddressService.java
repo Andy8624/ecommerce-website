@@ -25,6 +25,8 @@ public class AddressService {
     private final FilterParser filterParser;
     private final FilterSpecificationConverter filterSpecificationConverter;
     private final UserService userService;
+    private final AddressMapper addressMapper;
+
 
     public Address getAddressByIdAdmin(String id) throws IdInvalidException {
         return addressRepository.findByAddressId(id).orElseThrow(
@@ -42,7 +44,7 @@ public class AddressService {
         Address address = addressRepository.findByAddressIdNotDeleted(id).orElseThrow(
                 () -> new IdInvalidException("Address with id: '" + id + "' not found")
         );
-        return AddressMapper.mapToUpdateAddressDTO(address);
+        return addressMapper.mapToUpdateAddressDTO(address);
     }
 
     public ResPaginationDTO getAllAddress(Pageable pageable) {
@@ -50,7 +52,7 @@ public class AddressService {
         FilterSpecification<Address> spec = filterSpecificationConverter.convert(node);
 
         Page<Address> pageAddress = addressRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageAddress, pageable, AddressMapper::mapToAddressDTO);
+        return PaginationUtil.getPaginatedResult(pageAddress, pageable, addressMapper::mapToAddressDTO);
     }
 
     public Void restoreAddress(String id) throws IdInvalidException {
@@ -82,7 +84,7 @@ public class AddressService {
         }
 
         Address updatedAddress = addressRepository.save(dbAddress);
-        return AddressMapper.mapToUpdateAddressDTO(updatedAddress);
+        return addressMapper.mapToUpdateAddressDTO(updatedAddress);
     }
 
     public ResCreateAddressDTO createAddress(Address address) throws IdInvalidException {
@@ -92,7 +94,7 @@ public class AddressService {
         }
 
         Address newAddress = addressRepository.save(address);
-        return AddressMapper.mapToCreateAddressDTO(newAddress);
+        return addressMapper.mapToCreateAddressDTO(newAddress);
     }
 
     public ResPaginationDTO getAddressByUserId(Pageable pageable,String id) throws IdInvalidException {
@@ -102,6 +104,6 @@ public class AddressService {
         FilterSpecification<Address> spec = filterSpecificationConverter.convert(node);
 
         Page<Address> pageAddress = addressRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageAddress, pageable, AddressMapper::mapToAddressDTO);
+        return PaginationUtil.getPaginatedResult(pageAddress, pageable, addressMapper::mapToAddressDTO);
     }
 }

@@ -1,5 +1,6 @@
 package com.dlk.ecommerce.domain.response.user;
 
+import com.dlk.ecommerce.domain.entity.Role;
 import com.dlk.ecommerce.domain.response.rolePermission.ResRoleOwnerDTO;
 import com.dlk.ecommerce.util.constant.Gender;
 import lombok.*;
@@ -24,18 +25,7 @@ public class ResCreateUserDTO {
     LocalDate birthdate;
     Instant createdAt;
     String createdBy;
-    RoleInCreateUser role;
+    Role role;
     String phone;
     Gender gender;
-
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class RoleInCreateUser {
-        long id;
-        String name;
-        List<ResRoleOwnerDTO> permissions;
-    }
 }

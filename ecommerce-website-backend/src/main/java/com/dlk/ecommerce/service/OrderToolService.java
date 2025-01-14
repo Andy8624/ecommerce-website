@@ -31,7 +31,7 @@ public class OrderToolService {
     private final ToolService toolService;
     private final FilterParser filterParser;
     private final FilterSpecificationConverter filterSpecificationConverter;
-
+    private final OrderToolMapper orderToolMapper;
     public OrderTool getOrderToolById(String id) throws IdInvalidException {
         return orderToolRepository.findById(id).orElseThrow(
                 () -> new IdInvalidException("Order tool id: "+ id + " not found")
@@ -43,7 +43,7 @@ public class OrderToolService {
                 () -> new IdInvalidException("Order tool id: "+ id + " not found")
         );
 
-        return OrderToolMapper.mapToOrderToolDTO(dbOrderTool);
+        return orderToolMapper.mapToOrderToolDTO(dbOrderTool);
     }
 
     public ResCreateOrderToolDTO createOrderTool(ReqOrderToolDTO request) throws IdInvalidException {
@@ -74,7 +74,7 @@ public class OrderToolService {
 
         OrderTool newOrderTool = orderToolRepository.save(orderTool);
 
-        return OrderToolMapper.mapToCreateOrderToolDTO(newOrderTool);
+        return orderToolMapper.mapToCreateOrderToolDTO(newOrderTool);
     }
 
     public ResUpdateOrderToolDTO updateOrderTool(ReqOrderToolDTO request, String id) throws IdInvalidException {
@@ -99,7 +99,7 @@ public class OrderToolService {
                 existOrderTool.setQuantity(existOrderTool.getQuantity() + request.getQuantity());
 
                 OrderTool updatedOrderTool = orderToolRepository.save(existOrderTool);
-                return OrderToolMapper.mapToUpdateOrderToolDTO(updatedOrderTool);
+                return orderToolMapper.mapToUpdateOrderToolDTO(updatedOrderTool);
             } else {
                 // Nếu không có OrderTool tồn tại với Tool mới, cập nhật Tool cho dbOrderTool hiện tại
                 dbOrderTool.setTool(newTool);
@@ -110,13 +110,13 @@ public class OrderToolService {
 
         OrderTool updatedOrderTool = orderToolRepository.save(dbOrderTool);
 
-        return OrderToolMapper.mapToUpdateOrderToolDTO(updatedOrderTool);
+        return orderToolMapper.mapToUpdateOrderToolDTO(updatedOrderTool);
     }
 
     public ResPaginationDTO getAllOrderTools(Pageable pageable) {
 
         Page<OrderTool> pageOrderTool = orderToolRepository.findAll(pageable);
-        return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, OrderToolMapper::mapToOrderToolDTO);
+        return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, orderToolMapper::mapToOrderToolDTO);
     }
 
     public ResPaginationDTO getOrderToolsByOrderId(Pageable pageable, String orderId) throws IdInvalidException {
@@ -126,7 +126,7 @@ public class OrderToolService {
         FilterSpecification<OrderTool> spec = filterSpecificationConverter.convert(node);
 
         Page<OrderTool> pageOrderTool = orderToolRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, OrderToolMapper::mapToOrderToolDTO);
+        return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, orderToolMapper::mapToOrderToolDTO);
     }
 
     public ResPaginationDTO getOrderToolsByToolId(Pageable pageable, long toolId) throws IdInvalidException {
@@ -136,6 +136,6 @@ public class OrderToolService {
         FilterSpecification<OrderTool> spec = filterSpecificationConverter.convert(node);
 
         Page<OrderTool> pageOrderTool = orderToolRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, OrderToolMapper::mapToOrderToolDTO);
+        return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, orderToolMapper::mapToOrderToolDTO);
     }
 }

@@ -2,6 +2,7 @@ package com.dlk.ecommerce.controller;
 
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.request.auth.ReqLoginDTO;
+import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.auth.ResAuthDTO;
 import com.dlk.ecommerce.domain.response.auth.ResLoginDTO;
 import com.dlk.ecommerce.domain.response.user.ResCreateUserDTO;
@@ -41,7 +42,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ApiMessage("Register a new user")
-    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User user) throws IdInvalidException {
+    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody ReqCreateUser user) throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(user));
     }
 

@@ -4,21 +4,13 @@ import com.dlk.ecommerce.domain.entity.Cart;
 import com.dlk.ecommerce.domain.response.cart.ResCartDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface CartMapper {
-
-    CartMapper INSTANCE = Mappers.getMapper(CartMapper.class);
-
-    @Mapping(source = "user.userId", target = "user.userId")
-    @Mapping(source = "user.fullName", target = "user.fullName")
-    @Mapping(source = "user.email", target = "user.email")
+    @Mapping(source = "user", target = "user")
     ResCartDTO toCartDTO(Cart cart);
 
-    @Mapping(source = "user.userId", target = "user.userId")
-    @Mapping(source = "user.fullName", target = "user.fullName")
-    @Mapping(source = "user.email", target = "user.email")
+    @Mapping(source = "user", target = "user")
     Cart toCart(ResCartDTO resCartDTO);
 }
 

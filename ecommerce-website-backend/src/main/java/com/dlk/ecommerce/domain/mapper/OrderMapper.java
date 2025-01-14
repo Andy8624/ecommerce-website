@@ -7,113 +7,58 @@ import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.response.order.ResCreateOrderDTO;
 import com.dlk.ecommerce.domain.response.order.ResOrderDTO;
 import com.dlk.ecommerce.domain.response.order.ResUpdateOrderDTO;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
-@Component
-public class OrderMapper {
-    public static ResCreateOrderDTO mapToResCreateOrderDTO(Order order) {
-        // Map User
-        User user = order.getUser();
-        ResCreateOrderDTO.UserOrder userOrder = new ResCreateOrderDTO.UserOrder();
-        userOrder.setId(user.getUserId());
-        userOrder.setFullName(user.getFullName());
+@Mapper(componentModel = "spring")
+public interface OrderMapper {
 
-        // Map Address
-        Address address = order.getAddress();
-        ResCreateOrderDTO.AddressOrder addressOrder = new ResCreateOrderDTO.AddressOrder();
-        addressOrder.setId(address.getAddressId());
-        addressOrder.setAddress(address.getStreet() + ", " + address.getWard() + ", " +
-                address.getDistrict() + ", " + address.getCity());
+    @Mapping(target = "address", expression = "java(mapToGeneric(order.getAddress(), ResCreateOrderDTO.AddressOrder.class))")
+    @Mapping(target = "user", expression = "java(mapToGeneric(order.getUser(), ResCreateOrderDTO.UserOrder.class))")
+    @Mapping(target = "paymentMethod", expression = "java(mapToGeneric(order.getPaymentMethod(), ResCreateOrderDTO.PaymentMethodOrder.class))")
+    ResCreateOrderDTO mapToResCreateOrderDTO(Order order);
 
-        // Map Payment Method
-        PaymentMethod paymentMethod = order.getPaymentMethod();
-        ResCreateOrderDTO.PaymentMethodOrder paymentMethodOrder = new ResCreateOrderDTO.PaymentMethodOrder();
-        paymentMethodOrder.setId(paymentMethod.getPaymentMethodId());
-        paymentMethodOrder.setName(paymentMethod.getName());
+    @Mapping(target = "address", expression = "java(mapToGeneric(order.getAddress(), ResUpdateOrderDTO.AddressOrder.class))")
+    @Mapping(target = "user", expression = "java(mapToGeneric(order.getUser(), ResUpdateOrderDTO.UserOrder.class))")
+    @Mapping(target = "paymentMethod", expression = "java(mapToGeneric(order.getPaymentMethod(), ResUpdateOrderDTO.PaymentMethodOrder.class))")
+    ResUpdateOrderDTO mapToResUpdateOrderDTO(Order order);
 
+    @Mapping(target = "address", expression = "java(mapToGeneric(order.getAddress(), ResOrderDTO.AddressOrder.class))")
+    @Mapping(target = "user", expression = "java(mapToGeneric(order.getUser(), ResOrderDTO.UserOrder.class))")
+    @Mapping(target = "paymentMethod", expression = "java(mapToGeneric(order.getPaymentMethod(), ResOrderDTO.PaymentMethodOrder.class))")
+    ResOrderDTO mapToResOrderDTO(Order order);
 
+    // Generic function for mapping Address, User, and PaymentMethod
+    @Named("mapToGeneric")
+    default <T, E> T mapToGeneric(E entity, Class<T> targetClass) {
+        if (entity == null) {
+            return null;
+        }
 
-        return ResCreateOrderDTO.builder()
-                .orderId(order.getOrderId())
-                .shippingCost(order.getShippingCost())
-                .status(order.getStatus())
-                .user(userOrder)
-                .address(addressOrder)
-                .paymentMethod(paymentMethodOrder)
-                .createdAt(order.getCreatedAt())
-                .createdBy(order.getCreatedBy())
-                .type(order.getType())
-                .build();
-    }
+        try {
+            switch (entity) {
+                case Address address -> {
+                    String addressString = String.format("%s, %s, %s, %s",
+                            address.getStreet(), address.getWard(), address.getDistrict(), address.getCity());
+                    return targetClass.getConstructor(String.class, String.class)
+                            .newInstance(address.getAddressId(), addressString);
+                }
+                case User user -> {
+                    return targetClass.getConstructor(String.class, String.class)
+                            .newInstance(user.getUserId(), user.getFullName());
+                }
+                case PaymentMethod paymentMethod -> {
+                    return targetClass.getConstructor(Long.TYPE, String.class)
+                            .newInstance(paymentMethod.getPaymentMethodId(), paymentMethod.getName());
+                }
+                default -> {
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("Cannot map entity to " + targetClass.getName(), e);
+        }
 
-    public static ResUpdateOrderDTO mapToResUpdateOrderDTO(Order order) {
-        // Map User
-        User user = order.getUser();
-        ResUpdateOrderDTO.UserOrder userOrder = new ResUpdateOrderDTO.UserOrder();
-        userOrder.setId(user.getUserId());
-        userOrder.setFullName(user.getFullName());
-
-        // Map Address
-        Address address = order.getAddress();
-        ResUpdateOrderDTO.AddressOrder addressOrder = new ResUpdateOrderDTO.AddressOrder();
-        addressOrder.setId(address.getAddressId());
-        addressOrder.setAddress(address.getStreet() + ", " + address.getWard() + ", " +
-                address.getDistrict() + ", " + address.getCity());
-
-        // Map Payment Method
-        PaymentMethod paymentMethod = order.getPaymentMethod();
-        ResUpdateOrderDTO.PaymentMethodOrder paymentMethodOrder = new ResUpdateOrderDTO.PaymentMethodOrder();
-        paymentMethodOrder.setId(paymentMethod.getPaymentMethodId());
-        paymentMethodOrder.setName(paymentMethod.getName());
-
-
-
-        return ResUpdateOrderDTO.builder()
-                .orderId(order.getOrderId())
-                .shippingCost(order.getShippingCost())
-                .status(order.getStatus())
-                .user(userOrder)
-                .address(addressOrder)
-                .paymentMethod(paymentMethodOrder)
-                .updatedAt(order.getCreatedAt())
-                .updatedBy(order.getCreatedBy())
-                .build();
-    }
-
-    public static ResOrderDTO mapToResOrderDTO(Order order) {
-        // Map User
-        User user = order.getUser();
-        ResOrderDTO.UserOrder userOrder = new ResOrderDTO.UserOrder();
-        userOrder.setId(user.getUserId());
-        userOrder.setFullName(user.getFullName());
-
-        // Map Address
-        Address address = order.getAddress();
-        ResOrderDTO.AddressOrder addressOrder = new ResOrderDTO.AddressOrder();
-        addressOrder.setId(address.getAddressId());
-        addressOrder.setAddress(address.getStreet() + ", " + address.getWard() + ", " +
-                address.getDistrict() + ", " + address.getCity());
-
-        // Map Payment Method
-        PaymentMethod paymentMethod = order.getPaymentMethod();
-        ResOrderDTO.PaymentMethodOrder paymentMethodOrder = new ResOrderDTO.PaymentMethodOrder();
-        paymentMethodOrder.setId(paymentMethod.getPaymentMethodId());
-        paymentMethodOrder.setName(paymentMethod.getName());
-
-
-
-        return ResOrderDTO.builder()
-                .orderId(order.getOrderId())
-                .shippingCost(order.getShippingCost())
-                .status(order.getStatus())
-                .user(userOrder)
-                .address(addressOrder)
-                .paymentMethod(paymentMethodOrder)
-                .createdAt(order.getCreatedAt())
-                .createdBy(order.getCreatedBy())
-                .updatedAt(order.getCreatedAt())
-                .updatedBy(order.getCreatedBy())
-                .type(order.getType())
-                .build();
+        throw new IllegalArgumentException("Unsupported entity type: " + entity.getClass().getName());
     }
 }

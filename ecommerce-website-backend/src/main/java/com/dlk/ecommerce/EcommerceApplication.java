@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 //		org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
 //})
 @SpringBootApplication(scanBasePackages = "com.dlk.ecommerce")
-
 @EnableJpaRepositories("com.dlk.ecommerce.repository")
 @EntityScan("com.dlk.ecommerce.domain")
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")

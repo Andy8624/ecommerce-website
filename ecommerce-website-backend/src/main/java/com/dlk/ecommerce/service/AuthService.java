@@ -3,6 +3,7 @@ package com.dlk.ecommerce.service;
 import com.dlk.ecommerce.domain.entity.Permission;
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.request.auth.ReqLoginDTO;
+import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.auth.ResAuthDTO;
 import com.dlk.ecommerce.domain.response.auth.ResLoginDTO;
@@ -196,7 +197,7 @@ public class AuthService {
         return new ResAuthDTO(null, deleteSpringCookie);
     }
 
-    public ResCreateUserDTO register(User user) throws IdInvalidException {
+    public ResCreateUserDTO register(ReqCreateUser user) throws IdInvalidException {
         return userService.createUser(user);
     }
 

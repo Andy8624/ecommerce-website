@@ -30,6 +30,7 @@ public class ToolService {
     private final FilterSpecificationConverter filterSpecificationConverter;
     private final UserService userService;
     private final ToolTypeService toolTypeService;
+    private final ToolMapper toolMapper;
 
     public Tool getToolById(long toolId) throws IdInvalidException {
         return toolRepository.findByIdIfNotDeleted(toolId).orElseThrow(
@@ -41,8 +42,7 @@ public class ToolService {
         Tool tool = toolRepository.findByIdIfNotDeleted(toolId).orElseThrow(
                 () -> new IdInvalidException("Tool with id: " + toolId + " not found")
         );
-
-        return ToolMapper.mapToResToolDTO(tool);
+        return toolMapper.mapToResToolDTO(tool);
     }
 
 
@@ -70,7 +70,7 @@ public class ToolService {
                 .isActive(request.isActive())
                 .build();
         Tool newTool = toolRepository.save(tool);
-        return ToolMapper.mapToResCreateToolDTO(newTool);
+        return toolMapper.mapToResCreateToolDTO(newTool);
     }
 
     public ResUpdateToolDTO updateTool(ReqToolDTO request, long id) throws IdInvalidException {
@@ -92,7 +92,7 @@ public class ToolService {
                 .isActive(request.isActive())
                 .build();
         Tool updatedTool = toolRepository.save(tool);
-        return ToolMapper.mapToResUpdateToolDTO(updatedTool);
+        return toolMapper.mapToResUpdateToolDTO(updatedTool);
     }
 
     public Void deleteTool(Long toolId) throws IdInvalidException {
@@ -115,12 +115,12 @@ public class ToolService {
         FilterSpecification<Tool> spec = filterSpecificationConverter.convert(node);
 
         Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageTools, pageable, ToolMapper::mapToResToolDTO);
+        return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 
     public ResPaginationDTO getAllToolAdmin(Pageable pageable) {
         Page<Tool> pageTools = toolRepository.findAll(pageable);
-        return PaginationUtil.getPaginatedResult(pageTools, pageable, ToolMapper::mapToResToolDTO);
+        return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 
     public ResPaginationDTO getToolByUserId(Pageable pageable, String id) throws IdInvalidException {
@@ -129,7 +129,7 @@ public class ToolService {
         FilterSpecification<Tool> spec = filterSpecificationConverter.convert(node);
 
         Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageTools, pageable, ToolMapper::mapToResToolDTO);
+        return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 
     public ResPaginationDTO getToolByTypeId(Pageable pageable, long id) throws IdInvalidException {
@@ -138,11 +138,11 @@ public class ToolService {
         FilterSpecification<Tool> spec = filterSpecificationConverter.convert(node);
 
         Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageTools, pageable, ToolMapper::mapToResToolDTO);
+        return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 
     public ResPaginationDTO getToolByName(Specification<Tool> spec, Pageable pageable) {
         Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageTools, pageable, ToolMapper::mapToResToolDTO);
+        return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 }

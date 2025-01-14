@@ -30,6 +30,7 @@ public class RolePermissionService {
     private final PermissionService permissionService;
     private final FilterParser filterParser;
     private final FilterSpecificationConverter filterSpecificationConverter;
+    private final RolePermissionMapper rolePermissionMapper;
 
     public RolePermission fetchById(long id) throws IdInvalidException {
         return rolePermissionRepository.findByIdNotDeleted(id).orElseThrow(
@@ -39,7 +40,7 @@ public class RolePermissionService {
 
     public ResRolePermissionDTO fetchByIdDTO(long id) throws IdInvalidException {
         RolePermission rolePermission = fetchById(id);
-        return RolePermissionMapper.mapToResRolePermissionDTO(rolePermission);
+        return rolePermissionMapper.mapToResRolePermissionDTO(rolePermission);
     }
 
     public RolePermission createRolePermission(RolePermission rolePermission) throws IdInvalidException {
@@ -82,14 +83,14 @@ public class RolePermissionService {
         FilterSpecification<RolePermission> spec = filterSpecificationConverter.convert(node);
 
         Page<RolePermission> pageRolePermissions = rolePermissionRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageRolePermissions, pageable, RolePermissionMapper::mapToResRolePermissionDTO);
+        return PaginationUtil.getPaginatedResult(pageRolePermissions, pageable, rolePermissionMapper::mapToResRolePermissionDTO);
     }
 
     public ResPaginationDTO getPermissionsByRoleIdDTO(long roleId, Pageable pageable) {
         FilterNode node = filterParser.parse("deleted=false and role.id=" + roleId);
         FilterSpecification<RolePermission> spec = filterSpecificationConverter.convert(node);
         Page<RolePermission> pageRolePermissions = rolePermissionRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageRolePermissions, pageable, RolePermissionMapper::mapToResRoleOwnerDTO);
+        return PaginationUtil.getPaginatedResult(pageRolePermissions, pageable, rolePermissionMapper::mapToResRoleOwnerDTO);
     }
 
     public List<ResRoleOwnerDTO> getPermissionsByRoleId(long roleId) {
@@ -99,7 +100,7 @@ public class RolePermissionService {
         List<RolePermission> rolePermissions = rolePermissionRepository.findAll(spec);
 
         return rolePermissions.stream()
-                .map(RolePermissionMapper::mapToResRoleOwnerDTO)
+                .map(rolePermissionMapper::mapToResRoleOwnerDTO)
                 .collect(Collectors.toList());
     }
 

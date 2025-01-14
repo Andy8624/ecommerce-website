@@ -29,6 +29,7 @@ public class OrderService {
     private final UserService userService;
     private final PaymentMethodService paymentMethodService;
     private final AddressService addressService;
+    private final OrderMapper orderMapper;
 
     public Order getOrderById(String id) throws IdInvalidException {
         return orderRepository.findById(id).orElseThrow(
@@ -40,7 +41,7 @@ public class OrderService {
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new IdInvalidException("Order id: " + id + " not found")
         );
-        return OrderMapper.mapToResOrderDTO(order);
+        return orderMapper.mapToResOrderDTO(order);
     }
 
 
@@ -91,7 +92,7 @@ public class OrderService {
 
 
         Order newOrder =  orderRepository.save(order);
-        return OrderMapper.mapToResCreateOrderDTO(newOrder);
+        return orderMapper.mapToResCreateOrderDTO(newOrder);
     }
 
     public ResUpdateOrderDTO updateOrder(Order order, String id) throws IdInvalidException {
@@ -142,19 +143,19 @@ public class OrderService {
         dbOrder.setShippingCost(order.getShippingCost());
 
         Order updatedOrder =  orderRepository.save(dbOrder);
-        return OrderMapper.mapToResUpdateOrderDTO(updatedOrder);
+        return orderMapper.mapToResUpdateOrderDTO(updatedOrder);
     }
 
     public ResPaginationDTO getAllOrder(Pageable pageable) {
         Page<Order> pageOrder = orderRepository.findAll(pageable);
-        return PaginationUtil.getPaginatedResult(pageOrder, pageable, OrderMapper::mapToResOrderDTO);
+        return PaginationUtil.getPaginatedResult(pageOrder, pageable, orderMapper::mapToResOrderDTO);
     }
 
     public List<ResOrderDTO> getOrderByUserId(String userId) throws IdInvalidException {
         userService.fetchUserById(userId);
         List<Order> dbOrder = orderRepository.findByUserUserId(userId);
         return dbOrder.stream()
-                .map(OrderMapper::mapToResOrderDTO)
+                .map(orderMapper::mapToResOrderDTO)
                 .collect(Collectors.toList());
     }
 
@@ -162,7 +163,7 @@ public class OrderService {
         addressService.getAddressById(addressId);
         List<Order> dbOrder = orderRepository.findByAddressAddressId(addressId);
         return dbOrder.stream()
-                .map(OrderMapper::mapToResOrderDTO)
+                .map(orderMapper::mapToResOrderDTO)
                 .collect(Collectors.toList());
     }
 
@@ -170,14 +171,14 @@ public class OrderService {
         paymentMethodService.getPaymentMethodById(id);
         List<Order> dbOrder = orderRepository.findByPaymentMethodPaymentMethodId(id);
         return dbOrder.stream()
-                .map(OrderMapper::mapToResOrderDTO)
+                .map(orderMapper::mapToResOrderDTO)
                 .collect(Collectors.toList());
     }
 
     public List<ResOrderDTO> getOrderByStatus(OrderStatusEnum status) {
         List<Order> dbOrder = orderRepository.findByStatus(status);
         return dbOrder.stream()
-                .map(OrderMapper::mapToResOrderDTO)
+                .map(orderMapper::mapToResOrderDTO)
                 .collect(Collectors.toList());
     }
 }

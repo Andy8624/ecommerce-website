@@ -1,6 +1,7 @@
 package com.dlk.ecommerce.controller;
 
 import com.dlk.ecommerce.domain.entity.User;
+import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.user.ResCreateUserDTO;
 import com.dlk.ecommerce.domain.response.user.ResUpdateUserDTO;
@@ -29,7 +30,7 @@ public class UserController {
 
     @PostMapping
     @ApiMessage("Create a user")
-    public ResponseEntity<ResCreateUserDTO> create(@Valid @RequestBody User user) throws IdInvalidException {
+    public ResponseEntity<ResCreateUserDTO> create(@Valid @RequestBody ReqCreateUser user) throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
 

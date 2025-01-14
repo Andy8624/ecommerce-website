@@ -5,6 +5,7 @@ import com.dlk.ecommerce.domain.entity.Role;
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.mapper.CartMapper;
 import com.dlk.ecommerce.domain.mapper.UserMapper;
+import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.cart.ResCartDTO;
 import com.dlk.ecommerce.domain.response.user.ResCreateUserDTO;
@@ -50,7 +51,7 @@ public class UserService {
         User dbUser = userRepository.findByIdIfNotDeleted(id).orElseThrow(
                 () -> new IdInvalidException("User with id: '" + id + "' not found")
         );
-        return UserMapper.mapToUserDTO(dbUser);
+        return userMapper.mapToUserDTO(dbUser);
     }
 
     public User fetchUserByIdAdmin(String id) throws IdInvalidException {
@@ -69,31 +70,31 @@ public class UserService {
     }
 
     @Transactional
-    public ResCreateUserDTO createUser(User user) throws IdInvalidException {
-        Optional<User> dbUser = findUserByEmailAdmin(user.getEmail());
+    public ResCreateUserDTO createUser(ReqCreateUser request) throws IdInvalidException {
+        Optional<User> dbUser = findUserByEmailAdmin(request.getEmail());
         if (dbUser.isPresent()) {
-            throw new IdInvalidException("Email: '" + user.getEmail() + "' already exist");
+            throw new IdInvalidException("Email: '" + request.getEmail() + "' already exist");
         }
 
-        String  hashPassword = this.passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashPassword);
+        String  hashPassword = this.passwordEncoder.encode(request.getPassword());
+        request.setPassword(hashPassword);
 
-        if (user.getRole() == null || user.getRole().getRoleId() == 0) {
+        if (request.getRole() == null || request.getRole().getRoleId() == 0) {
             Role buyerRole = roleService.fetchById(3);
-            user.setRole(buyerRole);
+            request.setRole(buyerRole);
         } else {
-            Role userRole = roleService.fetchById(user.getRole().getRoleId());
-            user.setRole(userRole);
+            Role userRole = roleService.fetchById(request.getRole().getRoleId());
+            request.setRole(userRole);
         }
 
-        User newUser = userRepository.save(user);
+        User newUser = userRepository.save(userMapper.toUser(request));
 
         // tạo cart
         Cart newCart = new Cart();
         newCart.setUser(newUser);
         ResCartDTO cart = cartService.createCart(newCart);
         Cart cartUser = cartMapper.toCart(cart);
-        user.setCart(cartUser);
+        newUser.setCart(cartUser);
         return userMapper.mapToCreateUserDTO(newUser);
     }
 
@@ -117,7 +118,7 @@ public class UserService {
         }
         dbUser.setActive(user.isActive());
         User updatedUser = userRepository.save(dbUser);
-        return UserMapper.mapToUpdateUserDTO(updatedUser);
+        return userMapper.mapToUpdateUserDTO(updatedUser);
     }
 
     public Void deleteUser(String id) throws IdInvalidException {
@@ -141,12 +142,12 @@ public class UserService {
         FilterSpecification<User> spec = filterSpecificationConverter.convert(node);
 
         Page<User> pageUser = userRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageUser, pageable, UserMapper::mapToUserDTO);
+        return PaginationUtil.getPaginatedResult(pageUser, pageable, userMapper::mapToUserDTO);
     }
 
     public ResPaginationDTO getAllUserAdmin(Pageable pageable) {
         Page<User> pageUser = userRepository.findAll(pageable);
-        return PaginationUtil.getPaginatedResult(pageUser, pageable, UserMapper::mapToUserDTO);
+        return PaginationUtil.getPaginatedResult(pageUser, pageable, userMapper::mapToUserDTO);
     }
 
     public void updateUserToken(String refreshToken, String email) {

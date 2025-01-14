@@ -27,6 +27,7 @@ public class OrderCourseService {
     private final CourseService courseService;
     private final FilterParser filterParser;
     private final FilterSpecificationConverter filterSpecificationConverter;
+    private final OrderCourseMapper orderCourseMapper;
 
     public OrderCourse getOrderCourseById(String id) throws IdInvalidException {
         return orderCourseRepository.findById(id).orElseThrow(
@@ -99,6 +100,6 @@ public class OrderCourseService {
         FilterSpecification<OrderCourse> spec = filterSpecificationConverter.convert(node);
 
         Page<OrderCourse> pageOrderCourse = orderCourseRepository.findAll(spec, pageable);
-        return PaginationUtil.getPaginatedResult(pageOrderCourse, pageable, OrderCourseMapper::toDto);
+        return PaginationUtil.getPaginatedResult(pageOrderCourse, pageable, orderCourseMapper::toDto);
     }
 }

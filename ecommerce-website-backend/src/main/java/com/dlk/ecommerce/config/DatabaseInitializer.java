@@ -2,6 +2,7 @@ package com.dlk.ecommerce.config;
 
 import com.dlk.ecommerce.controller.CourseController;
 import com.dlk.ecommerce.domain.entity.*;
+import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.repository.*;
 import com.dlk.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -241,7 +242,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         if (countUsers == 0) {
             // tạo user với role SUPER_ADMIN
-            User adminUser = new User();
+            ReqCreateUser adminUser = new ReqCreateUser();
             adminUser.setEmail("admin@gmail.com");
             adminUser.setFullName("I'm super admin");
             adminUser.setPassword("123456");
@@ -254,7 +255,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             userService.createUser(adminUser);
 
             // tạo user với role SELLER1
-            User sellerUser1 = new User();
+            ReqCreateUser sellerUser1 = new ReqCreateUser();
             sellerUser1.setEmail("seller1@gmail.com");
             sellerUser1.setFullName("I'm seller 1");
             sellerUser1.setPassword("123456");
@@ -262,7 +263,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
 
             // tạo user với role SELLER2
-            User sellerUser2 = new User();
+            ReqCreateUser sellerUser2 = new ReqCreateUser();
             sellerUser2.setEmail("seller2@gmail.com");
             sellerUser2.setFullName("I'm seller 2");
             sellerUser2.setPassword("123456");
@@ -277,7 +278,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             userService.createUser(sellerUser2);
 
             // tạo user với role BUYER1
-            User buyerUser1 = new User();
+            ReqCreateUser buyerUser1 = new ReqCreateUser();
             buyerUser1.setEmail("buyer1@gmail.com");
             buyerUser1.setFullName("I'm buyer 1");
             buyerUser1.setPassword("123456");
@@ -290,7 +291,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             userService.createUser(buyerUser1);
 
             // tạo user với role BUYER2
-            User buyerUser2 = new User();
+            ReqCreateUser buyerUser2 = new ReqCreateUser();
             buyerUser2.setEmail("buyer2@gmail.com");
             buyerUser2.setFullName("I'm buyer 2");
             buyerUser2.setPassword("123456");
