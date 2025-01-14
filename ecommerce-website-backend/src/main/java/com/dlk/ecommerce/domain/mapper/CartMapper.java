@@ -5,12 +5,10 @@ import com.dlk.ecommerce.domain.response.cart.ResCartDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(componentModel = "spring")
 public interface CartMapper {
-    @Mapping(source = "user", target = "user")
     ResCartDTO toCartDTO(Cart cart);
 
-    @Mapping(source = "user", target = "user")
     Cart toCart(ResCartDTO resCartDTO);
 }
 

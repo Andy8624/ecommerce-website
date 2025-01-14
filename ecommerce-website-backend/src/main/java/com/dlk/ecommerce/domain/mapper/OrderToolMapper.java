@@ -8,18 +8,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring", uses= {OrderMapper.class, ToolMapper.class})
+@Mapper(componentModel = "spring")
 public interface OrderToolMapper {
-
-    @Mapping(source = "order", target = "order")
-    @Mapping(source = "tool", target = "tool")
     ResCreateOrderToolDTO mapToCreateOrderToolDTO(OrderTool orderTool);
 
-    @Mapping(source = "order", target = "order")
-    @Mapping(source = "tool", target = "tool")
     ResUpdateOrderToolDTO mapToUpdateOrderToolDTO(OrderTool orderTool) ;
 
-    @Mapping(source = "order", target = "order")
-    @Mapping(source = "tool", target = "tool")
     ResOrderToolDTO mapToOrderToolDTO(OrderTool orderTool);
 }

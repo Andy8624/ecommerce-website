@@ -7,12 +7,10 @@ import com.dlk.ecommerce.domain.response.address.ResUpdateAddressDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(componentModel = "spring")
 public interface AddressMapper {
-    @Mapping(source = "user", target = "user")
     ResCreateAddressDTO mapToCreateAddressDTO(Address address);
 
-    @Mapping(source = "user", target = "user")
     ResUpdateAddressDTO mapToUpdateAddressDTO(Address address);
 
     ResAddressDTO mapToAddressDTO(Address address);
