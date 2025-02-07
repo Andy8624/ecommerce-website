@@ -11,6 +11,9 @@ import com.dlk.ecommerce.domain.response.user.ResCreateUserDTO;
 import com.dlk.ecommerce.util.SecurityUtil;
 import com.dlk.ecommerce.util.error.IdInvalidException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +29,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserService userService;
     private final SecurityUtil securityUtil;

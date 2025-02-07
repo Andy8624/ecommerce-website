@@ -2,6 +2,7 @@ package com.dlk.ecommerce.domain.response.user;
 
 
 import com.dlk.ecommerce.util.constant.Gender;
+import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -27,6 +28,16 @@ public class ResUserDTO {
     String phone;
     LocalDate birthdate;
     Gender gender;
+
+    String shopId = null;
+    // Địa chỉ nhận hàng (địa chỉ cửa hàng)
+    String shopAddressId = null;
+    String businessType = null;
+    // Địa chỉ đăng ký kinh doanh
+    String businessAddress = null;
+    String billingEmail = null;
+    String taxNumber = null;
+    String shopName = null;
 
     @Data
     @NoArgsConstructor

@@ -1,4 +1,4 @@
-import { Layout, Menu, Avatar, Typography } from "antd";
+import { Layout, Menu, Avatar } from "antd";
 import {
     UserOutlined,
     LockOutlined,
@@ -10,9 +10,7 @@ import {
 import { useSelector } from "react-redux";
 import { AVT_URL } from "../../../utils/Config";
 import { useGetUserById } from "../hooks/useGetUserByUserId";
-
 const { Sider } = Layout;
-const { Title } = Typography;
 
 const menuItems = [
     {
@@ -43,7 +41,7 @@ const menuItems = [
     {
         key: "bank",
         icon: <BankOutlined style={{ fontSize: "20px" }} />,
-        label: "Phương thức thanh toán"
+        label: "Phương Thức Thanh Toán"
     },
 ];
 
@@ -52,17 +50,17 @@ const SidebarMenu = ({ selectedMenu, setSelectedMenu }) => {
     const { getUserById } = useGetUserById(user?.id);
 
     return (
-        <Sider width={250} style={{ background: "#fff", borderRight: "1px solid #ddd" }}>
+        <Sider width={270} style={{ background: "#fff", borderRight: "1px solid #ddd" }}>
             {/* Avatar và Tên người dùng */}
             <div style={{ textAlign: "center", padding: "20px", marginTop: "25px" }}>
                 <Avatar
-                    size={108}
+                    size={80}
                     icon={<UserOutlined />}
                     src={AVT_URL + getUserById?.imageUrl}
                 />
-                <Title level={4} style={{ marginTop: "10px", color: "#333" }}>
+                <div className="mt-2 font-bold">
                     {getUserById?.fullName}
-                </Title>
+                </div>
             </div>
 
             {/* Menu */}

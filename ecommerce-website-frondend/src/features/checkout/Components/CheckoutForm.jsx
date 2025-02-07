@@ -16,9 +16,7 @@ const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading,
         setPaymentMethod(value); // Cập nhật phương thức thanh toán đã chọn
     };
 
-    const showModal = () => {
-        setIsModalVisible(true);
-    };
+
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -36,6 +34,10 @@ const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading,
         createAddressUser(address);
         setIsModalVisible(false);
     }
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
 
     return (
         <>

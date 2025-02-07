@@ -20,7 +20,7 @@ const ImageSlider = () => {
     };
 
     return (
-        <div className="m-4 mb-4 mb-0 bg-gray-100 rounded-lg shadow-md overflow-hidden">
+        <div className="mx-6 mb-4 mb-0 bg-gray-100 rounded-lg shadow-md overflow-hidden">
             <Carousel {...settings}>
                 {images.map((image, index) => (
                     <div key={index} className="slide-item">

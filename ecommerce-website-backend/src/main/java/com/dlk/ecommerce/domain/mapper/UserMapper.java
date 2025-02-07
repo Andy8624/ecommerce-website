@@ -8,7 +8,7 @@ import com.dlk.ecommerce.domain.response.user.ResUserDTO;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface UserMapper {
+public interface UserMapper extends EntityMapper<ResUpdateUserDTO, User> {
     User toUser(ReqCreateUser reqCreateUser);
 
     ReqCreateUser toReqCreateUser(User user);

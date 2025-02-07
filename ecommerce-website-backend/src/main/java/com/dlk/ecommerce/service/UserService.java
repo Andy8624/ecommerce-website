@@ -1,10 +1,12 @@
 package com.dlk.ecommerce.service;
 
+import com.dlk.ecommerce.domain.entity.Address;
 import com.dlk.ecommerce.domain.entity.Cart;
 import com.dlk.ecommerce.domain.entity.Role;
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.mapper.CartMapper;
 import com.dlk.ecommerce.domain.mapper.UserMapper;
+import com.dlk.ecommerce.domain.request.user.ReqCreateShop;
 import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.cart.ResCartDTO;
@@ -13,6 +15,7 @@ import com.dlk.ecommerce.domain.response.user.ResUpdateUserDTO;
 import com.dlk.ecommerce.domain.response.user.ResUserDTO;
 import com.dlk.ecommerce.repository.UserRepository;
 import com.dlk.ecommerce.util.PaginationUtil;
+import com.dlk.ecommerce.util.SecurityUtil;
 import com.dlk.ecommerce.util.error.IdInvalidException;
 import com.turkraft.springfilter.converter.FilterSpecification;
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
@@ -26,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -100,7 +104,6 @@ public class UserService {
 
     public ResUpdateUserDTO updateUser(User user, String id) throws IdInvalidException {
         User dbUser = fetchUserById(id);
-        log.info("User: {}", user);
         if (user.getFullName() != null) {
             dbUser.setFullName(user.getFullName());
         }
@@ -164,11 +167,62 @@ public class UserService {
 
 
     public Void updateUserRole(User user) throws IdInvalidException {
-        System.out.println(user);
         User dbUser = fetchUserById(user.getUserId());
         Role userRole = roleService.fetchById(user.getRole().getRoleId());
         dbUser.setRole(userRole);
+        dbUser.setShopId(user.getShopId());
         userRepository.save(dbUser);
         return null;
+    }
+
+    public User updateUserTaxNumber(User user, String userId) throws IdInvalidException {
+        User dbUser = fetchUserById(userId);
+        dbUser.setTaxNumber(user.getTaxNumber());
+        userRepository.save(dbUser);
+        return null;
+    }
+
+    public Boolean checkPhoneExists(String phone, String userId) {
+        User dbUser = userRepository.findByUserId(userId).orElse(null);
+        // Nếu số điện thoại có tồn tại thì phải xem xét xem số điện thoại đó có thuộc về user hiện tại không
+        if (userRepository.existsByPhone(phone)) {
+            if (dbUser != null) {
+                return !dbUser.getPhone().equals(phone);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean checkShopNameExists(String shopname) {
+        return userRepository.existsByShopName(shopname);
+    }
+
+    public String getShopId() {
+        String userEmail =  SecurityUtil.getCurrentUserLogin().get();
+        User dbUser = findUserByEmail(userEmail);
+        return dbUser.getShopId();
+    }
+
+    public ResUpdateUserDTO partialUpdateUser(String id, ResUpdateUserDTO reqUpdateUser) throws IdInvalidException {
+        User dbUser = fetchUserById(id);
+        // Sử dụng MapStruct để cập nhật một phần
+        userMapper.partialUpdate(dbUser, reqUpdateUser);
+        return userMapper.mapToUpdateUserDTO(userRepository.save(dbUser));
+    }
+
+    public Map<String, Object> updateShippingMethod(
+            String userId, Map<String,
+            Object> shippingMethod
+    ) throws IdInvalidException {
+        User user = fetchUserById(userId);
+        user.setShippingMethodFromMap(shippingMethod);
+        userRepository.save(user);
+        return user.getShippingMethodAsMap();
+    }
+
+    public Map<String, Object> getShippingMethodService(String userId) throws IdInvalidException {
+        User user = fetchUserById(userId);
+        return user.getShippingMethodAsMap();
     }
 }

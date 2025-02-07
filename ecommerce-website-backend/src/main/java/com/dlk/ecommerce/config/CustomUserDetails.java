@@ -20,7 +20,7 @@ public class CustomUserDetails implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         com.dlk.ecommerce.domain.entity.User user = userService.findUserByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("Email or Password is not valid");
+            throw new UsernameNotFoundException("Email is not valid");
         }
         return new User(
                 user.getEmail(),

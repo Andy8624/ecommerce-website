@@ -8,7 +8,7 @@ import Auth from "../pages/Auth";
 import LoginForm from "../features/auth/components/LoginForm";
 import RegisterForm from "../features/auth/components/RegisterForm";
 import ForgotPasswordForm from "../features/auth/components/ForgotPasswordForm";
-import ProductDetailPage from "../pages/ProductDetailPage";
+import ProductOverviewPage from "../pages/ProductOverviewPage";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { fetchAccount } from "../redux/slices/accountSlice";
@@ -21,13 +21,17 @@ import ToolPage from "../pages/ToolPage";
 import SellerHome from "../pages/SellerHome"
 import ProductManagement from "../features/seller/components/ProductManagement";
 import OrderManagement from "../features/seller/components/OrderManagement";
-import CourseManagement from "../features/seller/components/CourseManagement";
+// import CourseManagement from "../features/seller/components/CourseManagement";
 import Statistics from "../features/seller/components/Statistics";
 import CoursePage from "../pages/CoursePage";
 import CourseDetail from "../features/courses/components/CourseDetail";
 import OnlinePayment from "../features/checkout/Components/OnlinePayment";
 import Profile from "../pages/Profile";
 import AddProductPage from "../pages/AddProductPage";
+import RegisterSellerPage from "../pages/RegisterSellerPage";
+import BecomeSellerPage from "../pages/BecomeSellerPage";
+import BecomeSellerLayout from "../layouts/BecomeSellerLayout";
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -65,7 +69,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "tool/:toolId",
-                element: <ProductDetailPage />,
+                element: <ProductOverviewPage />,
             },
             {
                 path: "course-detail",
@@ -121,10 +125,10 @@ const router = createBrowserRouter([
                 path: "orders",
                 element: <OrderManagement />
             },
-            {
-                path: "courses",
-                element: <CourseManagement />,
-            },
+            // {
+            //     path: "courses",
+            //     element: <CourseManagement />,
+            // },
             {
                 path: "statistics",
                 element: <Statistics />,
@@ -150,7 +154,23 @@ const router = createBrowserRouter([
                 element: <ForgotPasswordForm />,
             }
         ]
-    }
+    },
+    {
+        path: "/become-seller",
+        element: <BecomeSellerLayout />,
+        errorElement: <NotFound />,
+        children: [
+            {
+                index: true,
+                path: "accept",
+                element: <BecomeSellerPage />,
+            },
+            {
+                path: "register",
+                element: <RegisterSellerPage />,
+            }
+        ]
+    },
 
 ])
 

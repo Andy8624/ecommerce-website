@@ -4,10 +4,9 @@ import { callUpdateUserRoleByUserId } from "../../../services/UserService";
 export function useUpdateUserRoleByUserId() {
     const queryClient = useQueryClient();
     const { mutateAsync: updateUserRole, isPending: isUpdating } = useMutation({
-        mutationKey: ['updateUserRole'],
-        mutationFn: (data) => { console.log(data), callUpdateUserRoleByUserId(data) },
+        mutationFn: (data) => { callUpdateUserRoleByUserId(data) },
         onSuccess: () => {
-            queryClient.invalidateQueries('getUserByUserId');
+            queryClient.invalidateQueries(["users"]);
         }
     })
 

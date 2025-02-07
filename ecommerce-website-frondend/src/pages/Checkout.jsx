@@ -6,11 +6,11 @@ import CheckoutSummary from '../features/checkout/Components/CheckoutSummary';
 import CheckoutForm from '../features/checkout/Components/CheckoutForm';
 import { useCreateOrder } from '../features/checkout/hooks/orders/useCreateOrder';
 import { useSelector } from 'react-redux';
-import { useAddressUser } from '../features/checkout/hooks/addresses/useAddressUser';
 import { useGetAllPaymentMethod } from '../features/checkout/hooks/payment-methods/usePaymentMethod';
 import { useCreateOrderTool } from '../features/checkout/hooks/orders/useCreateOrderTool';
 import { toast } from 'react-toastify';
 import { useCartContext } from '../hooks/useCartContext';
+import { useAddressUser } from '../hooks/useAddressUser';
 
 const { Title } = Typography;
 const { Content } = Layout;

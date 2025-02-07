@@ -1,13 +1,13 @@
 import { Layout, Menu } from "antd";
-import { Link, useLocation } from "react-router-dom";
 import {
     HomeOutlined,
     ShopOutlined,
     OrderedListOutlined,
     BarChartOutlined,
-    BookOutlined,
-    RollbackOutlined
+    RollbackOutlined,
 } from "@ant-design/icons";
+import { Link, useLocation } from "react-router-dom";
+import { TbLayoutSidebarLeftExpandFilled, TbLayoutSidebarRightExpand } from "react-icons/tb";
 
 const { Sider } = Layout;
 
@@ -17,33 +17,28 @@ const SellerNavbar = ({ collapsed, setCollapsed }) => {
     const menuItems = [
         {
             key: "/seller",
-            icon: <HomeOutlined />,
+            icon: <HomeOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller">Trang chủ</Link>,
         },
         {
             key: "/seller/products",
-            icon: <ShopOutlined />,
+            icon: <ShopOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller/products">Sản phẩm</Link>,
         },
         {
-            key: "/seller/courses",
-            icon: <BookOutlined />,
-            label: <Link to="/seller/courses">Khóa học</Link>,
-        },
-        {
             key: "/seller/orders",
-            icon: <OrderedListOutlined />,
+            icon: <OrderedListOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller/orders">Đơn hàng</Link>,
         },
         {
             key: "/seller/statistics",
-            icon: <BarChartOutlined />,
+            icon: <BarChartOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller/statistics">Thống kê</Link>,
         },
         {
             key: "/",
-            icon: <RollbackOutlined />,
-            label: <Link to="/">Go back</Link>,
+            icon: <RollbackOutlined style={{ fontSize: "20px" }} />,
+            label: <Link to="/">Trở về</Link>,
         },
     ];
 
@@ -54,34 +49,39 @@ const SellerNavbar = ({ collapsed, setCollapsed }) => {
             onCollapse={setCollapsed}
             width={200}
             style={{
+                background: "#fff",
+                borderRight: "1px solid #ddd",
                 minHeight: "100vh",
                 position: "fixed",
                 left: 0,
                 top: 0,
                 zIndex: 1000,
-                backgroundColor: "#164863",
             }}
-        >
-            <div
-                className="logo mb-10"
-                style={{
-                    color: "white",
-                    padding: "16px",
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    fontSize: collapsed ? "16px" : "20px",
-                }}
-            >
-                {collapsed ? "SP" : "Seller Page"}
-            </div>
+            trigger={
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "50px",
+                        backgroundColor: "#fff",
+                        color: "white",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                    }}
+                >
+                    <span style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#000" }}>
+                        {collapsed ? <TbLayoutSidebarLeftExpandFilled /> : <TbLayoutSidebarRightExpand />}
+                    </span>
+                </div>
+            }
 
+        >
+            {/* Menu */}
             <Menu
-                theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                style={{
-                    backgroundColor: "#164863",
-                }}
+                className="profile-menu"
                 items={menuItems}
             />
         </Sider>

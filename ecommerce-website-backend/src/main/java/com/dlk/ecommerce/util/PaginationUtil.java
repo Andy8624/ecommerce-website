@@ -13,7 +13,6 @@ public class PaginationUtil {
         // Gọi phương thức getPaginatedResult với converter là null
         return getPaginatedResult(pageEntity, pageable, null);
     }
-
     public static <T, DTO> ResPaginationDTO getPaginatedResult(
             Page<T> pageEntity,
             Pageable pageable,
@@ -39,7 +38,5 @@ public class PaginationUtil {
 
         return res;
     }
-
-
 }
 

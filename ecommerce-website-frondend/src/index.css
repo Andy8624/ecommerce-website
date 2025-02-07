@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+*, body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 /* Custom focus menu-item trên header antd */
 .ant-menu-item-selected {
     background-color: #ffffff33 !important; 
@@ -47,9 +53,7 @@
     right: 0;
     z-index: 1000;
 }
-.layout-content {
-    padding-top: 70px;
-}
+
 /* ****************************************************** */
 
 :where(.css-dev-only-do-not-override-ni1kz0).ant-card .ant-card-body {

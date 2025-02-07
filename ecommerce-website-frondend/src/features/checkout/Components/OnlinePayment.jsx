@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useCreateOrderCourse } from "../../seller/hooks/useCreateOrderCourse";
 import { useCreateOrder } from "../hooks/orders/useCreateOrder";
-import { useAddressUser } from "../hooks/addresses/useAddressUser";
+import { useAddressUser } from "../../../hooks/useAddressUser";
 
 const { Title, Text } = Typography;
 const { Option } = Select;

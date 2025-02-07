@@ -82,7 +82,7 @@ const ProfileContent = () => {
     };
 
     return (
-        <div style={{ padding: "20px", background: "#fff", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+        <>
             {/* Header */}
             <Title level={4} style={{ marginBottom: "20px", fontWeight: "bold" }}>
                 Hồ Sơ Của Tôi
@@ -117,7 +117,7 @@ const ProfileContent = () => {
                     </p>
                 </Col>
             </Row>
-        </div>
+        </>
     );
 };
 

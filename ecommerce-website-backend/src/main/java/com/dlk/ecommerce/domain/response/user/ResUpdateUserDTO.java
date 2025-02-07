@@ -22,4 +22,15 @@ public class ResUpdateUserDTO {
     Gender gender;
     Instant updatedAt;
     String updatedBy;
+
+    String shopId;
+    // Địa chỉ nhận hàng (địa chỉ cửa hàng)
+    String shopAddressId;
+    String businessType;
+    // Địa chỉ đăng ký kinh doanh
+    String businessAddress;
+    String billingEmail;
+    String taxNumber;
+    String shopName;
+
 }

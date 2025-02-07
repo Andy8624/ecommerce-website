@@ -2,15 +2,17 @@ import CardContainer from "../components/CardContainer";
 import ImageSlider from "../components/ImageSlider";
 import SectionTitle from "../components/SectionTitle";
 import WellcomeHeader from "../components/WellcomeHeader";
-import CourseList from "../features/courses/components/CourseList";
+// import CourseList from "../features/courses/components/CourseList";
 import ToolList from "../features/tools/components/ToolList";
-import ExampleComponent from "./ExampleComponent";
+// import ExampleComponent from "./ExampleComponent";
 
 const Home = () => {
     return (
         <>
-            <WellcomeHeader />
-            <ExampleComponent />
+            <CardContainer>
+                <WellcomeHeader />
+            </CardContainer>
+            {/* <ExampleComponent /> */}
 
             <ImageSlider />
 
@@ -20,9 +22,13 @@ const Home = () => {
             </CardContainer>
 
             <CardContainer>
+                <SectionTitle>Sản phẩm liên quan</SectionTitle>
+                <ToolList pageSize={5} />
+            </CardContainer>
+            {/* <CardContainer>
                 <SectionTitle>Khóa học bán chạy</SectionTitle>
                 <CourseList pageSize={5} />
-            </CardContainer>
+            </CardContainer> */}
         </>
     );
 };

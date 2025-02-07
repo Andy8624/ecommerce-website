@@ -41,12 +41,12 @@ const ProfileContentForm = ({ onFinish, user, isUpdating }) => {
                             { type: "email", message: "Email không hợp lệ!" },
                         ]}
                     >
-                        <Input disabled="true" prefix={<MailOutlined />} placeholder="example@gmail.com" />
+                        <Input disabled={true} prefix={<MailOutlined />} placeholder="example@gmail.com" />
                     </Form.Item>
                 </Col>
                 <Col span={12}>
                     <Form.Item
-                        label="Tên"
+                        label="Tên đầy đủ"
                         name="fullName"
                         rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
                     >
