@@ -1,6 +1,7 @@
 package com.dlk.ecommerce.controller;
 
 import com.dlk.ecommerce.domain.entity.User;
+import com.dlk.ecommerce.domain.request.auth.LogoutRequest;
 import com.dlk.ecommerce.domain.request.auth.ReqLoginDTO;
 import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.auth.ResAuthDTO;
@@ -33,8 +34,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ApiMessage("Logout")
-    public ResponseEntity<ResLoginDTO> logout() throws IdInvalidException {
-        ResAuthDTO resAuthDTO = authService.logout();
+    public ResponseEntity<ResLoginDTO> logout(@RequestBody LogoutRequest request) throws IdInvalidException {
+        ResAuthDTO resAuthDTO = authService.logout(request.getOld_access_token());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resAuthDTO.getResponseCookie().toString())
                 .body(resAuthDTO.getResLoginDTO());

@@ -12,8 +12,6 @@ import com.dlk.ecommerce.util.SecurityUtil;
 import com.dlk.ecommerce.util.error.IdInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,14 +29,18 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserService userService;
     private final SecurityUtil securityUtil;
     private final RolePermissionService rolePermissionService;
+    private final AuthRedisService authRedisService;
+    private final BaseRedisService redisService; // dòng này thêm tạm
 
     @Value("${dlk.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
+
+    @Value("${dlk.jwt.access-token-validity-in-seconds}")
+    private long accessTokenExpiration;
 
     public ResAuthDTO login(ReqLoginDTO loginDTO) {
         // Nạp email và password vào Security
@@ -186,11 +188,17 @@ public class AuthService {
         return new ResAuthDTO(res, responseCookie);
     }
 
-    public ResAuthDTO logout() throws IdInvalidException {
+    public ResAuthDTO logout(String old_access_token) throws IdInvalidException {
         String email = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new IdInvalidException("Access token not valid"));
-
+//        log.info("Logout success: " + email);
+        log.info("Old access token: " + old_access_token);
         userService.updateUserToken(null, email);
+
+        // Đưa access token vào blacklist trong Redis
+        authRedisService.addToBlacklist(old_access_token, accessTokenExpiration);
+        log.info("Blacklist access token redis: " + redisService.get("auth:token:" + old_access_token));
+        log.info("TTL redis: " + redisService.getTimeToLive("auth:token:" + old_access_token));
 
         ResponseCookie deleteSpringCookie = ResponseCookie
                 .from("refresh_token", null)

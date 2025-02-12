@@ -1,5 +1,7 @@
 package com.dlk.ecommerce.config;
 
+import com.dlk.ecommerce.service.AuthRedisService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.SecretKey;
@@ -26,7 +29,10 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
-            "/api/v1/auth/**",
+            "/api/v1/auth/register",
+            "/api/v1/auth/login",
+            "/api/v1/auth/account",
+            "/api/v1/auth/refresh",
             "/api/v1/tools/**",
             "/api/v1/courses/**",
             "/api/v1/carts/**",
@@ -41,7 +47,9 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity http,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+            AuthRedisService authRedisService,
+            ObjectMapper objectMapper
             ) throws Exception {
         http
                 .csrf(c -> c.disable())
@@ -57,6 +65,10 @@ public class SecurityConfiguration {
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(
+                        new JwtBlacklistFilter(authRedisService, objectMapper),
+                        BearerTokenAuthenticationFilter.class
                 );
 
         return http.build();
