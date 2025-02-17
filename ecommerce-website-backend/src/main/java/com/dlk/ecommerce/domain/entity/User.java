@@ -2,6 +2,7 @@ package com.dlk.ecommerce.domain.entity;
 
 import com.dlk.ecommerce.util.constant.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
@@ -72,6 +73,12 @@ public class User extends BaseEntity {
 
     @Column(columnDefinition = "json")
     String shippingMethod;
+    @PrePersist
+    public void prePersist() {
+        if (shippingMethod == null || shippingMethod.isEmpty()) {
+            shippingMethod = "{}"; // Gán giá trị mặc định nếu null hoặc rỗng
+        }
+    }
 
     // Chuyển từ JSON String thành Object (Map)
     public Map<String, Object> getShippingMethodAsMap() {
@@ -98,7 +105,7 @@ public class User extends BaseEntity {
     Gender gender;
 
     @Column(columnDefinition = "MEDIUMTEXT")
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String refreshToken;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

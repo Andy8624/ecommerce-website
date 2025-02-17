@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +34,7 @@ public class UserController {
     private final UserService userService;
     private final GhnService ghnService;
     private final UserRepository userRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @GetMapping("/{id}")
     @ApiMessage("Get User by id")
@@ -52,10 +54,10 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(user, id));
     }
 
-    @PostMapping("/user-role")
+    @PostMapping("/user-role/{userId}")
     @ApiMessage("Update user role")
-    public ResponseEntity<Void> updateUserRole(@RequestBody User user) throws IdInvalidException {
-        return ResponseEntity.ok(userService.updateUserRole(user));
+    public ResponseEntity<Void> updateUserRole(@PathVariable String userId, @RequestBody User user) throws IdInvalidException {
+        return ResponseEntity.ok(userService.updateUserRole(userId, user));
     }
 
     @DeleteMapping("/{id}")
@@ -85,9 +87,11 @@ public class UserController {
         return ResponseEntity.ok(ghnService.createShopInfo(user));
     }
 
-    @PutMapping("/tax-number/{userId}")
-    @ApiMessage("Update user tax number")
-    public ResponseEntity<User> updateUserTaxNumber(@PathVariable("userId") String userId, @RequestBody User user) throws IdInvalidException {
+    @PutMapping("/tax-identity/{userId}")
+    @ApiMessage("Update user tax-identity number")
+    public ResponseEntity<User> updateUserTaxIdentityInfo(
+            @PathVariable("userId") String userId,
+            @RequestBody User user) throws IdInvalidException {
         return ResponseEntity.ok(userService.updateUserTaxNumber(user, userId));
     }
 

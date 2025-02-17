@@ -2,70 +2,118 @@ package com.dlk.ecommerce.service.Impl;
 
 import com.dlk.ecommerce.service.AuthRedisService;
 import com.dlk.ecommerce.service.BaseRedisService;
-import com.dlk.ecommerce.service.UserService;
+import com.dlk.ecommerce.util.SecurityUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class AuthRedisServiceImpl implements AuthRedisService {
-    BaseRedisService<String, String, Object> redisService;
-    UserService userService;
+    BaseRedisService redisService;
+    SecurityUtil securityUtil;
 
-    private static final String BLACKLIST_PREFIX = "auth:token:";
+    private static final String ACCESS_TOKEN_BLACKLIST = "auth:token_blacklist:";
     private static final String LOGIN_SESSION_PREFIX = "auth:session:";
     private static final String LOGIN_HISTORY_PREFIX = "auth:login_history:";
-    private static final int MAX_DEVICES_BUYER = 3;
-    private static final int MAX_DEVICES_SELLER = 1;
-
-    public boolean isSeller(String userId) {
-        return userService.getUserRole(userId).equals("SELLER");
-    }
+    private static final int MAX_DEVICES = 3;
 
     @Override
     public void addToBlacklist(String token, long timeoutInSeconds) {
-        redisService.set(BLACKLIST_PREFIX + token, "blacklisted");
-        redisService.setTimeToLive(BLACKLIST_PREFIX + token, timeoutInSeconds);
+        redisService.set(ACCESS_TOKEN_BLACKLIST + token, "blacklisted");
+        redisService.setTimeToLive(ACCESS_TOKEN_BLACKLIST + token, timeoutInSeconds);
+//        log.info("🔴 Added token to blacklist: {}", redisService.get(ACCESS_TOKEN_BLACKLIST + token));
     }
 
     @Override
     public boolean isBlacklisted(String token) {
-        return redisService.hasKey(BLACKLIST_PREFIX + token);
+//        log.info("🔴 Check token in blacklist: {}", ACCESS_TOKEN_BLACKLIST + token);
+        String JTI = securityUtil.getJtiFromToken(token);
+        return redisService.hasKey(ACCESS_TOKEN_BLACKLIST + JTI);
+    }
+
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+
+    public void removeOldestSession(String userId) {
+        String key = LOGIN_SESSION_PREFIX + userId;
+        Map<String, Object> sessions = redisService.getFields(key);
+
+        if (sessions == null || sessions.size() <= MAX_DEVICES) {
+            return;
+        }
+
+        String oldestSessionId = null;
+        long oldestTimestamp = Long.MAX_VALUE;
+
+        for (Map.Entry<String, Object> entry : sessions.entrySet()) {
+            try {
+                JsonNode sessionNode = objectMapper.readTree(entry.getValue().toString());
+                long timestamp = sessionNode.path("timestamp").asLong(Long.MAX_VALUE);
+
+                if (timestamp < oldestTimestamp) {
+                    oldestTimestamp = timestamp;
+                    oldestSessionId = entry.getKey();
+                }
+            } catch (JsonProcessingException e) {
+                log.error("Error parsing session JSON for sessionId {}: {}", entry.getKey(), e.getMessage());
+            }
+        }
+
+        if (oldestSessionId != null) {
+            deleteSession(userId, oldestSessionId);
+        }
     }
 
     @Override
     public void saveLoginSession(String userId, String sessionId, String ip, String userAgent) {
         String key = LOGIN_SESSION_PREFIX + userId;
-        // Lấy ds session hiện có
-        Map<String, Object> sessions = redisService.getFields(key);
+        saveLoginHistory(userId, ip, userAgent);
 
-        // Kiểm tra số lượng thiết bị đăng nhập
-        int maxDevices = isSeller(userId) ? MAX_DEVICES_SELLER : MAX_DEVICES_BUYER;
-
-        // Nếu số lượng session vượt quá giới hạn, xóa session cũ nhất
-        if (sessions.size() >= maxDevices) {
-            String oldestSessionId = sessions.keySet().iterator().next(); // Lấy session đầu tiên
-            redisService.deleteField(key, oldestSessionId);
-        }
-
-        // Lưu session mới
+        // Tạo dữ liệu session mới
         Map<String, Object> sessionData = Map.of(
-                "sessionId", sessionId,
                 "ip", ip,
                 "userAgent", userAgent,
                 "timestamp", System.currentTimeMillis()
         );
-        redisService.hashSet(key, sessionId, sessionData);
 
-        // Đặt TTL cho toàn bộ key (1 ngày)
-        redisService.setTimeToLive(key, 24 * 60 * 60L);
+        try {
+            // Convert Map thành JSON trước khi lưu vào Redis
+            String sessionJson = objectMapper.writeValueAsString(sessionData);
+            redisService.hashSet(key, sessionId, sessionJson);
+            log.info("All sessions before: {}", redisService.getFields(key));
+
+            // Xóa session cũ nhất nếu đã đạt giới hạn
+            removeOldestSession(userId);
+
+            log.info("🟢 All session after: {}", redisService.getFields(key));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting session data to JSON", e);
+        }
     }
+
+    @Override
+    public boolean isValidSession(String userId, String JID) {
+        String key = LOGIN_SESSION_PREFIX + userId;
+        return redisService.hashExists(key, JID);
+    }
+
+    @Override
+    public void deleteSession(String userId, String sessionId) {
+        String key = LOGIN_SESSION_PREFIX + userId;
+        redisService.deleteField(key, sessionId);
+    }
+
 
     @Override
     public int getActiveSessionCount(String userId) {
@@ -92,5 +140,4 @@ public class AuthRedisServiceImpl implements AuthRedisService {
         String key = LOGIN_HISTORY_PREFIX + userId;
         return redisService.getListRange(key, 0, limit - 1);
     }
-
 }

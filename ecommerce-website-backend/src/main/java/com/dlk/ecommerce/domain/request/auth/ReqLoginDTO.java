@@ -19,4 +19,8 @@ public class ReqLoginDTO {
 
     @NotBlank(message = "Password could not be blank")
     String password;
+
+    String ip;
+    String userAgent;
+    String deviceId;
 }

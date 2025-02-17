@@ -6,59 +6,54 @@ import java.util.Set;
 
 /**
  * Base interface for Redis operations, supporting Value, Hash, Set, and Sorted Set (ZSet) operations.
- *
- * @param <K> Type of Redis key
- * @param <F> Type of Hash field
- * @param <V> Type of value stored in Redis
  */
-public interface BaseRedisService<K, F, V> {
+public interface BaseRedisService {
 
     /** ========================== Value Operations ========================== */
 
-    void set(K key, V value);
-    Object get(K key);
-    boolean hasKey(K key);
-    void setTimeToLive(K key, Long timeoutInSeconds);
-    Long getTimeToLive(K key);
-    void delete(K key);
+    void set(String key, Object value);
+    Object get(String key);
+    boolean hasKey(String key);
+    void setTimeToLive(String key, Long timeoutInSeconds);
+    Long getTimeToLive(String key);
+    void delete(String key);
 
     /** ========================== Hash Operations ========================== */
 
-    void hashSet(K key, F field, V value);
-    boolean hashExists(K key, F field);
-    Object hashGet(K key, F field);
-    Map<String, V> getFields(K key);
-    List<Object> hashGetByFieldPrefix(K key, String fieldPrefix);
-    Set<String> getFieldPrefixes(K key);
-    void deleteField(K key, F field);
-    void delete(K key, List<F> fields);
+    void hashSet(String key, String field, Object value);
+    boolean hashExists(String key, String field);
+    Object hashGet(String key, String field);
+    Map<String, Object> getFields(String key);
+    List<Object> hashGetByFieldPrefix(String key, String fieldPrefix);
+    Set<String> getFieldPrefixes(String key);
+    void deleteField(String key, String field);
+    void delete(String key, List<String> fields);
 
     /** ========================== Set Operations ========================== */
 
-    void addToSet(K key, V value);
-    void removeFromSet(K key, V value);
-    Set<V> getSetMembers(K key);
-    boolean isMemberSet(K key, V value);
+    void addToSet(String key, Object value);
+    void removeFromSet(String key, Object value);
+    Set<Object> getSetMembers(String key);
+    boolean isMemberSet(String key, Object value);
 
     /** ========================== Sorted Set (ZSet) Operations ========================== */
 
-    void addToSortedSet(K key, V value, double score);
-    void removeFromSortedSet(K key, V value);
-    Set<V> getSortedSetRange(K key, long start, long end);
-    Double getSortedSetScore(K key, V value);
-    void incrementSortedSetScore(K key, V value, double delta);
+    void addToSortedSet(String key, Object value, double score);
+    void removeFromSortedSet(String key, Object value);
+    Set<Object> getSortedSetRange(String key, long start, long end);
+    Double getSortedSetScore(String key, Object value);
+    void incrementSortedSetScore(String key, Object value, double delta);
 
     /** ========================== List Operations ========================== */
 
-    void addToList(K key, V value);
-    void addToListTail(K key, V value);
-    List<V> getListRange(K key, long start, long end);
-    void trimList(K key, long start, long end);
-    void removeFromList(K key, V value, int count);
-    int getListSize(K key);
-    V getListElementAt(K key, long index);
-    void updateListElementAt(K key, long index, V value);
-    V popFromListHead(K key);
-    V popFromListTail(K key);
-
+    void addToList(String key, Object value);
+    void addToListTail(String key, Object value);
+    List<Object> getListRange(String key, long start, long end);
+    void trimList(String key, long start, long end);
+    void removeFromList(String key, Object value, int count);
+    int getListSize(String key);
+    Object getListElementAt(String key, long index);
+    void updateListElementAt(String key, long index, Object value);
+    Object popFromListHead(String key);
+    Object popFromListTail(String key);
 }

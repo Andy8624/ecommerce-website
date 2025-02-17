@@ -9,6 +9,10 @@ public interface AuthRedisService {
 
     void saveLoginSession(String userId, String sessionId, String ip, String userAgent);
 
+    boolean isValidSession(String userId, String JID);
+
+    void deleteSession(String userId, String sessionId);
+
     int getActiveSessionCount(String userId);
 
     void saveLoginHistory(String userId, String ip, String userAgent);

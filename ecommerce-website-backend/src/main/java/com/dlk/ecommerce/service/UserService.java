@@ -157,6 +157,7 @@ public class UserService {
         User dbUser = findUserByEmail(email);
         if (dbUser != null) {
             dbUser.setRefreshToken(refreshToken);
+            log.info("Update refresh token for user: " + dbUser.getEmail());
             userRepository.save(dbUser);
         }
     }
@@ -166,20 +167,30 @@ public class UserService {
     }
 
 
-    public Void updateUserRole(User user) throws IdInvalidException {
-        User dbUser = fetchUserById(user.getUserId());
+    public Void updateUserRole(String userId, User user) throws IdInvalidException {
+        User dbUser = fetchUserById(userId);
         Role userRole = roleService.fetchById(user.getRole().getRoleId());
         dbUser.setRole(userRole);
-        dbUser.setShopId(user.getShopId());
         userRepository.save(dbUser);
+        return null;
+    }
+
+    public String getUserRole(String userId) {
+        User dbUser = userRepository.findByUserId(userId).orElse(null);
+        if (dbUser != null) {
+            return dbUser.getRole().getName();
+        }
         return null;
     }
 
     public User updateUserTaxNumber(User user, String userId) throws IdInvalidException {
         User dbUser = fetchUserById(userId);
         dbUser.setTaxNumber(user.getTaxNumber());
+        dbUser.setBusinessAddress(user.getBusinessAddress());
+        dbUser.setBillingEmail(user.getBillingEmail());
+        dbUser.setBusinessType(user.getBusinessType());
         userRepository.save(dbUser);
-        return null;
+        return dbUser;
     }
 
     public Boolean checkPhoneExists(String phone, String userId) {

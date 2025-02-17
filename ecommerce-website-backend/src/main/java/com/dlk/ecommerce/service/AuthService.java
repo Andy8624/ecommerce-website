@@ -34,7 +34,6 @@ public class AuthService {
     private final SecurityUtil securityUtil;
     private final RolePermissionService rolePermissionService;
     private final AuthRedisService authRedisService;
-    private final BaseRedisService redisService; // dòng này thêm tạm
 
     @Value("${dlk.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
@@ -88,6 +87,15 @@ public class AuthService {
         String refresh_token = securityUtil.createRefreshToken(loginDTO.getEmail(), res);
         userService.updateUserToken(refresh_token, loginDTO.getEmail());
 
+        log.info("Login DTO {}", loginDTO);
+        // Lấy deviceId để làm session đăng nhập
+        String sessionId = loginDTO.getDeviceId();
+        log.info("sessionId login: {}", sessionId);
+        // Lưu phiên đăng nhập vào Redis
+        assert dbUser != null;
+        authRedisService.saveLoginSession(dbUser.getUserId(), sessionId, loginDTO.getIp(), loginDTO.getUserAgent());
+        log.info("✅ Saved login session");
+
         // set cookies
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh_token", refresh_token)
@@ -98,6 +106,33 @@ public class AuthService {
                 .build();
 
         return new ResAuthDTO(res, responseCookie);
+    }
+
+    public ResAuthDTO logout(String old_access_token, String device_id) throws IdInvalidException {
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new IdInvalidException("Access token not valid"));
+
+        // Đưa access token vào blacklist trong Redis (Dùng JTI để giảm độ dài của key)
+        log.info("🔴 Check token in blacklist: {}", old_access_token);
+        String JTI = securityUtil.getJtiFromToken(old_access_token);
+        log.info("🛑 Add JTI access token to blacklist: {}", JTI);
+        authRedisService.addToBlacklist(JTI, accessTokenExpiration);
+
+        // Xóa session đăng nhập trong Redis
+        String userId = userService.findUserByEmail(email).getUserId();
+        log.info("Logout session ID: {}", device_id);
+        authRedisService.deleteSession(userId, device_id);
+
+        userService.updateUserToken(null, email);
+
+        ResponseCookie deleteSpringCookie = ResponseCookie
+                .from("refresh_token", null)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return new ResAuthDTO(null, deleteSpringCookie);
     }
 
     public ResLoginDTO.UserGetAccount getAccount() throws IdInvalidException {
@@ -140,6 +175,7 @@ public class AuthService {
         // check valid refresh_token
         Jwt decodedToken = securityUtil.checkValidRefreshToken(refresh_token);
         String email = decodedToken.getSubject();
+        log.info("Email generateNewTokens: {}", email);
 
         // tìm user dựa trên refresh_token và email
         User dbUser = userService.getUserByRefreshTokenAndEmail(refresh_token, email).orElseThrow(
@@ -186,28 +222,6 @@ public class AuthService {
                 .build();
 
         return new ResAuthDTO(res, responseCookie);
-    }
-
-    public ResAuthDTO logout(String old_access_token) throws IdInvalidException {
-        String email = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new IdInvalidException("Access token not valid"));
-//        log.info("Logout success: " + email);
-        log.info("Old access token: " + old_access_token);
-        userService.updateUserToken(null, email);
-
-        // Đưa access token vào blacklist trong Redis
-        authRedisService.addToBlacklist(old_access_token, accessTokenExpiration);
-        log.info("Blacklist access token redis: " + redisService.get("auth:token:" + old_access_token));
-        log.info("TTL redis: " + redisService.getTimeToLive("auth:token:" + old_access_token));
-
-        ResponseCookie deleteSpringCookie = ResponseCookie
-                .from("refresh_token", null)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .build();
-        return new ResAuthDTO(null, deleteSpringCookie);
     }
 
     public ResCreateUserDTO register(ReqCreateUser user) throws IdInvalidException {

@@ -1,8 +1,11 @@
 package com.dlk.ecommerce.util;
 
+import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.response.auth.ResLoginDTO;
+import com.dlk.ecommerce.repository.UserRepository;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -19,11 +22,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityUtil {
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
+    private static UserRepository userRepository;
 
     // Dùng thuật toán HMAC-SHA512 (HS512)
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
@@ -81,6 +88,7 @@ public class SecurityUtil {
                 .subject(email)
                 .claim("user", userInsideToken)
                 .claim("permission", listAuthority)
+                .id(UUID.randomUUID().toString()) // ✅ Thêm JTI
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
@@ -101,10 +109,21 @@ public class SecurityUtil {
                 .expiresAt(validity)
                 .subject(email)
                 .claim("user", userInsideToken)
+                .claim("jid", UUID.randomUUID().toString()) // Thêm JID
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+    }
+
+    public String getJtiFromToken(String token) {
+        try {
+            Jwt decodedToken = jwtDecoder.decode(token);
+            return decodedToken.getId();
+        } catch (JwtException e) {
+            System.err.println("Invalid token, can not get JTI: " + e.getMessage());
+            return null;
+        }
     }
 
     public static Optional<String> getCurrentUserLogin() {
@@ -118,7 +137,6 @@ public class SecurityUtil {
                 .filter(authentication -> authentication.getCredentials() instanceof String)
                 .map(authentication -> (String) authentication.getCredentials());
     }
-
 
     /**
      * Check if a user is authenticated.
