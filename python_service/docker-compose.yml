@@ -1,0 +1,14 @@
+services:
+  python-service:
+    build: .
+    container_name: python-service
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
