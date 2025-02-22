@@ -5,8 +5,9 @@ export const callGetUserByUserId = async (userId) => {
     return res?.data;
 }
 
-export const callUpdateUserRoleByUserId = async (data) => {
-    const res = await axios.post(`/api/v1/users/user-role`, data);
+export const callUpdateUserRoleByUserId = async (userId, data) => {
+    const res = await axios.post(`/api/v1/users/user-role/${userId}`, data);
+    // console.log("res ", res?.data);
     return res?.data;
 }
 
@@ -44,5 +45,11 @@ export const callGetShippingMethod = async (userId) => {
 
 export const callUpdateShippingMethod = async (data, userId) => {
     const res = await axios.post(`/api/v1/users/shipping-method/${userId}`, data);
+    return res?.data;
+}
+
+export const callUpdateTaxAndIdentityInfo = async (data, userId) => {
+    const res = await axios.put(`/api/v1/users/tax-identity/${userId}`, data);
+    // console.log("res ", res?.data);
     return res?.data;
 }

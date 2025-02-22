@@ -1,22 +1,37 @@
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Form, Input, Radio, Select, Button } from 'antd';
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useAddressUser } from '../../../hooks/useAddressUser';
+import { useEffect, useState } from 'react';
 import ModalAddressForm from '../../checkout/Components/ModalAddressForm';
 import { useCreateAddressUser } from '../../checkout/hooks/addresses/useCreateAddressUser';
 import { toast } from 'react-toastify';
+import { useUpdateTaxAndIdentityInfo } from '../hooks/useTaxAndIdentityInfo';
+import { useUpdateUserRoleByUserId } from '../../auth/hooks/useUpdateUserRoleByUserId';
 
 const { Option } = Select;
 
-const TaxAndIdentityInfo = ({ next, prev }) => {
+const TaxAndIdentityInfo = ({ next, prev, addresses, userId, getUserById }) => {
     const [form] = Form.useForm();
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [disabled, setDisabled] = useState(false);
 
-    const userId = useSelector(state => state.account?.user?.id);
-    const { addresses } = useAddressUser(userId);
+    const { updateTaxAndIdentityInfo } = useUpdateTaxAndIdentityInfo();
     const { createAddressUser } = useCreateAddressUser();
+
+
+    useEffect(() => {
+        if (getUserById && addresses?.length > 0) {
+            form.setFieldsValue({
+                businessType: getUserById?.businessType || "individual",
+                businessAddress: getUserById?.businessAddress || null,
+                billingEmail: getUserById?.billingEmail || '',
+                taxNumber: getUserById?.taxNumber || '',
+            });
+        }
+        if (getUserById?.taxNumber && getUserById?.billingEmail && getUserById?.businessAddress && getUserById?.businessType) {
+            setDisabled(true);
+        }
+    }, [getUserById, addresses, form]);
 
     const handleBusinessTypeChange = (e) => {
         console.log('Loại hình kinh doanh:', e.target.value);
@@ -42,45 +57,51 @@ const TaxAndIdentityInfo = ({ next, prev }) => {
         setIsModalVisible(false);
     };
 
+    const { updateUserRole } = useUpdateUserRoleByUserId();
     const handleSave = async () => {
         try {
             const values = await form.validateFields();
-            console.log('Dữ liệu đã lưu:', values);
-            toast.success('Lưu thông tin thành công!');
+            await updateTaxAndIdentityInfo({ data: values, userId });
+            // update role
+            await updateUserRole({
+                userId, data: {
+                    role: {
+                        roleId: 2
+                    }
+                }
+            });
+
+            setDisabled(true);
         } catch (error) {
-            toast.error('Vui lòng điền đầy đủ thông tin trước khi lưu.', error);
+            console.log('Lỗi:', error);
+            toast.error('Vui lòng điền đầy đủ thông tin!');
         }
     };
 
     const handleNext = async () => {
-        try {
-            const values = await form.validateFields();
-            console.log('Dữ liệu form:', values);
-            toast.success('Lưu thông tin thành công!');
+        if (disabled) {
             next();
-        } catch (error) {
-            toast.error('Vui lòng điền đầy đủ thông tin trước khi tiếp tục.', error);
+        } else {
+            await handleSave();
+            next();
         }
     };
+
+
 
     return (
         <Form
             layout="vertical"
             form={form}
             className="w-[60%] mx-auto"
-            initialValues={{
-                businessType: 'individual',
-                taxCode: '',
-                emails: [''],
-            }}
         >
             <p className="mb-2 border border-blue-500 bg-blue-100 p-4 rounded-md text-gray-500">
                 <InfoCircleFilled className="text-blue-500" /> Việc thu thập Thông Tin Thuế và Thông Tin Định Danh là bắt buộc theo quy định của Luật an ninh mạng, Thương mại điện tử và Thuế của Việt Nam.
                 Thông tin này sẽ được bảo vệ theo chính sách bảo mật của EduMall.
             </p>
 
-            <Form.Item label="Loại hình kinh doanh" name="businessType" required>
-                <Radio.Group onChange={handleBusinessTypeChange}>
+            <Form.Item label="Loại hình kinh doanh" name="businessType" required className="mb-3">
+                <Radio.Group onChange={handleBusinessTypeChange} disabled={disabled}>
                     <Radio value="individual">Cá nhân</Radio>
                     <Radio value="household">Hộ kinh doanh</Radio>
                     <Radio value="company">Công ty</Radio>
@@ -92,7 +113,6 @@ const TaxAndIdentityInfo = ({ next, prev }) => {
                 name="businessAddress"
                 rules={[
                     { required: true, message: "Vui lòng chọn địa chỉ kinh doanh" },
-                    { type: "email", message: "Email không hợp lệ!" }
                 ]}
             >
                 <Select
@@ -108,6 +128,7 @@ const TaxAndIdentityInfo = ({ next, prev }) => {
                             </Button>
                         </>
                     )}
+                    disabled={disabled}
                 >
                     {addresses?.map((address) => (
                         <Option key={address.addressId} value={address.addressId}>
@@ -119,22 +140,26 @@ const TaxAndIdentityInfo = ({ next, prev }) => {
 
             <Form.Item
                 label="Email nhận hóa đơn điện tử"
-                name="email"
+                name="billingEmail"
                 rules={[
                     { required: true, message: "Vui lòng nhập email!" },
                     { type: "email", message: "Email không hợp lệ!" }
                 ]}
                 style={{ marginBottom: "0.2rem" }}
             >
-                <Input placeholder="Nhập email" />
+                <Input placeholder="Nhập email" disabled={disabled}
+                />
             </Form.Item>
             <p className="mb-3 ms-2 text-gray-500">Hóa đơn điện tử của bạn sẽ được gửi đến địa chỉ email này</p>
 
 
-            <Form.Item label="Mã số thuế" name="taxCode" required
+            <Form.Item label="Mã số thuế" name="taxNumber" required
                 style={{ marginBottom: "0.2rem" }}
+                rules={[
+                    { required: true, message: "Vui lòng nhập mã số thuế!" },
+                ]}
             >
-                <Input placeholder="Nhập mã số thuế" />
+                <Input placeholder="Nhập mã số thuế" disabled={disabled} />
             </Form.Item>
             <p className="mb-3 ms-2 text-gray-500">
                 Theo Nghị định 52/2013/ND-CP, Người Bán phải cung cấp thông tin Mã số thuế cho sàn Thương mại điện tử.
@@ -143,16 +168,27 @@ const TaxAndIdentityInfo = ({ next, prev }) => {
             <div className="flex justify-between mt-3">
                 <Button onClick={prev}>Quay lại</Button>
                 <div className="flex gap-2">
-                    <Button onClick={handleSave} type="default">
-                        Lưu
-                    </Button>
+                    {!disabled ?
+                        <Button onClick={handleSave} type="default">
+                            Lưu
+                        </Button>
+                        :
+                        <Button type="default" onClick={() => setDisabled(prev => !prev)}>
+                            Chỉnh sửa
+                        </Button>
+                    }
                     <Button type="primary" onClick={handleNext}>
-                        Tiếp theo
+                        Hoàn tất
                     </Button>
                 </div>
             </div>
 
-            <ModalAddressForm isVisible={isModalVisible} onOk={handleAddAddress} onCancel={handleCancel} />
+            <ModalAddressForm
+                isVisible={isModalVisible}
+                onOk={handleAddAddress}
+                onCancel={handleCancel}
+            />
+
         </Form>
     );
 };

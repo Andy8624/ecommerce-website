@@ -2,14 +2,28 @@ import { Avatar, Badge, Dropdown } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { BellOutlined, MessageOutlined, UserOutlined } from "@ant-design/icons";
 import { AVT_URL } from "../../utils/Config";
-import { useGetUserById } from '../../hooks/useGetUserById';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useGetUserById } from '../../hooks/useGetUserById';
+import { toast } from 'react-toastify';
+import { setLogoutUser } from '../../redux/slices/accountSlice';
+import { callLogout } from '../../services/AuthService';
 
-const TopHeaderSeller = ({ title, onLogout }) => {
+const TopHeaderSeller = ({ title }) => {
     const userId = useSelector(state => state.account?.user?.id);
     const { getUserById } = useGetUserById(userId);
+
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleLogout = async () => {
+        const old_access_token = localStorage.getItem('access_token');
+        await callLogout({ old_access_token });
+        dispatch(setLogoutUser({}));
+        toast.success("Đăng xuất thành công!");
+        navigate('/');
+    };
+
 
     // Menu items
     const menu = {
@@ -22,7 +36,7 @@ const TopHeaderSeller = ({ title, onLogout }) => {
             {
                 key: '2',
                 label: <span className="block text-base px-3 py-1 text-red-500">Đăng xuất</span>,
-                onClick: onLogout,
+                onClick: handleLogout,
             },
         ],
     };

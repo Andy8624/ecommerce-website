@@ -32,7 +32,6 @@ public class Tool extends BaseEntity {
     @Column(columnDefinition = "MEDIUMTEXT")
     String description;
 
-
     int stockQuantity;
     String imageUrl;
 
@@ -50,9 +49,14 @@ public class Tool extends BaseEntity {
     @Column(nullable = false)
     boolean isActive = true;
 
+    // Quản lý chi tiết sản phẩm
+    boolean hidden = false;
+
     @ManyToOne
     @JoinColumn(name = "tool_type_id", nullable = false)
     ToolType toolType;
+
+    String brand;
 
     @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -71,4 +75,10 @@ public class Tool extends BaseEntity {
     @JsonIgnore
     List<ImageTool> imageTools;
 
+    @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)
+    List<ProductReview> productReviews;
+
+    // Thuộc tính lưu trữ điểm đánh giá trung bình của sản phẩm
+    Double averageRating;
+    int totalRating;
 }

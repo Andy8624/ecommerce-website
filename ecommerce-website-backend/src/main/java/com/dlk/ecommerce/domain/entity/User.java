@@ -131,4 +131,8 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
     Cart cart;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    List<ProductReview> productReviews;
 }

@@ -6,12 +6,17 @@ import TopHeader from "../components/header/TopHeader";
 import { useDispatch } from "react-redux";
 import { setLogoutUser } from "../redux/slices/accountSlice";
 import { toast } from "react-toastify";
+import { callLogout } from "../services/AuthService";
 
 const BuyerLayout = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        const old_access_token = localStorage.getItem('access_token');
+        // xóa access token trong localStorage và cookies
+        localStorage.removeItem('access_token');
+        await callLogout({ old_access_token });
         dispatch(setLogoutUser({}));
         toast.success("Đăng xuất thành công!");
         navigate('/');

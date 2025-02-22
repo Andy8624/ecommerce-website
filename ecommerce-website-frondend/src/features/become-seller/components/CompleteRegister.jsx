@@ -1,10 +1,14 @@
 import { Content } from 'antd/es/layout/layout'
 import { Button } from 'antd'
-// import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { CheckCircleTwoTone } from '@ant-design/icons'
+import { useDispatch } from 'react-redux'
+import { fetchAccount } from '../../../redux/slices/accountSlice';
+
 
 const CompleteRegister = () => {
-    // const navigate = useNavigate()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     return (
         <Content className="text-center h-[52vh]">
             <CheckCircleTwoTone twoToneColor="#52c41a" className='text-[5rem] mt-[3rem] mb-5' />
@@ -16,14 +20,15 @@ const CompleteRegister = () => {
                 type="primary"
                 size="large"
                 className="bg-blue-400 hover:bg-orange-600"
-                onClick={[
-                    // () => navigate('/become-seller/register'),
-                    () => alert('Đăng ký thành công')
-                ]}
+                onClick={() => {
+                    navigate('/seller');
+                    dispatch(fetchAccount());
+                }
+                }
             >
                 Thêm sản phẩm
             </Button>
-        </Content>
+        </Content >
 
     )
 }

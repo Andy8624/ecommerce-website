@@ -1,8 +1,5 @@
 import { Button, Form, Input, Select } from 'antd';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useGetUserById } from '../../../hooks/useGetUserById';
-import { useAddressUser } from '../../../hooks/useAddressUser';
 import { useCreateAddressUser } from '../../checkout/hooks/addresses/useCreateAddressUser';
 import ModalAddressForm from '../../checkout/Components/ModalAddressForm';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,9 +11,8 @@ import { useUpdateUserPatch } from '../hooks/useUpdateUserPatch';
 
 const { Option } = Select;
 
-const ShopInfoForm = ({ next }) => {
+const ShopInfoForm = ({ next, userId, getUserById, addresses }) => {
     const queryClient = useQueryClient()
-    const userId = useSelector(state => state.account?.user?.id);
 
     const [disabled, setDisabled] = useState(false);
     const [disabledShopName, setDisabledShopName] = useState(false);
@@ -29,8 +25,6 @@ const ShopInfoForm = ({ next }) => {
 
 
     // Hooks for data fetching
-    const { getUserById } = useGetUserById(userId);
-    const { addresses } = useAddressUser(userId);
     const { createAddressUser } = useCreateAddressUser();
 
     // Modal visibility and form instance
@@ -55,6 +49,9 @@ const ShopInfoForm = ({ next }) => {
         }
         if (getUserById?.shopAddressId) {
             setDisabledAddress(true);
+        }
+        if (getUserById?.shopName && getUserById?.phone && getUserById?.shopAddressId) {
+            setDisabled(true);
         }
     }, [getUserById, addresses, form]);
 
@@ -87,14 +84,18 @@ const ShopInfoForm = ({ next }) => {
     };
 
     // Validate form and proceed to the next step
-    const handleNextStep = () => {
-        form.validateFields()
-            .then(() => {
+    const handleNextStep = async () => {
+        if (disabled) {
+            next();
+        } else {
+            try {
+                await form.validateFields();
+                handleSubmit(form.getFieldsValue());
                 next();
-            })
-            .catch(errorInfo => {
-                console.log('Form validation failed:', errorInfo);
-            });
+            } catch (error) {
+                console.error('Error validating form:', error);
+            }
+        }
     };
 
     // Open modal for adding a new address
@@ -320,7 +321,7 @@ const ShopInfoForm = ({ next }) => {
                 <Button
                     htmlType="submit"
                     loading={isCreatingShop}
-                    hidden={disabled || disabledShopName || disabledAddress || disabledPhone}
+                    hidden={disabled}
                 >
                     Lưu
                 </Button>

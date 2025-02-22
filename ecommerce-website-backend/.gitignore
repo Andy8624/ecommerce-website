@@ -39,3 +39,5 @@ mysql/
 
 # Ignore .env file
 .env
+
+/open-webui/**

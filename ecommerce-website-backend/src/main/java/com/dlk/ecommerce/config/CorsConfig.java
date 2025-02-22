@@ -18,10 +18,11 @@ public class CorsConfig {
                 "http://localhost:4173",
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "http://localhost:5175"
+                "http://localhost:5175",
+                "http://localhost:5176"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "x-no-retry"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "x-no-retry", "device_id"));
         configuration.setAllowCredentials(true);  // Cho phép cookie
         configuration.setMaxAge(3600L);  // Thời gian tồn tại của CORS cache
 

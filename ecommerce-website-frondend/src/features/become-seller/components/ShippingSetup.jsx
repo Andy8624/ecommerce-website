@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Button, Collapse, Switch } from 'antd';
 import { CheckCircleTwoTone } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
 import { useShippingMethod, useUpdateShippingMethod } from '../hooks/useShippingMethod';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 
-const ShippingSetup = ({ next, prev }) => {
+const ShippingSetup = ({ next, prev, userId }) => {
     const [enabledGHN, setEnabledGHN] = useState(false);
     const [enabledGHTK, setEnabledGHTK] = useState(false);
-    const userId = useSelector((state) => state.account?.user?.id);
+    const [disabled, setDisabled] = useState(false);
     const { updateShippingMethod, isUpdating } = useUpdateShippingMethod();
     const { shippingMethod } = useShippingMethod(userId);
-    const [disabled, setDisabled] = useState(false);
 
     useEffect(() => {
         if (shippingMethod) {
@@ -54,8 +52,15 @@ const ShippingSetup = ({ next, prev }) => {
     };
 
     const handleNext = async () => {
-        await handleSave();
-        next();
+        if (!(enabledGHN || enabledGHTK)) {
+            toast.warning("Vui lòng chọn ít nhất 1 phương thức vận chuyển");
+        } else {
+            if (!disabled) {
+                await handleSave();
+            }
+            next();
+        }
+
     };
 
     const items = [

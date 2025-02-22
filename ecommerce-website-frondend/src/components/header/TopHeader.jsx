@@ -4,29 +4,21 @@ import { GrLanguage } from "react-icons/gr";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-// import { useUpdateUserRoleByUserId } from "../../features/auth/hooks/useUpdateUserRoleByUserId";
 import { useGetUserById } from "../../hooks/useGetUserById";
-// import { useQueryClient } from "@tanstack/react-query";
 import { Avatar } from "antd";
 import { AVT_URL } from "../../utils/Config";
-// import { useAddressUser } from "../../hooks/useAddressUser";
 import { UserOutlined } from "@ant-design/icons";
 
 const TopHeader = () => {
     const navigate = useNavigate();
-    // const queryClient = useQueryClient();
     const email = useSelector(state => state.account?.user?.email);
-    const imageUrl = useSelector(state => state.account?.user?.imageUrl);
 
     const userId = useSelector(state => state.account?.user?.id);
     const { getUserById } = useGetUserById(userId);
 
-    // const { updateUserRole } = useUpdateUserRoleByUserId();
 
     const handleBecomeSeller = () => {
         navigate("/become-seller/accept");
-        // updateUserRole({ userId, role: { roleId: 2 } });
-        // queryClient.invalidateQueries(["users", userId]);    
     }
 
 
@@ -106,7 +98,7 @@ const TopHeader = () => {
             label: (
                 <span className="flex items-center gap-2">
                     <Avatar
-                        src={AVT_URL + imageUrl}
+                        src={AVT_URL + getUserById?.imageUrl}
                         size={20}
                         icon={<UserOutlined />}
                     />

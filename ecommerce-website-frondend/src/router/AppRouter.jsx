@@ -31,6 +31,7 @@ import AddProductPage from "../pages/AddProductPage";
 import RegisterSellerPage from "../pages/RegisterSellerPage";
 import BecomeSellerPage from "../pages/BecomeSellerPage";
 import BecomeSellerLayout from "../layouts/BecomeSellerLayout";
+import ProductForm from "../features/seller/components/ProductForm";
 
 const router = createBrowserRouter([
     {
@@ -133,6 +134,10 @@ const router = createBrowserRouter([
                 path: "statistics",
                 element: <Statistics />,
             },
+            {
+                path: "product-form",
+                element: <ProductForm />
+            }
         ]
     },
     {

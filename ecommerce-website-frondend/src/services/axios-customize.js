@@ -2,7 +2,9 @@ import { Mutex } from "async-mutex";
 import axios from "axios";
 import { store } from "../redux/store";
 import { setRefreshTokenAction } from "../redux/slices/accountSlice";
-import { notification } from "antd";
+import { Modal, notification } from "antd";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const instance = axios.create({
     baseURL: "http://localhost:8080/",
@@ -11,6 +13,7 @@ const instance = axios.create({
 
 const mutex = new Mutex();
 const NO_RETRY_HEADER = "x-no-retry";
+
 
 const handleRefreshToken = async () => {
     return await mutex.runExclusive(async () => {
@@ -31,6 +34,12 @@ instance.interceptors.request.use(function (config) {
             "Bearer " + window.localStorage.getItem("access_token");
     }
 
+    // Lấy device_id từ cookies và thêm vào header
+    const deviceId = Cookies.get("device_id");
+    if (deviceId) {
+        config.headers["device_id"] = deviceId; // Thêm device_id vào request header
+    }
+
     // dữ liệu được gửi và nhận dưới dạng json
     if (!config.headers.Accept && config.headers["Content-Type"]) {
         config.headers.Accept = "application/json";
@@ -42,7 +51,26 @@ instance.interceptors.request.use(function (config) {
 
 instance.interceptors.response.use(
     (res) => res.data,
+
     async (error) => {
+        console.log("Error: ", error?.response);
+        // Trường hợp session hết hạn (do giới hạn session)
+        if (error.response?.status === 409 || error.response?.status === 498) {
+            console.log("Phiên đăng nhập đã hết hạn.");
+            localStorage.removeItem("access_token");
+            // Hiển thị modal yêu cầu đăng nhập lại
+            Modal.confirm({
+                title: "Phiên đăng nhập đã hết hạn",
+                content: "Vui lòng đăng nhập lại để tiếp tục.",
+                onOk: () => {
+                    window.location.href = "/auth/login";
+                },
+                okText: "OK",
+                cancelButtonProps: { style: { display: "none" } },
+            });
+        }
+
+
         // Trường hợp access_token hết hạn hoặc không hợp lệ, refresh token
         if (
             error.config &&
@@ -51,13 +79,27 @@ instance.interceptors.response.use(
             error.config.url !== "/api/v1/auth/login" &&
             !error.config.headers[NO_RETRY_HEADER]
         ) {
+
             const access_token = await handleRefreshToken();
+
             error.config.headers[NO_RETRY_HEADER] = "true";
 
             if (access_token) {
                 error.config.headers["Authorization"] = `Bearer ${access_token}`;
                 localStorage.setItem("access_token", access_token);
                 return instance.request(error.config);
+            } else {
+                localStorage.removeItem("access_token");
+                // Hiển thị modal yêu cầu đăng nhập lại
+                Modal.confirm({
+                    title: "Phiên đăng nhập đã hết hạn",
+                    content: "Vui lòng đăng nhập lại để tiếp tục.",
+                    onOk: () => {
+                        window.location.href = "/auth/login";
+                    },
+                    okText: "OK",
+                    cancelButtonProps: { style: { display: "none" } }, // Ẩn nút Cancel
+                });
             }
         }
 
@@ -71,17 +113,22 @@ instance.interceptors.response.use(
         ) {
             const message =
                 error?.response?.data?.error ?? "Có lỗi xảy ra, vui lòng login.";
+            console.log("Refresh token hết hạn, chuyển về trang login... STATUS: 400");
+            localStorage.removeItem("access_token");
             // dispatch redux action
             store.dispatch(setRefreshTokenAction({ status: true, message }));
         }
 
         // Trường hợp không có quyền truy cập
         if (+error.response.status === 403) {
+            console.log("Bạn không có quyền truy cập vào trang này.");
             notification.error({
                 message: error?.response?.data?.message ?? "",
                 description: error?.response?.data?.error ?? "",
             });
         }
+
+
 
         return error?.response?.data ?? Promise.reject(error);
     }

@@ -12,7 +12,9 @@ const SellerLayout = () => {
         <Layout style={{ minHeight: "100vh" }}>
             <SellerNavbar collapsed={collapsed} setCollapsed={setCollapsed} />
             <Layout style={{ marginLeft: collapsed ? 70 : 190 }}>
-                <TopHeaderSeller />
+                <TopHeaderSeller
+
+                />
                 <CardContainer>
                     <Outlet />
                 </CardContainer>

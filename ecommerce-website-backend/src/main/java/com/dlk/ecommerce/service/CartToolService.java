@@ -15,6 +15,9 @@ import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import com.turkraft.springfilter.parser.FilterParser;
 import com.turkraft.springfilter.parser.node.FilterNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CartToolService {
     private final CartToolRepository cartToolRepository;
     private final ToolRepository toolRepository;
@@ -107,6 +111,7 @@ public class CartToolService {
     }
 
     public ResPaginationDTO getAllCartTools(Pageable pageable, String cartId) throws IdInvalidException {
+//        log.info("Get all cart tools by cartId: {}", cartId);
         // Kiểm tra tính hợp lệ của cartId
         if (cartId == null || cartId.isEmpty()) {
             throw new IdInvalidException("cartId is required");

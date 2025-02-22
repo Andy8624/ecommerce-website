@@ -1,7 +1,7 @@
 import { Avatar, Badge, Button, Dropdown } from "antd";
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 
-const UserOptions = ({ navigate, cartQuantity, menu, user, AVT_URL }) => {
+const UserOptions = ({ navigate, cartQuantity, menu, image_url, AVT_URL }) => {
     return (
         <div className='flex items-center'>
             <Button
@@ -25,7 +25,7 @@ const UserOptions = ({ navigate, cartQuantity, menu, user, AVT_URL }) => {
                     icon={<UserOutlined />}
                     size={45}
                     className="cursor-pointer hover:scale-110"
-                    src={AVT_URL + user?.imageUrl}
+                    src={AVT_URL + image_url}
                     onClick={() => navigate('/profile')}
                 />
             </Dropdown>

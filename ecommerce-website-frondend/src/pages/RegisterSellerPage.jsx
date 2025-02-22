@@ -5,11 +5,16 @@ import ShopInfoForm from '../features/become-seller/components/ShopInfoForm';
 import CompleteRegister from '../features/become-seller/components/CompleteRegister';
 import ShippingSetup from '../features/become-seller/components/ShippingSetup';
 import TaxAndIdentityInfo from '../features/become-seller/components/TaxAndIdentityInfo';
+import { useSelector } from 'react-redux';
+import { useGetUserById } from '../hooks/useGetUserById';
+import { useAddressUser } from '../hooks/useAddressUser';
 
 
 const RegisterSellerPage = () => {
-
     const [current, setCurrent] = useState(0);
+    const userId = useSelector(state => state.account?.user?.id);
+    const { getUserById } = useGetUserById(userId);
+    const { addresses } = useAddressUser(userId);
 
     const next = () => {
         setCurrent(current + 1);
@@ -22,15 +27,15 @@ const RegisterSellerPage = () => {
     const steps = [
         {
             title: 'Thông tin Shop',
-            content: <ShopInfoForm next={next} />,
+            content: <ShopInfoForm next={next} userId={userId} getUserById={getUserById} addresses={addresses} />,
         },
         {
             title: 'Cài đặt vận chuyển',
-            content: <ShippingSetup next={next} prev={prev} />,
+            content: <ShippingSetup next={next} prev={prev} userId={userId} />,
         },
         {
             title: 'Thông tin thuế',
-            content: <TaxAndIdentityInfo next={next} prev={prev} />,
+            content: <TaxAndIdentityInfo next={next} prev={prev} userId={userId} addresses={addresses} getUserById={getUserById} />,
         },
         {
             title: 'Hoàn tất',

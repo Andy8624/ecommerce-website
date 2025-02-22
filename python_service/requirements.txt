@@ -5,3 +5,4 @@ pydantic
 httpx
 pandas 
 scikit-learn
+google-generativeai

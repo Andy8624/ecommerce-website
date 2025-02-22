@@ -40,14 +40,14 @@ export const accountSlice = createSlice({
             state.isAuthenticated = true;
             state.isLoading = false;
             state.user.id = action?.payload?.id;
-            state.user.email = action.payload.email;
-            state.user.fullName = action.payload.fullName;
-            state.user.phone = action.payload.phone;
-            state.user.imageUrl = action.payload.imageUrl;
-            state.user.birthdate = action.payload.birthdate;
-            state.user.gender = action.payload.gender;
-            state.user.cartId = action.payload.cartId;
-            state.user.role = action.payload.role;
+            state.user.email = action.payload?.email;
+            state.user.fullName = action.payload?.fullName;
+            state.user.phone = action.payload?.phone;
+            state.user.imageUrl = action.payload?.imageUrl;
+            state.user.birthdate = action.payload?.birthdate;
+            state.user.gender = action.payload?.gender;
+            state.user.cartId = action.payload?.cartId;
+            state.user.role = action.payload?.role;
 
             state.user.role.permissions = action?.payload?.role?.permissions ?? [];
         },
@@ -88,18 +88,21 @@ export const accountSlice = createSlice({
             if (action.payload) {
                 state.isAuthenticated = true;
                 state.isLoading = false;
-                state.user.id = action?.payload?.user?.id;
-                state.user.email = action.payload.user?.email;
-                state.user.fullName = action.payload.user?.fullName;
-                state.user.phone = action.payload.user?.phone;
-                state.user.imageUrl = action.payload.user?.imageUrl;
-                state.user.birthdate = action.payload.user?.birthdate;
-                state.user.gender = action.payload.user?.gender;
-                state.user.cartId = action.payload.user?.cartId;
-                state.user.role = action.payload.user?.role;
-                state.user.role.permissions = action?.payload?.user?.role?.permissions ?? [];
+
+                const userData = action.payload.user ?? {}; // Đảm bảo user luôn có giá trị
+                state.user.id = userData.id || "";
+                state.user.email = userData.email || "";
+                state.user.fullName = userData.fullName || "";
+                state.user.phone = userData.phone || "";
+                state.user.imageUrl = userData.imageUrl || "";
+                state.user.birthdate = userData.birthdate || "";
+                state.user.gender = userData.gender || "";
+                state.user.cartId = userData.cartId || "";
+
+                state.user.role = userData.role ?? { id: "", name: "", permissions: [] }; // Đảm bảo role không bị undefined
+                state.user.role.permissions = userData.role?.permissions ?? [];
             }
-        })
+        });
 
         builder.addCase(fetchAccount.rejected, (state, action) => {
             if (action.payload) {

@@ -7,6 +7,7 @@ import { AVT_URL } from '../../utils/Config';
 import AuthButton from './AuthButton';
 import UserOptions from './UserOption';
 import InputHeader from './InputHeader';
+import { useGetUserById } from '../../hooks/useGetUserById';
 
 const { Header } = Layout;
 const HeaderComponent = ({ onLogout }) => {
@@ -14,6 +15,7 @@ const HeaderComponent = ({ onLogout }) => {
     const { cartQuantity } = useCartContext();
     const user = useSelector(state => state.account?.user);
     const permissions = user?.role?.permissions;
+    const { getUserById } = useGetUserById(user?.id);
 
     const menu = {
         items:
@@ -55,8 +57,8 @@ const HeaderComponent = ({ onLogout }) => {
                     navigate={navigate}
                     cartQuantity={cartQuantity}
                     menu={menu}
-                    user={user}
                     AVT_URL={AVT_URL}
+                    image_url={getUserById?.imageUrl}
                 />
             )}
         </Header>

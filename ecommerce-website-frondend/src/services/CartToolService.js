@@ -3,7 +3,7 @@ import axios from "./axios-customize";
 export const getToolOfCart = async (id) => {
     const path = `/api/v1/cart-tools/tool-of-cart/${id}`;
     const res = await axios.get(path);
-    // console.log(res);
+    // console.log(res?.data?.result);
     return res?.data?.result;
 }
 

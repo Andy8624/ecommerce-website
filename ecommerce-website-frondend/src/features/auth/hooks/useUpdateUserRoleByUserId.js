@@ -1,13 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { callUpdateUserRoleByUserId } from "../../../services/UserService";
 
 export function useUpdateUserRoleByUserId() {
-    const queryClient = useQueryClient();
     const { mutateAsync: updateUserRole, isPending: isUpdating } = useMutation({
-        mutationFn: (data) => { callUpdateUserRoleByUserId(data) },
-        onSuccess: () => {
-            queryClient.invalidateQueries(["users"]);
-        }
+        mutationFn: ({ userId, data }) => { callUpdateUserRoleByUserId(userId, data) },
     })
 
     return {
