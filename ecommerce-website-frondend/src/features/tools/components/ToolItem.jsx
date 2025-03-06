@@ -49,13 +49,13 @@ const ToolItem = ({ tool }) => {
 
     // Hàm chuyển đến trang chi tiết sản phẩm
     const navigateToDetailPage = () => {
-        navigate(`/tool/${tool.toolId}`);
+        navigate(`/tool/${tool.toolId}`, { state: tool });
     };
 
     return (
         <>
             <Card
-                className="transition-transform duration-100 hover:scale-105 shadow-md"
+                className="transition-transform duration-100 hover:scale-105 shadow-xl"
                 hoverable
                 cover={
                     <img
@@ -67,14 +67,17 @@ const ToolItem = ({ tool }) => {
                 }
                 actions={[
                     <Button
-                        type="primary"
-                        icon={<ShoppingCartOutlined />}
-                        className="transition-transform duration-100 hover:scale-105"
+                        type="dark"
+                        className="text-base transition-transform duration-100 hover:scale-110 text-[var(--gold-light)] bg-[var(--primary-color)]"
                         key="cart"
                         onClick={onAddToCartClick}
                         disabled={isCreating}
                     >
-                        {isCreating ? "Đang thêm..." : "Thêm vào giỏ hàng"}
+                        {isCreating ? "Đang thêm..." : <>
+                            <ShoppingCartOutlined className="mr-2" />
+                            Thêm vào giỏ hàng
+                        </>
+                        }
                     </Button>
                 ]}
             >
@@ -89,18 +92,18 @@ const ToolItem = ({ tool }) => {
                         </span>
                     }
                     description={
-                        <div className="text-sm" onClick={navigateToDetailPage}>
+                        <div className="text-base" onClick={navigateToDetailPage}>
                             <div className="text-red-500 font-semibold">
                                 {tool.discountedPrice !== 0 ? (
                                     <>
                                         <span className="text-gray-500 line-through">
                                             {tool.price.toLocaleString()}₫
                                         </span>{" "}
-                                        {tool.discountedPrice.toLocaleString()}₫
+                                        {tool.discountedPrice?.toLocaleString()}₫
                                     </>
                                 ) : (
                                     <>
-                                        {tool.price.toLocaleString()}₫
+                                        {tool.price?.toLocaleString()}₫
                                     </>
                                 )}
                             </div>
@@ -113,6 +116,7 @@ const ToolItem = ({ tool }) => {
             <LoginModal
                 isModalVisible={isModalVisible}
                 setIsModalVisible={setIsModalVisible}
+                text="Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!"
             />
 
         </>

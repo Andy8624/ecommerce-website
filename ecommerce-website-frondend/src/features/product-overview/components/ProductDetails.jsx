@@ -17,12 +17,12 @@ const ProductDetails = ({ details }) => {
                 level={4}
                 style={{
                     marginBottom: "16px",
-                    fontSize: "16px", // Cỡ chữ nhỏ hơn
+                    fontSize: "16px",
                     fontWeight: "bold",
                     color: "#333",
-                    border: "1px solid #eaeaea", // Viền nhẹ giống Shopee
-                    padding: "8px", // Khoảng cách giữa viền và chữ
-                    backgroundColor: "#f9f9f9", // Nền xám nhạt
+                    border: "1px solid #eaeaea",
+                    padding: "8px",
+                    backgroundColor: "#f9f9f9",
                 }}
             >
                 CHI TIẾT SẢN PHẨM

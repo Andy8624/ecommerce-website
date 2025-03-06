@@ -47,7 +47,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
             String userId = userService.findUserByEmail(email).getUserId();
             int sessionCount = authRedisService.getActiveSessionCount(userId);
-            log.info("🔹 Số lượng session: {}", sessionCount);
+//            log.info("🔹 Số lượng session: {}", sessionCount);
             if (sessionCount < 3) {
                 return true; // Nếu chưa đủ 4 session thì bỏ qua Interceptor
             }

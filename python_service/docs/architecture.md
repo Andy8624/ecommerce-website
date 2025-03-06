@@ -1,16 +1,15 @@
 # Luồng hoạt động hệ thống
 Giai đoạn 1: Hiển thị sản phẩm theo xu hướng (trend) khi chưa có dữ liệu thao tác
 
-Giai đoạn 2: Dần dần chuyển sang UBCF khi có dữ liệu thao tác
+Giai đoạn 2: Dần dần chuyển sang UBCF và CBF khi có dữ liệu thao tác
 
-Giai đoạn 3: Lấy DS SP tương tự từ DS SP mà người dùng đã tương tác
-    - Lấy từ 5sp mà người dùng đã tương tác gần nhất (Từ mỗi SP đó sẽ dùng CBF để tìm ra 3sp tương tự -> tối đa 15sp)
-    - Không bao gồm SP gốc mà người dùng đã tương tác
+Giai đoạn 3: Chuẩn hóa Score của từng thuật toán UBCF và CBF và kết hợp theo trọng số 
+            - UBCF dùng Min-Max Scaling đẻ chuẩn hóa về khoảng 0-1
+            - CFB dựa trên ma trận tương đồng cũng nằm trong khoảng 0-1
+            - Trọng số UBCF * 70% và CBF * 30%
+            - Nếu SP trùng nhau cộng 2 trọng số
 
-Giai đoạn 4: Chuẩn hóa Score của từng thuật toán UBCF và CBF và kết hợp theo trọng số 
-    - UBCF đã dùng Min-Max Scaling đẻ chuẩn hóa về khoảng 0-1
-
-Giai đoạn 5: Trả về DS SP giảm dân theo trọng số
+Giai đoạn 4: Trả về DS SP giảm dân theo trọng số
 
 # Xử lí bên trong thuật toán
     UBCF

@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 *, body, html {
     margin: 0;
     padding: 0;
@@ -106,21 +107,21 @@
 /* Khi một mục được chọn */
 .profile-menu .ant-menu-item-selected .ant-menu-title-content,
 .profile-menu .ant-menu-item-selected .ant-menu-item-icon {
-    color: #1890ff !important; /* Màu chữ và icon khi mục được chọn */
+    color: var(--gold-light) !important; /* Màu chữ và icon khi mục được chọn */
     font-weight: bold !important; /* Đậm chữ khi chọn */
 }
 
 /* Khi hover vào một mục */
 .profile-menu .ant-menu-item:hover .ant-menu-title-content,
 .profile-menu .ant-menu-item:hover .ant-menu-item-icon {
-    color: #1890ff !important; /* Màu chữ và icon khi hover */
+    color: var(--gold-light) !important; /* Màu chữ và icon khi hover */
     font-weight: bold !important; /* Đậm chữ khi hover */
 }
 
 /* Nền khi mục được chọn hoặc hover */
 .profile-menu .ant-menu-item-selected,
 .profile-menu .ant-menu-item:hover {
-    background-color: #f0f0f0 !important; /* Màu nền nhạt khi chọn hoặc hover */
+    background-color: var(--primary-color) !important; /* Màu nền nhạt khi chọn hoặc hover */
     border-radius: 8px !important; /* Bo góc cho mục */
     transition: all 0.3s ease !important; /* Hiệu ứng mượt */
 }
@@ -144,3 +145,17 @@
     transition: all 0.3s ease !important;
 }
 
+/* CheckBox của AntD */
+:where(.css-dev-only-do-not-override-ni1kz0).ant-radio-wrapper .ant-radio-checked .ant-radio-inner {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Nút phân trang của AntD */
+:where(.css-dev-only-do-not-override-ni1kz0).ant-pagination .ant-pagination-item-active {
+    border-color: var(--gold-medium) !important;
+}
+
+:where(.css-dev-only-do-not-override-ni1kz0).ant-pagination .ant-pagination-item-active a {
+    color: var(--gold-medium) !important;
+}

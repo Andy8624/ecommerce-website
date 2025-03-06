@@ -21,10 +21,8 @@ import ToolPage from "../pages/ToolPage";
 import SellerHome from "../pages/SellerHome"
 import ProductManagement from "../features/seller/components/ProductManagement";
 import OrderManagement from "../features/seller/components/OrderManagement";
-// import CourseManagement from "../features/seller/components/CourseManagement";
 import Statistics from "../features/seller/components/Statistics";
 import CoursePage from "../pages/CoursePage";
-import CourseDetail from "../features/courses/components/CourseDetail";
 import OnlinePayment from "../features/checkout/Components/OnlinePayment";
 import Profile from "../pages/Profile";
 import AddProductPage from "../pages/AddProductPage";
@@ -32,6 +30,7 @@ import RegisterSellerPage from "../pages/RegisterSellerPage";
 import BecomeSellerPage from "../pages/BecomeSellerPage";
 import BecomeSellerLayout from "../layouts/BecomeSellerLayout";
 import ProductForm from "../features/seller/components/ProductForm";
+import ChatPrivate from "../features/websocket-chat/components/ChatPrivate";
 
 const router = createBrowserRouter([
     {
@@ -71,10 +70,6 @@ const router = createBrowserRouter([
             {
                 path: "tool/:toolId",
                 element: <ProductOverviewPage />,
-            },
-            {
-                path: "course-detail",
-                element: <CourseDetail />
             },
             {
                 path: "profile",
@@ -176,6 +171,10 @@ const router = createBrowserRouter([
             }
         ]
     },
+    {
+        path: "/chat",
+        element: <ChatPrivate />,
+    }
 
 ])
 

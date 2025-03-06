@@ -97,7 +97,7 @@ const ProfileContentForm = ({ onFinish, user, isUpdating }) => {
             </Row>
 
             <Form.Item>
-                <Button type="primary" htmlType="submit" block disabled={isUpdating}>
+                <Button type="primary font-bold text-[var(--gold-light)] bg-[var(--primary-color)]" htmlType="submit" block disabled={isUpdating}>
                     Lưu
                 </Button>
             </Form.Item>

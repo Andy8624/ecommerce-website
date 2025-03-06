@@ -4,7 +4,7 @@ import { TOOL_URL } from "../../../utils/Config"
 const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedItems }) => {
     return (
         <List.Item
-            className="border rounded-lg mb-2 py-2 px-2 bg-green-50" // Giảm padding và margin giữa các item
+            className="border rounded-lg mb-2 py-2 px-2 bg-gray-50" // Giảm padding và margin giữa các item
             actions={[
                 <div key={item.id} className="flex items-center space-x-2">
                     {item.type === 'product' && (

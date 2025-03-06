@@ -79,6 +79,6 @@ public class Tool extends BaseEntity {
     List<ProductReview> productReviews;
 
     // Thuộc tính lưu trữ điểm đánh giá trung bình của sản phẩm
-    Double averageRating;
-    int totalRating;
+    Double averageRating = 0.0;
+    int totalRating = 0;
 }

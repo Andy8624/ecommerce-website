@@ -50,7 +50,7 @@ const SidebarMenu = ({ selectedMenu, setSelectedMenu }) => {
     const { getUserById } = useGetUserById(user?.id);
 
     return (
-        <Sider width={270} style={{ background: "#fff", borderRight: "1px solid #ddd" }}>
+        <Sider width={300} style={{ background: "#fff", borderRight: "1px solid #ddd" }}>
             {/* Avatar và Tên người dùng */}
             <div style={{ textAlign: "center", padding: "20px", marginTop: "25px" }}>
                 <Avatar
@@ -58,7 +58,7 @@ const SidebarMenu = ({ selectedMenu, setSelectedMenu }) => {
                     icon={<UserOutlined />}
                     src={AVT_URL + getUserById?.imageUrl}
                 />
-                <div className="mt-2 font-bold">
+                <div className="mt-2 font-bold uppercase text-[1.2rem]">
                     {getUserById?.fullName}
                 </div>
             </div>

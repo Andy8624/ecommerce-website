@@ -1,0 +1,68 @@
+:root {
+    --primary-color: #18293d;
+    --secondary-color: #fff;
+
+    /* Màu vàng đậm hơn */
+    --gold-light: #fdd974;  /* Màu vàng sáng */
+    --gold-medium: #fdbd19; /* Màu vàng trung */
+
+    /* Màu vàng nhạt hơn */
+    --soft-gold-light: #FCEABB;
+    --soft-gold-medium: #f7dea0;
+    --soft-gold-dark: #e7c178;
+}
+/* Class cho chữ vàng gold đậm */
+.glowing-text {
+    background: linear-gradient(to right, var(--gold-light), var(--gold-medium), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+    transition: background-position 0.3s ease-in-out;
+}
+
+/* Khi hover vào, đảo ngược màu gradient */
+.glowing-text:hover {
+    background: linear-gradient(to right, var(--gold-medium), var(--gold-light), var(--gold-medium));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* Class cho chữ vàng gold nhạt hơn */
+.soft-gold-text {
+    background: linear-gradient(to right, var(--soft-gold-light), var(--soft-gold-medium), var(--soft-gold-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
+
+.login-button {
+    background: linear-gradient(to right, var(--gold-light), var(--gold-medium), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+    line-height: 1;
+    font-size: 0.875rem;
+    border: 1.5px solid var(--gold-medium); /* Thêm border ban đầu */
+    transition: background-position 0.3s ease-in-out, border-color 0.3s ease-in-out; /* Thêm hiệu ứng chuyển border */
+}
+
+.login-button:hover {
+    background: linear-gradient(to right, var(--gold-medium), var(--gold-light), var(--gold-medium));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+}
+
+.signup-button {
+    background: linear-gradient(to right, var(--gold-medium), var(--gold-light));
+    color: white;
+    font-weight: bold;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+.signup-button:hover {
+    background: linear-gradient(to right, var(--gold-light), var(--gold-medium));
+
+}

@@ -12,7 +12,7 @@ from pathlib import Path
 @dataclass
 class GenerationConfig:
     """Configuration for model generation parameters."""
-    temperature: float = 1.0
+    temperature: float = 0.1
     top_p: float = 1.0
     top_k: int = 40
     max_output_tokens: int = 8192

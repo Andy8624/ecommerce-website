@@ -32,6 +32,7 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
                 "/api/v1/users/**",
                 "/api/v1/kafka/**",
                 "/api/v1/cf-data",
+                "/api/v1/messages/**"
         };
         registry.addInterceptor(getPermissionInterceptor())
                 .excludePathPatterns(whiteList)

@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import CartList from './CartList';
 import CartSummary from './CartSummary';
-import SelectComponent from './SelectComponent';
 import { useUpdateCartItem } from '../hooks/useUpdateCartItem';
 import useDeleteCartTool from '../hooks/useDeleteCartTool';
 import { useNavigate } from 'react-router-dom';
@@ -52,20 +50,16 @@ const CartComponent = () => {
         navigate('/checkout');
     };
 
-    const [selectedType, setSelectedType] = useState('all');
-    const handleSelectType = (value) => {
-        setSelectedType(value);
-    }
+
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-indigo-100 to-purple-200 flex items-center justify-center">
-            <div className="w-full max-w-4xl p-8 bg-white shadow-lg rounded-lg">
+        <div className="bg-gray-200 flex justify-center">
+            <div className="w-full max-w-4xl p-8 bg-white shadow-lg rounded-lg my-[20px]">
                 <h2 className="text-2xl font-bold mb-3 text-center">
                     <div className="mb-1">Giỏ hàng của bạn</div>
-                    <SelectComponent onSelectType={handleSelectType} />
                 </h2>
                 <CartList
-                    cartItems={cartItems.filter(item => selectedType === 'all' || item.type === selectedType)}
+                    cartItems={cartItems}
                     selectedItems={selectedItems}
                     onRemove={removeItem}
                     onUpdateQuantity={updateQuantity}

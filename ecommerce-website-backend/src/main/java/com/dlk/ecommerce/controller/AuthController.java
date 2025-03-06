@@ -65,6 +65,7 @@ public class AuthController {
     public ResponseEntity<ResLoginDTO> refreshToken(
             @CookieValue(name = "refresh_token", defaultValue = "khangdeptrai") String refresh_token
     ) throws IdInvalidException {
+        log.info("refresh_token: " + refresh_token);
         ResAuthDTO resAuthDTO = authService.generateNewTokens(refresh_token);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resAuthDTO.getResponseCookie().toString())

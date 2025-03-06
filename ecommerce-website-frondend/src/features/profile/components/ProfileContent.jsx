@@ -84,8 +84,8 @@ const ProfileContent = () => {
     return (
         <>
             {/* Header */}
-            <Title level={4} style={{ marginBottom: "20px", fontWeight: "bold" }}>
-                Hồ Sơ Của Tôi
+            <Title level={3}>
+                Hồ sơ của tôi
             </Title>
             <p style={{ marginBottom: "30px", color: "#888" }}>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
 

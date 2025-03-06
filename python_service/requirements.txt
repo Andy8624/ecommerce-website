@@ -6,3 +6,4 @@ httpx
 pandas 
 scikit-learn
 google-generativeai
+pyyaml

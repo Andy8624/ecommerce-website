@@ -56,7 +56,7 @@ class ContentBasedFiltering:
         similarity_matrix = self.calculate_similarity(cbf_data)
 
         # Từ user_id lấy ra tối đa 5 sản phẩm tương tác gần nhất theo createdat
-        interacted_products_id = [123, 231, 252, 111, 101]
+        interacted_products_id = [120, 231, 252, 111, 101]
         interacted_products = [product for product in cbf_data if product['toolId'] in interacted_products_id]
 
         # Danh sách chung để lưu tất cả các sản phẩm gợi ý

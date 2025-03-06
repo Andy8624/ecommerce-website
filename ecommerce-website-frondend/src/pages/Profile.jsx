@@ -33,18 +33,18 @@ const Profile = () => {
     };
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
+        <Layout>
             <SidebarMenu selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
 
             {/* Content */}
             <Layout>
-                <Content style={{ padding: "20px", background: "#f5f5f5" }}>
+                <Content className="bg-[#f5f5f5] my-10">
                     <div
                         style={{
-                            maxWidth: "800px",
+                            maxWidth: "1000px",
                             margin: "0 auto",
                             background: "#fff",
-                            padding: "20px",
+                            padding: "35px",
                             borderRadius: "8px",
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                         }}

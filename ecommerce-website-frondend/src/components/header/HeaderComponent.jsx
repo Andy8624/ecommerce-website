@@ -45,7 +45,11 @@ const HeaderComponent = ({ onLogout }) => {
 
 
     return (
-        <Header className="flex items-center justify-between pt-10 pb-5 px-[65px] h-[110px] shadow-md fixed-header" style={{ backgroundColor: "#8294C4" }}>
+        <Header className="flex items-center justify-between pt-10 pb-5 px-[65px] h-[110px] shadow-md fixed-header"
+            style={{
+                backgroundColor: 'var(--primary-color)',
+            }}
+        >
             <Logo />
 
             <InputHeader />

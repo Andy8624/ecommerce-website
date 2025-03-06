@@ -80,24 +80,29 @@ const ProductInfo = ({
             {/* Nút hành động */}
             <Row gutter={[8, 8]} className="mt-4">
                 <Col>
-                    <Button
-                        type="primary"
-                        className=" border-none rounded-md transition-all duration-300"
-                        style={{ backgroundColor: "#8294C4" }}
+                    <button
+                        className="px-4 py-2 
+                        rounded transition-all duration-150 
+                        border border-[var(--primary-color)]
+                        bg-[var(--primary-color)] text-[var(--soft-gold-light)] font-bold 
+                        hover:text-[var(--gold-medium)]"
                     >
                         Thêm vào giỏ hàng
-                    </Button>
+                    </button>
                 </Col>
                 <Col>
-                    <Button
-                        type="danger"
-                        className="rounded-md hover:bg-red-600 transition-all duration-300"
+                    <button
+                        className="px-4 py-2 
+                        rounded transition-all duration-150 
+                        border
+                        border-[var(--primary-color)] text-[var(--primary-color)] font-bold 
+                        hover:text-[var(--gold-medium)] hover:border-[var(--gold-medium)] "
                     >
                         Mua ngay
-                    </Button>
+                    </button>
                 </Col>
-            </Row>
-        </Col>
+            </Row >
+        </Col >
     );
 };
 

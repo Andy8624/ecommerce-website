@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy.sparse import csr_matrix
+from app.services.gemini_handler import GeminiHandler
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -69,6 +70,12 @@ class UserBasedCollaborativeFiltering:
             user_id = review.get("userId")
             tool_id = review.get("toolId")
             rating = review.get("rating", 3)  
+            comment = review.get("comment", "")
+            # logging.debug(f"Comment {comment}")
+            handler = GeminiHandler(config_path="app/core/config.yaml")
+            response = handler.generate_content(f"Cho điểm mức độ hài lòng về bình luận sản phẩm, chỉ cần trả về 1 con số không giải thích gì thêm, đây là bình luận {comment}")  
+            text_value = response.get('text', '').strip()  # Loại bỏ ký tự xuống dòng nếu có
+            logging.debug(f"Rating from Gemini: {comment} {text_value}")
             normalized_weight = (rating - 3) / 2  # Normalize review rating to [-1, 1]
             weight = normalized_weight * scaling_factor
 

@@ -1,10 +1,13 @@
 package com.dlk.ecommerce.domain.response.tool;
 
+import com.dlk.ecommerce.domain.entity.ImageTool;
+import com.dlk.ecommerce.domain.entity.ProductReview;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +29,11 @@ public class ResToolDTO {
     String createdBy;
     Instant updatedAt;
     String updatedBy;
+    List<ImageTool> imageTools;
+    Double averageRating;
+    int totalRating;
+    String brand;
+    List<ProductReview> productReviews;
 
     @Data
     @NoArgsConstructor

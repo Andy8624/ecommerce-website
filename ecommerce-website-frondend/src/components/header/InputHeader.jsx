@@ -15,13 +15,13 @@ const InputHeader = () => {
     ];
 
     return (
-        <div className="relative w-[60%]">
+        <div className="relative w-[50%]">
             {/* Input thanh tìm kiếm */}
             <Input
                 placeholder="Tìm sản phẩm, thương hiệu, và tên shop"
                 suffix={
                     <SearchOutlined
-                        className="text-gray-400 px-2 cursor-pointer text-xl hover:text-blue-500 active:scale-95 transition duration-200"
+                        className="text-gray-500 px-2 cursor-pointer text-xl hover:text-blue-500 active:scale-95 transition duration-200"
                         onClick={() => console.log('Kính lúp được nhấn')}
                     />
                 }
@@ -31,7 +31,7 @@ const InputHeader = () => {
             {/* Dòng gợi ý bên dưới */}
             <div
                 className="flex text-white text-[0.8rem] justify-start my-2 py-1 px-2 rounded-b-lg"
-                style={{ lineHeight: '0rem' }}
+                style={{ lineHeight: '0rem', color: "var(--soft-gold-light)" }}
             >
                 {suggestionList.slice(0, 5).map(
                     (suggestion, index) => (

@@ -51,6 +51,7 @@ public class UserController {
     @PutMapping("/{id}")
     @ApiMessage("Update a user")
     public ResponseEntity<ResUpdateUserDTO> update(@PathVariable("id") String id, @RequestBody User user) throws IdInvalidException {
+        log.info(user.getImageUrl());
         return ResponseEntity.ok(userService.updateUser(user, id));
     }
 

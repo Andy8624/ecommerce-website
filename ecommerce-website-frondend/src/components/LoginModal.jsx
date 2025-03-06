@@ -1,7 +1,7 @@
 import { Modal, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const LoginModal = ({ isModalVisible, setIsModalVisible }) => {
+const LoginModal = ({ isModalVisible, setIsModalVisible, text }) => {
     const navigate = useNavigate();
     const handleLogin = () => {
         setIsModalVisible(false);
@@ -30,7 +30,7 @@ const LoginModal = ({ isModalVisible, setIsModalVisible }) => {
             centered
         >
             <p className="text-lg text-gray-600 text-center mb-4">
-                Bạn cần đăng nhập để sản phẩm vào giỏ hàng.
+                {text ? text : "Bạn cần đăng nhập để thực hiện tính năng này."}
             </p>
         </Modal>
     )

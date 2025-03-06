@@ -5,10 +5,14 @@ import ShopInfo from "../features/product-overview/components/ShopInfo";
 import ProductDetails from "../features/product-overview/components/ProductDetails";
 import CardContainer from "../components/CardContainer";
 import DescriptionProduct from "../features/product-overview/components/DescriptionProduct";
+import { useLocation } from "react-router-dom";
 
 const { Content } = Layout;
 
 const ProductOverviewPage = () => {
+    const location = useLocation();
+    const tool = location.state;
+    console.log(tool);
     const shopData = {
         logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQS_T5NL66MkewmvfUvKiaauZ1TATYBTiYdg&s",
         name: "YOLO Stationery",
@@ -52,19 +56,20 @@ const ProductOverviewPage = () => {
     };
 
     return (
-        <Layout style={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+        <Layout style={{ backgroundColor: "#f5f5f5" }} >
             <Content style={{ maxWidth: "1200px", margin: "0 auto" }}>
                 {/* Gallery and Info */}
                 <CardContainer>
                     <Row gutter={[16, 16]} >
-                        <ProductGallery images={tempProduct.images} productName={tempProduct.name} />
+                        <ProductGallery tool={tool} images={tempProduct.images} productName={tempProduct.name} />
                         <ProductInfo
-                            name={tempProduct.name}
-                            rating={tempProduct.rating}
-                            reviewCount={tempProduct.reviewCount}
-                            price={tempProduct.price}
-                            discountedPrice={tempProduct.discountedPrice}
-                            stockQuantity={tempProduct.stockQuantity}
+                            tool={tool}
+                            name={tool.name}
+                            rating={tool.averageRating}
+                            reviewCount={tool.totalRating}
+                            price={tool.price}
+                            discountedPrice={tool.discountedPrice}
+                            stockQuantity={tool.stockQuantity}
                             options={tempProduct.options}
                         />
                     </Row>
@@ -84,7 +89,7 @@ const ProductOverviewPage = () => {
                     <DescriptionProduct />
                 </CardContainer>
             </Content>
-        </Layout>
+        </Layout >
     );
 };
 

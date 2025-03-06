@@ -1,13 +1,13 @@
 import { Col, Image, Row, Modal } from "antd";
 import { useState } from "react";
 
-const ProductGallery = ({ images, productName }) => {
+const ProductGallery = ({ images, productName, tool }) => {
     const [selectedImage, setSelectedImage] = useState(images[0]); // Ảnh được chọn
     const [hoveredImage, setHoveredImage] = useState(null); // Ảnh tạm thời khi hover
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const openModal = (imgUrl) => {
-        setSelectedImage(imgUrl); // Đặt ảnh được chọn
+    const openModal = (imageUrl) => {
+        setSelectedImage(imageUrl); // Đặt ảnh được chọn
         setIsModalOpen(true); // Mở modal
     };
 

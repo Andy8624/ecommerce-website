@@ -4,7 +4,6 @@ import { store } from "../redux/store";
 import { setRefreshTokenAction } from "../redux/slices/accountSlice";
 import { Modal, notification } from "antd";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify";
 
 const instance = axios.create({
     baseURL: "http://localhost:8080/",
@@ -16,12 +15,24 @@ const NO_RETRY_HEADER = "x-no-retry";
 
 
 const handleRefreshToken = async () => {
+    console.log("begin");
+    console.log(document.cookie);
     return await mutex.runExclusive(async () => {
-        const res = await instance.get("/api/v1/auth/refresh");
-        if (res && res.data) return res.data.access_token;
-        return null;
+        console.log("Refresh token...");
+        try {
+            const res = await instance.get("/api/v1/auth/refresh", {
+                withCredentials: true, // Bật gửi cookies
+            });
+
+            console.log("Refresh token response: ", res);
+            if (res && res.data) return res.data.access_token;
+        } catch (error) {
+            console.log("Lỗi refresh token: ", error);
+            return null;
+        }
     });
 };
+
 
 instance.interceptors.request.use(function (config) {
     // thêm access_token (từ localStorage nếu có) vào header cho mỗi request
@@ -79,17 +90,18 @@ instance.interceptors.response.use(
             error.config.url !== "/api/v1/auth/login" &&
             !error.config.headers[NO_RETRY_HEADER]
         ) {
-
+            console.log("Access token hết hạn, refresh token...");
             const access_token = await handleRefreshToken();
 
             error.config.headers[NO_RETRY_HEADER] = "true";
-
+            console.log("Access token mới: ", access_token);
             if (access_token) {
                 error.config.headers["Authorization"] = `Bearer ${access_token}`;
                 localStorage.setItem("access_token", access_token);
                 return instance.request(error.config);
             } else {
                 localStorage.removeItem("access_token");
+                console.log("Refresh token hết hạn, chuyển về trang login... STATUS: 401");
                 // Hiển thị modal yêu cầu đăng nhập lại
                 Modal.confirm({
                     title: "Phiên đăng nhập đã hết hạn",
@@ -111,6 +123,7 @@ instance.interceptors.response.use(
             error.config.url === "/api/v1/auth/refresh" &&
             location.pathname.startsWith("/admin")
         ) {
+            console.log("config", error.config);
             const message =
                 error?.response?.data?.error ?? "Có lỗi xảy ra, vui lòng login.";
             console.log("Refresh token hết hạn, chuyển về trang login... STATUS: 400");

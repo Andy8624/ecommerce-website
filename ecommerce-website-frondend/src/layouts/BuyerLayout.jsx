@@ -24,7 +24,7 @@ const BuyerLayout = () => {
 
     return (
         <CartProvider>
-            <Layout style={{ minHeight: "100vh" }}>
+            <Layout>
                 {/* Thanh menu trên cùng */}
                 <TopHeader onLogout={handleLogout} />
 
@@ -36,7 +36,7 @@ const BuyerLayout = () => {
                     <Outlet />
                 </div>
             </Layout>
-        </CartProvider>
+        </CartProvider >
     );
 };
 
