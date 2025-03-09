@@ -1,41 +1,138 @@
 package com.dlk.ecommerce.service;
 
-import com.dlk.ecommerce.domain.response.file.ResDownloadFile;
 import com.dlk.ecommerce.domain.response.file.ResUploadFileDTO;
+import com.dlk.ecommerce.repository.ImageToolRepository;
 import com.dlk.ecommerce.util.error.StorageException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileService {
     @Value("${dlk.upload-file.base-uri}")
     private String baseUri;
 
-    public ResUploadFileDTO handleUploadFile(MultipartFile file, String folderName) throws URISyntaxException, IOException, StorageException {
-        // check valid file
-        checkValidFile(file);
+    private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate; // RestTemplate để gọi API Python
+    private final ImageToolRepository imageToolRepository; // Repository để lưu vào DB
 
-        // tạo thư mục nếu chưa tồn tại
+    // Upload nhiều file cùng một lúc
+    public List<ResUploadFileDTO> handleUploadMultipleFiles(
+            List<MultipartFile> files, String folderName
+    ) throws URISyntaxException, IOException, StorageException {
+        List<ResUploadFileDTO> uploadedFiles = new ArrayList<>();
+
+        // Tạo thư mục nếu chưa tồn tại
         createDirectory(baseUri + folderName);
 
-        // lưu file
-        String fileName = store(file, folderName);
+        for (MultipartFile file : files) {
+            checkValidFile(file);
+            String fileName = store(file, folderName);
 
-        return new ResUploadFileDTO(fileName, Instant.now());
+            // Gọi API Python để trích xuất đặc trưng
+            byte[] featureVector = extractFeatureFromPythonAPI(file);
+            log.info("Extracted feature vector (BLOB): " + Arrays.toString(featureVector));
+
+            float[] convert = byteArrayToFloatArray(featureVector);
+            log.info("Extracted feature vector (FLOAT): " + Arrays.toString(convert));
+
+
+            uploadedFiles.add(new ResUploadFileDTO(fileName, Instant.now(), featureVector));
+        }
+        return uploadedFiles;
+    }
+
+    // Hàm gọi API Python để trích xuất đặc trưng
+    private byte[] extractFeatureFromPythonAPI(MultipartFile file) {
+        // Tạo URL của API Python
+        String apiUrl = "http://localhost:8000/python/api/v1/extract-feature";
+
+        // Tạo MultipartRequest để gửi file
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", file.getResource());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Gửi yêu cầu POST đến API Python và nhận kết quả
+        ResponseEntity<Object> response = restTemplate.exchange(
+                apiUrl,
+                HttpMethod.POST,
+                requestEntity,
+                Object.class
+        );
+
+        // Chuyển đổi phản hồi thành JsonNode
+        JsonNode jsonNode = objectMapper.convertValue(response.getBody(), JsonNode.class);
+
+        // Truy xuất featureVector từ JsonNode
+        JsonNode featureVectorNode = jsonNode.get("featureVector");
+
+        // Chuyển JsonNode thành mảng số thực (float[])
+        float[] featureVector = new float[featureVectorNode.size()];
+        for (int i = 0; i < featureVectorNode.size(); i++) {
+            featureVector[i] = featureVectorNode.get(i).floatValue();
+        }
+
+        log.info("Extracted feature vector (FLOAT): " + Arrays.toString(featureVector));
+
+
+        // Chuyển mảng float[] thành mảng byte (BLOB)
+        return convertFloatArrayToByteArray(featureVector);
+    }
+
+    // Chuyển từ float array thành byte array
+    public static byte[] convertFloatArrayToByteArray(float[] featureVector) {
+        ByteBuffer buffer = ByteBuffer.allocate(featureVector.length * 4); // 4 bytes per float
+        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Chỉ định byte order (LITTLE_ENDIAN)
+
+        for (float f : featureVector) {
+            buffer.putFloat(f); // Ghi giá trị float vào ByteBuffer
+        }
+
+        return buffer.array();  // Trả về mảng byte
+    }
+
+    // Chuyển từ byte array thành float array
+    public static float[] byteArrayToFloatArray(byte[] byteArray) {
+        int length = byteArray.length / 4;  // Mỗi float chiếm 4 byte
+        float[] floatArray = new float[length];
+
+        ByteBuffer buffer = ByteBuffer.wrap(byteArray);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Đảm bảo thứ tự byte
+
+        for (int i = 0; i < length; i++) {
+            floatArray[i] = buffer.getFloat();  // Đọc 4 byte và chuyển thành float
+        }
+
+        return floatArray;
     }
 
     public void createDirectory(String folderName) throws URISyntaxException {
@@ -67,7 +164,7 @@ public class FileService {
         return fileName;
     }
 
-    public Boolean checkValidFile(MultipartFile file) throws StorageException {
+    public void checkValidFile(MultipartFile file) throws StorageException {
         // kiểm tra rỗng
         if (file.isEmpty()) {
             throw new StorageException("File is empty...");
@@ -82,44 +179,57 @@ public class FileService {
             throw new StorageException("File extension is not valid... Only support " + allowedExtensions);
         }
 
-        return true;
     }
 
 
-    public ResDownloadFile handleDownloadFile(String fileName, String folder) throws StorageException, FileNotFoundException,
-            URISyntaxException {
-        if (fileName == null || folder == null) {
-            throw new StorageException("File name or folder name is null...");
-        }
+//    public ResDownloadFile handleDownloadFile(String fileName, String folder) throws StorageException, FileNotFoundException,
+//            URISyntaxException {
+//        if (fileName == null || folder == null) {
+//            throw new StorageException("File name or folder name is null...");
+//        }
+//
+//        long fileLength = getFileLength(fileName, folder);
+//        if (fileLength == 0) {
+//            throw new StorageException("File not found...");
+//        }
+//
+//        InputStreamResource resource = getResource(fileName, folder);
+//        return new ResDownloadFile(resource, fileLength);
+//    }
 
-        long fileLength = getFileLength(fileName, folder);
-        if (fileLength == 0) {
-            throw new StorageException("File not found...");
-        }
+//    public long getFileLength(String fileName, String folder) throws URISyntaxException {
+//        URI uri = new URI(baseUri + folder + "/" + fileName);
+//        Path path = Paths.get(uri);
+//
+//        File tmpFolder = new File(path.toString());
+//
+//        if (!tmpFolder.exists() || tmpFolder.isDirectory()) {
+//            return 0;
+//        }
+//
+//        return tmpFolder.length();
+//    }
 
-        InputStreamResource resource = getResource(fileName, folder);
-        return new ResDownloadFile(resource, fileLength);
-    }
+//    public InputStreamResource getResource(String fileName, String folder) throws FileNotFoundException, URISyntaxException {
+//        URI uri = new URI(baseUri + folder + "/" + fileName);
+//        Path path = Paths.get(uri);
+//
+//        File file = new File(path.toString());
+//        return new InputStreamResource(new FileInputStream(file));
+//    }
 
-    public long getFileLength(String fileName, String folder) throws URISyntaxException {
-        URI uri = new URI(baseUri + folder + "/" + fileName);
-        Path path = Paths.get(uri);
+    // Upload 1 file
+    public ResUploadFileDTO handleUploadFile(MultipartFile file, String folderName) throws URISyntaxException, IOException, StorageException {
+        // check valid file
+        checkValidFile(file);
 
-        File tmpFolder = new File(path.toString());
+        // tạo thư mục nếu chưa tồn tại
+        createDirectory(baseUri + folderName);
 
-        if (!tmpFolder.exists() || tmpFolder.isDirectory()) {
-            return 0;
-        }
+        // lưu file
+        String fileName = store(file, folderName);
 
-        return tmpFolder.length();
-    }
-
-    public InputStreamResource getResource(String fileName, String folder) throws FileNotFoundException, URISyntaxException {
-        URI uri = new URI(baseUri + folder + "/" + fileName);
-        Path path = Paths.get(uri);
-
-        File file = new File(path.toString());
-        return new InputStreamResource(new FileInputStream(file));
+        return new ResUploadFileDTO(fileName, Instant.now(), null);
     }
 }
 

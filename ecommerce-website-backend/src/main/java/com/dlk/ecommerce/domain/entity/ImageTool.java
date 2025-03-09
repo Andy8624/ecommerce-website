@@ -21,6 +21,10 @@ public class ImageTool {
     @Column(nullable = false)
     String fileName;
 
+    @Lob
+    @Column(columnDefinition = "LONGBLOB") // Lưu vector dưới dạng BLOB (nhị phân)
+    byte[] featureVector;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tool_id", nullable = false)
     @JsonIgnore

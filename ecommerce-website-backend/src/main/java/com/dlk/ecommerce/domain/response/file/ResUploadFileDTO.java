@@ -10,4 +10,6 @@ import java.time.Instant;
 public class ResUploadFileDTO {
     private String fileName;
     private Instant uploadedAt;
+    private byte[] featureVector;
+
 }

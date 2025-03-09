@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter
-from app.api.endpoints import recommendations, llm, greet, evaluate_recommender
+from app.api.endpoints import recommendations, llm, greet, image_search
 from app.core.logger_config import LoggerConfig
 
 class Application:
@@ -15,6 +15,7 @@ class Application:
         api_router.include_router(recommendations.router)
         api_router.include_router(llm.router)
         api_router.include_router(greet.router)
+        api_router.include_router(image_search.router)
         # api_router.include_router(evaluate_recommender.router)
         
         # Gắn router trung gian vào ứng dụng

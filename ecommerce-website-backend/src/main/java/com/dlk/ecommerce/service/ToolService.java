@@ -45,14 +45,6 @@ public class ToolService {
         return toolMapper.mapToResToolDTO(tool);
     }
 
-
-
-    public Tool getToolByIdAdmin(long toolId) throws IdInvalidException {
-        return toolRepository.findById(toolId).orElseThrow(
-                () -> new IdInvalidException("Tool with id: " + toolId + " not found")
-        );
-    }
-
     public ResCreateToolDTO createTool(ReqToolDTO request) throws IdInvalidException {
         User dbUser = userService.fetchUserById(request.getUser().getUserId());
 
