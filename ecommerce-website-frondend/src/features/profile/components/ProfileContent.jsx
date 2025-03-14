@@ -51,12 +51,13 @@ const ProfileContent = () => {
 
     // Xử lý submit form
     const handleFinish = async (values) => {
-        let uploadedImageUrl = avatarUrl;
+        let uploadedImageUrl = getUserById?.imageUrl;
+        console.log(uploadedImageUrl)
 
         const processedValues = Object.fromEntries(
             Object.entries(values).map(([key, value]) => [key, value === "" ? null : value])
         );
-        console.log(processedValues);
+
         try {
             // Nếu có ảnh được chọn, upload ảnh trước
             if (selectedFile) {

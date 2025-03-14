@@ -1,37 +1,225 @@
-import { Tabs, Form, Button, Typography } from "antd";
+import { Steps, Form, Button, Typography, Divider } from "antd";
 import { useState } from "react";
-import BasicInfo from "./BasicInfo";
-import SalesInfo from "./SalesInfo";
-import DetailedInfo from "./DetailedInfo";
 
 const { Title } = Typography;
+const { Step } = Steps;
+
+import BasicInfo from "./BasicInfo"
+import DetailedInfo from "./DetailedInfo"
+import SalesInfo from "./SalesInfo"
+import DeliveryInfo from "./DeliveryInfo";
+import { useCreateTool } from "../hooks/useCreateTool";
 
 const ProductForm = () => {
     const [form] = Form.useForm();
-    const [activeTab, setActiveTab] = useState("1");
+    const [currentStep, setCurrentStep] = useState(0);
+    const [formData, setFormData] = useState({});
+    const [productImages, setProductImages] = useState([]);
+    const [coverImage, setCoverImage] = useState([]);
 
-    const handleSubmit = (values) => {
-        console.log("Submitted Data:", values);
+    const [categories, setCategories] = useState([]);
+    const [validProductImage, setValidProductImage] = useState(true)
+    const [validCoverImage, setValidCoverImage] = useState(true)
+    const [canNext, setCanNext] = useState(false)
+    const [attributes, setAttributes] = useState([]);
+
+
+    const [prices, setPrices] = useState([]);
+    const [stocks, setStocks] = useState([]);
+
+    const { createNewTool } = useCreateTool();
+
+    const handleNext = async () => {
+        try {
+            // Validate and save data of current step
+            const values = await form.validateFields();
+            setFormData((prev) => ({ ...prev, ...values }));
+
+            productImages.length < 1
+                ? (setValidProductImage(false), setCanNext(false))
+                : (setValidProductImage(true), setCanNext(true))
+
+            coverImage.length < 1
+                ? (setValidCoverImage(false), setCanNext(false))
+                : (setValidCoverImage(true), setCanNext(true))
+
+            if (canNext) {
+                // Move to next step
+                setCurrentStep(currentStep + 1);
+            }
+
+        } catch (error) {
+            console.log("Validation Failed:", error);
+        }
     };
+
+    const handlePrevious = () => {
+        setCurrentStep(currentStep - 1);
+    };
+
+    const generateCombinations = () => {
+        if (categories.length === 0) return [];
+
+        return categories.reduce((acc, category) => {
+            if (acc.length === 0) return category.values.map(value => [value]);
+            return acc.flatMap(prev => category.values.map(value => [...prev, value]));
+        }, []);
+    };
+
+    const productVariants = generateCombinations();
+
+    const dataSource = productVariants.map((variant, index) => {
+        const row = { key: index };
+        variant.forEach((value, i) => {
+            row[`category${i}`] = value;
+        });
+        return row;
+    });
+
+    const handleSubmit = async (values) => {
+        const finalData = { ...formData, ...values };
+        console.log("Submitted Data without images:", finalData);
+
+        // Tạo object lồng cho các thuộc tính động (từ DetailedInfo)
+        const dynamicAttributes = {};
+        attributes.forEach(attr => {
+            dynamicAttributes[attr.name] = finalData[attr.name];
+            delete finalData[attr.name];
+        });
+
+        // Tạo object lồng cho thông tin bán hàng (từ SalesInfo)
+        const salesInfo = {
+            categories: categories.map(category => ({
+                name: category.name,
+                values: category.values,
+            })),
+            variants: productVariants.map((variant, index) => {
+                const variantData = {};
+                variant.forEach((value, i) => {
+                    variantData[`category${i}`] = value;
+                });
+                return {
+                    ...variantData,
+                    price: prices[index] || 0,
+                    stock: stocks[index] || 0,
+                };
+            }),
+        };
+
+        // Tạo object lồng cuối cùng
+        const dataToSend = {
+            product: {
+                name: finalData.name,
+                toolTypeId: finalData.toolTypeId,
+                description: finalData.description,
+                brand: finalData.brand,
+                warranty: finalData.warranty,
+                origin: finalData.origin,
+                attributes: dynamicAttributes,
+                salesInfo: salesInfo, // Lồng thông tin bán hàng vào đây
+            },
+            images: productImages.map((file) => file.originFileObj),
+            coverImage: coverImage.length > 0 ? coverImage[0].originFileObj : null,
+        };
+
+        console.log("Data to send:", dataToSend);
+
+        // Tạo FormData để gửi lên server
+        const formDataToSend = new FormData();
+
+        // Gửi tất cả các thuộc tính của form (trừ ảnh và salesInfo)
+        Object.keys(dataToSend.product).forEach((key) => {
+            if (key !== 'attributes' && key !== 'salesInfo') {
+                formDataToSend.append(key, dataToSend.product[key]);
+            }
+        });
+
+        // Gửi các thuộc tính động
+        Object.keys(dataToSend.product.attributes).forEach((key) => {
+            formDataToSend.append(`attributes[${key}]`, dataToSend.product.attributes[key]);
+        });
+
+        // Gửi thông tin bán hàng
+        formDataToSend.append('salesInfo', JSON.stringify(dataToSend.product.salesInfo));
+
+        // Gửi tất cả ảnh sản phẩm
+        productImages.forEach((file) => {
+            formDataToSend.append('images', file.originFileObj);
+        });
+
+        // Gửi ảnh bìa (cover image)
+        if (coverImage.length > 0) {
+            formDataToSend.append('coverImage', coverImage[0].originFileObj);
+        }
+
+        // Gửi dữ liệu FormData lên server
+        try {
+
+
+
+            console.log('Dữ liệu đã được lưu vào cơ sở dữ liệu:');
+
+            localStorage.removeItem("attributes");
+        } catch (error) {
+            console.error('Có lỗi xảy ra khi lưu dữ liệu:', error);
+        }
+    };
+
+
 
     return (
         <>
             <Title level={2}>Thêm sản phẩm</Title>
-            <Form form={form} onFinish={handleSubmit} layout="vertical">
-                <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-                    <Tabs.TabPane tab="Thông tin cơ bản" key="1">
-                        <BasicInfo form={form} />
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Thông tin chi tiết" key="2">
-                        <DetailedInfo form={form} />
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Thông tin bán hàng" key="3">
-                        <SalesInfo form={form} />
-                    </Tabs.TabPane>
-                </Tabs>
-                <Button type="primary" htmlType="submit" className="mt-4">
-                    Submit
-                </Button>
+            <Form form={form} onFinish={handleSubmit}>
+                <Steps current={currentStep} onChange={setCurrentStep} className="mt-5">
+                    <Step title="Thông tin cơ bản" />
+                    <Step title="Thông tin chi tiết" disabled={currentStep < 1} />
+                    <Step title="Thông tin bán hàng" disabled={currentStep < 2} />
+                    <Step title="Thông tin giao hàng" disabled={currentStep < 3} />
+                </Steps>
+                <Divider />
+
+                <div className="step-content">
+                    {currentStep === 0 && <BasicInfo
+                        validCoverImage={validCoverImage}
+                        validProductImage={validProductImage}
+                        productImages={productImages} setProductImages={setProductImages}
+                        coverImage={coverImage} setCoverImage={setCoverImage}
+                    />}
+                    {currentStep === 1 && <DetailedInfo
+                        attributes={attributes}
+                        setAttributes={setAttributes}
+                    />}
+                    {currentStep === 2 && <SalesInfo
+                        categories={categories}
+                        setCategories={setCategories}
+                        productVariants={productVariants}
+                        dataSource={dataSource}
+                        prices={prices}
+                        setPrices={setPrices}
+                        stocks={stocks}
+                        setStocks={setStocks}
+                    />}
+                    {currentStep === 3 && <DeliveryInfo />}
+                </div>
+
+                <div className="step-actions mt-4">
+                    {currentStep > 0 && (
+                        <Button onClick={handlePrevious} className="mr-4">
+                            Quay lại
+                        </Button>
+                    )}
+                    {currentStep < 3 && (
+                        <Button type="primary" onClick={handleNext}>
+                            Tiếp theo
+                        </Button>
+                    )}
+                    {currentStep === 3 && (
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    )}
+                </div>
             </Form>
         </>
     );

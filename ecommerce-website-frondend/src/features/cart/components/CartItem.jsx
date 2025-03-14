@@ -52,18 +52,18 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
                     <div className="text-sm">
                         {item.discountPrice !== 0 ? (
                             <>
-                                <p className="line-through text-gray-500">{item.price.toLocaleString()} VND</p>
-                                <p className="text-red-500 font-medium">{item.discountPrice.toLocaleString()} VND</p>
+                                <p className="line-through text-gray-500">đ {item.price.toLocaleString()}</p>
+                                <p className="text-red-500 font-medium">đ {item.discountPrice.toLocaleString()}</p>
                             </>
                         ) : (
-                            <p className="text-red-500 font-medium">{item.price.toLocaleString()} VND</p>
+                            <p className="text-red-500 font-medium">đ {item.price.toLocaleString()}</p>
                         )}
                     </div>
                 )}
             />
 
             <div className="text-right font-semibold text-sm">
-                {((item.discountPrice || item.price) * item.quantity).toLocaleString()} VND
+                đ {((item.discountPrice || item.price) * item.quantity).toLocaleString()}
             </div>
         </List.Item>
     );

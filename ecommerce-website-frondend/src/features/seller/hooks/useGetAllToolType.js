@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { callGetAllToolTypes } from "../../../services/ToolTypeService";
 
 export function useGetAllToolType() {
-    const { data: toolTypes, isLoading, error } = useQuery({
+    const { data: toolTypes, isLoadingToolTypes, error } = useQuery({
         queryKey: ["toolTypes"],
         queryFn: callGetAllToolTypes,
     });
 
-    return { toolTypes, isLoading, error };
+    return { toolTypes, isLoadingToolTypes, error };
 }

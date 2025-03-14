@@ -1,16 +1,25 @@
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Form, Input, Button, Table, Space } from "antd";
 import { useState } from "react";
 
-const SalesInfo = ({ form }) => {
-    const [categories, setCategories] = useState([]);
-    const [prices, setPrices] = useState([]);
-    const [stocks, setStocks] = useState([]);
+const SalesInfo = ({
+    categories, setCategories,
+    prices, setPrices,
+    stocks, setStocks,
+    productVariants, dataSource,
+}) => {
+
 
     const addCategory = () => {
         if (categories.length < 2) {
             setCategories([...categories, { name: "", values: [] }]);
         }
+    };
+
+    const removeCategory = (index) => {
+        const newCategories = [...categories];
+        newCategories.splice(index, 1);
+        setCategories(newCategories);
     };
 
     const updateCategoryName = (index, value) => {
@@ -25,19 +34,16 @@ const SalesInfo = ({ form }) => {
         setCategories(newCategories);
     };
 
+    const removeCategoryValue = (catIndex, valIndex) => {
+        const newCategories = [...categories];
+        newCategories[catIndex].values.splice(valIndex, 1);
+        setCategories(newCategories);
+    };
+
     const updateCategoryValue = (catIndex, valIndex, value) => {
         const newCategories = [...categories];
         newCategories[catIndex].values[valIndex] = value;
         setCategories(newCategories);
-    };
-
-    const generateCombinations = () => {
-        if (categories.length === 0) return [];
-
-        return categories.reduce((acc, category) => {
-            if (acc.length === 0) return category.values.map(value => [value]);
-            return acc.flatMap(prev => category.values.map(value => [...prev, value]));
-        }, []);
     };
 
     const updatePrice = (index, value) => {
@@ -52,7 +58,6 @@ const SalesInfo = ({ form }) => {
         setStocks(newStocks);
     };
 
-    const productVariants = generateCombinations();
 
     const columns = [
         ...categories.map((category, index) => ({
@@ -65,11 +70,13 @@ const SalesInfo = ({ form }) => {
             dataIndex: "price",
             key: "price",
             render: (_, record, index) => (
-                <Input
-                    value={prices[index] || ""}
-                    onChange={(e) => updatePrice(index, e.target.value)}
-                    placeholder="Nhập giá sản phẩm"
-                />
+                <Form.Item name={`price_${index}`} required>
+                    <Input required
+                        value={prices[index] || ""}
+                        onChange={(e) => updatePrice(index, e.target.value)}
+                        placeholder="Nhập giá sản phẩm"
+                    />
+                </Form.Item>
             )
         },
         {
@@ -77,60 +84,67 @@ const SalesInfo = ({ form }) => {
             dataIndex: "stock",
             key: "stock",
             render: (_, record, index) => (
-                <Input
-                    value={stocks[index] || ""}
-                    onChange={(e) => updateStock(index, e.target.value)}
-                    placeholder="Nhập số lượng kho"
-                />
+                <Form.Item name={`stock_${index}`}>
+                    <Input
+                        value={stocks[index] || ""}
+                        onChange={(e) => updateStock(index, e.target.value)}
+                        placeholder="Nhập số lượng kho"
+                    />
+                </Form.Item>
             )
         }
     ];
-
-    const dataSource = productVariants.map((variant, index) => {
-        const row = { key: index };
-        variant.forEach((value, i) => {
-            row[`category${i}`] = value;
-        });
-        return row;
-    });
 
     return (
         <div>
             <h2 className="text-lg font-semibold mb-2">Thông tin bán hàng</h2>
             {categories.length === 0 ? (
                 <div className="mb-4 p-4 bg-gray-200 rounded-lg">
-                    <Form.Item label="Giá sản phẩm">
+                    <Form.Item label="Giá sản phẩm" name="price_0">
                         <Input value={prices[0] || ""} onChange={(e) => updatePrice(0, e.target.value)} placeholder="Nhập giá sản phẩm" />
                     </Form.Item>
-                    <Form.Item label="Số lượng kho">
+                    <Form.Item label="Số lượng kho" name="stock_0">
                         <Input value={stocks[0] || ""} onChange={(e) => updateStock(0, e.target.value)} placeholder="Nhập số lượng sản phẩm trong kho" />
                     </Form.Item>
                 </div>
             ) : (
                 categories.map((category, catIndex) => (
                     <div key={catIndex} className="mb-4 p-4 bg-gray-200 rounded-lg">
-                        <Form.Item label={`Phân loại ${catIndex + 1}`}>
-                            <Input
-                                value={category.name}
-                                onChange={(e) => updateCategoryName(catIndex, e.target.value)}
-                                placeholder="Nhập tên phân loại (VD: Màu sắc, Kích thước)"
+                        <div className="flex items-center">
+                            <Form.Item label={`Phân loại ${catIndex + 1}`} className="mb-0" name={`categoryName_${catIndex}`}>
+                                <Input
+                                    value={category.name}
+                                    onChange={(e) => updateCategoryName(catIndex, e.target.value)}
+                                    placeholder="Nhập tên phân loại (VD: Màu sắc, Kích thước)"
+                                />
+                            </Form.Item>
+                            <DeleteOutlined
+                                className="text-red-400 hover:bg-red-200 rounded-full p-1 text-sm transition-colors duration-200 ease-in-out"
+                                onClick={() => removeCategory(catIndex)}
                             />
-                        </Form.Item>
+                        </div>
                         <Space wrap>
                             {category.values.map((value, valIndex) => (
-                                <Form.Item key={valIndex}>
-                                    <Input
-                                        value={value}
-                                        onChange={(e) => updateCategoryValue(catIndex, valIndex, e.target.value)}
-                                        placeholder="Nhập giá trị"
-                                        style={{ width: 150 }}
+                                <div key={valIndex} className="flex items-center mt-2">
+                                    <Form.Item className="mb-0" name={`categoryValue_${catIndex}_${valIndex}`}>
+                                        <Input
+                                            value={value}
+                                            onChange={(e) => updateCategoryValue(catIndex, valIndex, e.target.value)}
+                                            placeholder="Nhập giá trị"
+                                        />
+                                    </Form.Item>
+                                    <DeleteOutlined
+                                        className="text-red-400 hover:bg-red-200 rounded-full p-1 text-sm transition-colors duration-200 ease-in-out"
+                                        onClick={() => removeCategoryValue(catIndex, valIndex)}
                                     />
-                                </Form.Item>
+                                </div>
                             ))}
                         </Space>
-                        <Button className="ms-2" type="dashed" onClick={() => addCategoryValue(catIndex)}>
-                            <PlusOutlined /> Thêm giá trị
-                        </Button>
+                        <div>
+                            <Button className="mt-2" type="dashed" onClick={() => addCategoryValue(catIndex)}>
+                                <PlusOutlined /> Thêm giá trị
+                            </Button>
+                        </div>
                     </div>
                 ))
             )}

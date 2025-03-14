@@ -1,8 +1,7 @@
 import { Form, Input, Select, Upload, Image } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
-
-const { Option } = Select;
+import { useGetAllToolType } from "../hooks/useGetAllToolType";
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -12,11 +11,9 @@ const getBase64 = (file) =>
         reader.onerror = (error) => reject(error);
     });
 
-const BasicInfo = ({ form, editingTool }) => {
+const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages, validCoverImage, validProductImage }) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
-    const [productImages, setProductImages] = useState([]);
-    const [coverImage, setCoverImage] = useState([]);
 
     const handlePreview = async (file) => {
         if (!file.url && !file.preview) {
@@ -29,6 +26,7 @@ const BasicInfo = ({ form, editingTool }) => {
     const handleProductImageChange = ({ fileList }) => setProductImages(fileList);
     const handleCoverImageChange = ({ fileList }) => setCoverImage(fileList.slice(-1)); // Chỉ giữ lại 1 ảnh bìa
 
+    const { toolTypes, isLoadingToolTypes } = useGetAllToolType()
     return (
         <div>
             <h2 className="text-xl font-semibold mb-3">Thông tin cơ bản</h2>
@@ -36,21 +34,28 @@ const BasicInfo = ({ form, editingTool }) => {
                 <Input />
             </Form.Item>
 
-            <Form.Item label="Loại sản phẩm" name="toolTypeId" rules={[{ required: true, message: "Vui lòng chọn loại sản phẩm" }]}>
-                <Select placeholder="Chọn loại sản phẩm">
-                    <Option value="tap-vo">Tập vở</Option>
-                    <Option value="muc">Mực</Option>
-                    <Option value="but">Bút</Option>
-                    <Option value="giay">Giấy</Option>
-                    <Option value="khac">Khác</Option>
-                </Select>
+            <Form.Item
+                label="Loại sản phẩm" name="toolTypeId"
+                rules={[{ required: true, message: "Vui lòng chọn loại sản phẩm" }]}
+            >
+                <Select
+                    placeholder="Chọn loại sản phẩm"
+                    options={toolTypes?.map(item => ({
+                        label: item.name,
+                        value: item.toolTypeId
+                    }))}
+                    loading={isLoadingToolTypes}
+                />
             </Form.Item>
 
             <Form.Item label="Mô tả" name="description">
                 <Input.TextArea rows={4} />
             </Form.Item>
 
-            <Form.Item label={`Hình ảnh sản phẩm (${productImages.length}/9)`}>
+            <Form.Item
+                label={`Hình ảnh sản phẩm (${productImages.length}/9)`}
+                required
+            >
                 <Upload
                     listType="picture-card"
                     fileList={productImages}
@@ -61,8 +66,11 @@ const BasicInfo = ({ form, editingTool }) => {
                     {productImages.length < 9 ? <PlusOutlined /> : null}
                 </Upload>
             </Form.Item>
+            <div className="text-error">{validProductImage || "Bạn cần thêm ít nhất một ảnh sản phẩm"}</div>
 
-            <Form.Item label={`Ảnh bìa (${coverImage.length}/1)`}>
+            <Form.Item
+                label={`Ảnh bìa (${coverImage.length}/1)`} required
+            >
                 <Upload
                     listType="picture-card"
                     fileList={coverImage}
@@ -73,19 +81,22 @@ const BasicInfo = ({ form, editingTool }) => {
                     {coverImage.length < 1 ? <PlusOutlined /> : null}
                 </Upload>
             </Form.Item>
+            <div className="text-error">{validCoverImage || "Bạn cần thêm ít nhất một ảnh bìa sản phẩm"}</div>
 
-            {previewImage && (
-                <Image
-                    wrapperStyle={{ display: "none" }}
-                    preview={{
-                        visible: previewOpen,
-                        onVisibleChange: (visible) => setPreviewOpen(visible),
-                        afterOpenChange: (visible) => !visible && setPreviewImage(""),
-                    }}
-                    src={previewImage}
-                />
-            )}
-        </div>
+            {
+                previewImage && (
+                    <Image
+                        wrapperStyle={{ display: "none" }}
+                        preview={{
+                            visible: previewOpen,
+                            onVisibleChange: (visible) => setPreviewOpen(visible),
+                            afterOpenChange: (visible) => !visible && setPreviewImage(""),
+                        }}
+                        src={previewImage}
+                    />
+                )
+            }
+        </div >
     );
 };
 
