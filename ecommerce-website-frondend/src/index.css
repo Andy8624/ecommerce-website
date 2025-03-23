@@ -57,8 +57,8 @@
 
 /* ****************************************************** */
 
-:where(.css-dev-only-do-not-override-ni1kz0).ant-card .ant-card-body {
-    padding: 0.8rem;
+:where(.css-dev-only-do-not-override-tjsggz).ant-card .ant-card-body {
+    padding: 0.8rem !important;
 }
 
 /* Cho hiển thị text trên 2 dòng nếu dài hơn thì ... */

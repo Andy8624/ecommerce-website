@@ -26,3 +26,34 @@ export const uploadFile = async (file, folderName) => {
         throw error;
     }
 };
+
+export const uploadMultipleFiles = async (files, folderName, toolId) => {
+    try {
+        const formData = new FormData();
+
+        // Thêm từng file vào FormData
+        files.forEach((file) => {
+            formData.append("files", file);
+        });
+
+        // 🛠️ Thêm folderName dưới dạng `append()`
+        formData.append("folderName", folderName);
+
+        // 🛠️ Thêm toolId dưới dạng `append()
+        formData.append("toolId", toolId.toString());
+
+        // Gửi request với `multipart/form-data`
+        const response = await axios.post("/api/v1/files/upload-multiple", formData);
+
+
+        console.log(response);
+        // if (response.data && Array.isArray(response.data)) {
+        //     return response.data.map(file => file.fileName);
+        // } else {
+        //     throw new Error("Multiple file upload failed!");
+        // }
+    } catch (error) {
+        console.error("Error uploading multiple files:", error);
+        throw error;
+    }
+};

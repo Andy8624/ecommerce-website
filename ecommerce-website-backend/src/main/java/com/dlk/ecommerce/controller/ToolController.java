@@ -12,14 +12,18 @@ import com.dlk.ecommerce.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("api/v1/tools")
 public class ToolController {
     private final ToolService toolService;
@@ -89,4 +93,9 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getToolByName(spec, pageable));
     }
 
+    @PostMapping("/toolIds")
+    @ApiMessage("Get tools by list of IDs")
+    public ResponseEntity<List<ResToolDTO>> getToolsByIds(@RequestBody List<Long> toolIds) {
+        return ResponseEntity.ok(toolService.getToolsByIds(toolIds));
+    }
 }

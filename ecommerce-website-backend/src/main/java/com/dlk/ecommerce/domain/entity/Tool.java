@@ -32,6 +32,7 @@ public class Tool extends BaseEntity {
     @Column(columnDefinition = "MEDIUMTEXT")
     String description;
 
+    // Tổng sản phẩm các loại
     int stockQuantity;
     String imageUrl;
 
@@ -40,7 +41,7 @@ public class Tool extends BaseEntity {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     BigDecimal price;
 
-    @DecimalMin(value = "0.0", message = "Discounted price must be greater than 0")
+    @Column(nullable = true)
     BigDecimal discountedPrice;
 
     @Column(nullable = false)
@@ -56,7 +57,17 @@ public class Tool extends BaseEntity {
     @JoinColumn(name = "tool_type_id", nullable = false)
     ToolType toolType;
 
+    // Thương hiệu
     String brand;
+    // Xuất xứ
+    String origin;
+    // Thông tin bảo hành
+    String warranty;
+    Double length;
+    Double width;
+    Double height;
+    Double weight;
+
 
     @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)
     @JsonIgnore

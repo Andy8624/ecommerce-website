@@ -1,6 +1,7 @@
 package com.dlk.ecommerce.controller;
 
 import com.dlk.ecommerce.domain.entity.ImageTool;
+import com.dlk.ecommerce.domain.response.imageTool.ImageToolDTO;
 import com.dlk.ecommerce.service.ImageToolService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
 import com.dlk.ecommerce.util.error.IdInvalidException;
@@ -26,8 +27,14 @@ public class ImageToolController {
 
     @GetMapping
     @ApiMessage("Get all images for tools")
-    public ResponseEntity<List<ImageTool>> getAll() {
+    public ResponseEntity<List<ImageToolDTO>> getAll() {
         return ResponseEntity.ok(imageToolService.getAllImageTools());
+    }
+
+    @GetMapping("/tool/{toolId}")
+    @ApiMessage("Get All Image By ToolID")
+    public ResponseEntity<List<ImageTool>> getImageByToolID(@PathVariable("toolId") Long id) {
+        return ResponseEntity.ok(imageToolService.getImageToolByToolId(id));
     }
 
     @PostMapping

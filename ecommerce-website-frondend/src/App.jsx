@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import 'react-toastify/dist/ReactToastify.css';
-
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -21,6 +20,7 @@ const queryClient = new QueryClient({
     },
   },
 })
+
 
 export default function App() {
   return (

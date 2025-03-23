@@ -36,18 +36,16 @@ export const calculateTotalAmount = (orderItems = []) => {
 
     return orderItems.reduce((total, item) => {
         let toolPrice = 0;
-        let coursePrice = 0;
 
-        // Kiểm tra và lấy giá trị của tool hoặc course
+
+        // Kiểm tra và lấy giá trị của tool 
         if (item?.tool) {
             toolPrice = item.tool.discountedPrice || item.tool.price;
         }
-        if (item?.course) {
-            coursePrice = item.course.discountedPrice || item.course.price;
-        }
 
-        // Nếu không có giá của cả tool và course, trả về 0
-        const price = toolPrice || coursePrice;
+
+        // Nếu không có giá của tool, trả về 0
+        const price = toolPrice;
         return total + price * item.quantity;
     }, 0);
 };

@@ -1,10 +1,21 @@
 from fastapi import FastAPI, APIRouter
 from app.api.endpoints import recommendations, llm, greet, image_search
 from app.core.logger_config import LoggerConfig
+from fastapi.middleware.cors import CORSMiddleware
 
 class Application:
     def __init__(self):
         self.app = FastAPI(title="Python API", version="1.0")
+
+        # Thêm CORS Middleware
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],  # Cho phép frontend Vite
+            allow_credentials=True,
+            allow_methods=["*"], 
+            allow_headers=["*"], 
+        )
+
         self._register_routes()
 
     def _register_routes(self):

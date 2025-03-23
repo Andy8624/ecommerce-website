@@ -1,6 +1,5 @@
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Form, Input, Button, Table, Space } from "antd";
-import { useState } from "react";
 
 const SalesInfo = ({
     categories, setCategories,

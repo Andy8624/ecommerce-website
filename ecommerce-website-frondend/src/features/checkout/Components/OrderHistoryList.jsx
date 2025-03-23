@@ -62,20 +62,20 @@ const OrderHistoryList = ({ filteredOrders, orderItemsMap, handleCancelOrder, ha
                             </>
                         )}
 
-                        {orderItems[0]?.order.type !== "COURSE" ? (
+                        {/* {orderItems[0]?.order.type !== "" ? (
                             <OrderDetailCollapse orderItems={orderItems} />
                         ) : (
                             <>
                                 <Tag color="blue"
                                     className="text-sm cursor-pointer hover:bg-blue-500 hover:text-white hover:shadow-lg transition-all duration-300"
-                                    onClick={() => navigate("/course-detail", { state: { courseHistory: orderItems[0]?.course } })
+                                    onClick={() => navigate("/-detail", { state: { History: orderItems[0]?. } })
                                     }
                                 >
                                     Xem ngay
                                 </Tag>
                             </>
                         )
-                        }
+                        } */}
                     </Card >
                 );
             }}

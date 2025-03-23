@@ -22,6 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ToolService {
@@ -47,14 +50,20 @@ public class ToolService {
 
     public ResCreateToolDTO createTool(ReqToolDTO request) throws IdInvalidException {
         User dbUser = userService.fetchUserById(request.getUser().getUserId());
-
         ToolType dbToolType = toolTypeService.getToolTypeById(request.getToolType().getToolTypeId());
 
         Tool tool = new Tool().toBuilder()
                 .user(dbUser)
                 .toolType(dbToolType)
-                .name(request.getName())
+                .brand(request.getBrand())
                 .description(request.getDescription())
+                .name(request.getName())
+                .origin(request.getOrigin())
+                .warranty(request.getWarranty())
+                .length(request.getLength())
+                .width(request.getWidth())
+                .height(request.getHeight())
+                .weight(request.getWeight())
                 .stockQuantity(request.getStockQuantity())
                 .imageUrl(request.getImageUrl())
                 .price(request.getPrice())
@@ -136,5 +145,12 @@ public class ToolService {
     public ResPaginationDTO getToolByName(Specification<Tool> spec, Pageable pageable) {
         Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
         return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
+    }
+
+    public List<ResToolDTO> getToolsByIds(List<Long> toolIds) {
+        List<Tool> tools = toolRepository.findAllById(toolIds);
+        return tools.stream()
+                .map(toolMapper::mapToResToolDTO)
+                .collect(Collectors.toList());
     }
 }

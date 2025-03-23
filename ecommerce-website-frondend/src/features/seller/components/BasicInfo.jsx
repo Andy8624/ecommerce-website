@@ -31,7 +31,7 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
         <div>
             <h2 className="text-xl font-semibold mb-3">Thông tin cơ bản</h2>
             <Form.Item label="Tên sản phẩm" name="name" rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}>
-                <Input />
+                <Input placeholder="Nhập tên sản phẩm" />
             </Form.Item>
 
             <Form.Item
@@ -49,7 +49,7 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
             </Form.Item>
 
             <Form.Item label="Mô tả" name="description">
-                <Input.TextArea rows={4} />
+                <Input.TextArea rows={4} placeholder="Nhập mô tả sản phẩm" />
             </Form.Item>
 
             <Form.Item
@@ -62,6 +62,7 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
                     onPreview={handlePreview}
                     onChange={handleProductImageChange}
                     beforeUpload={() => false}
+                    multiple={true}
                 >
                     {productImages.length < 9 ? <PlusOutlined /> : null}
                 </Upload>

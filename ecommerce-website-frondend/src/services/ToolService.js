@@ -2,13 +2,13 @@ import axios from "./axios-customize";
 
 export const readTools = async () => {
   const res = await axios.get(`/api/v1/tools`);
-  return res?.data;
+  return res?.data?.result;
 }
 
 export const createTool = async (newTool) => {
   const res = await axios.post(`/api/v1/tools`, newTool);
+  console.log(res?.data);
   console.log("Request create gửi đi");
-  console.log(newTool);
   return res?.data;
 }
 
@@ -47,5 +47,11 @@ export const callGetAllToolByUserId = async (id) => {
 export const searchToolByName = async (searchTerm) => {
   const path = `/api/v1/tools/name?filter=name ~ '${searchTerm}'&page=1&size=5`;
   const res = await axios.get(path);
-  return res?.data?.result;
+  return res?.data;
+}
+
+export const getToolsByToolIds = async (data) => {
+  const path = `/api/v1/tools/toolIds`;
+  const res = await axios.post(path, data);
+  return res?.data;
 }

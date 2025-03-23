@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 export function useCreateTool() {
     const queryClient = useQueryClient();
 
-    const { mutate: createNewTool, isLoading: isCreating } = useMutation({
+    const { mutateAsync: createNewTool, isLoading: isCreating } = useMutation({
         mutationFn: createTool,
         onSuccess: () => {
             toast.success("Thêm sản phẩm thành công!");

@@ -29,7 +29,6 @@ public class Course extends BaseEntity {
     @DecimalMin(value = "0.0", message = "Price must be greater equal than 0")
     BigDecimal price;
 
-    @DecimalMin(value = "0.0", message = "Discounted price must be greater equal than 0")
     BigDecimal discountedPrice;
 
     @Column(nullable = false)

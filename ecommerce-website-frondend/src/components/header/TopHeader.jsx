@@ -122,7 +122,7 @@ const TopHeader = () => {
 
     return (
         <div
-            className="flex justify-between items-center text-white px-[65px] py-2 text-[0.85rem] fixed-header"
+            className="flex justify-between items-center text-white px-[65px] mt-2 text-[0.85rem] fixed-header"
             style={{ backgroundColor: "var(--primary-color)", zIndex: "1001" }}
         >
             {/* Menu bên trái */}

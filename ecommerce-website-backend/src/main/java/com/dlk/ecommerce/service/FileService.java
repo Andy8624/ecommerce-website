@@ -1,7 +1,10 @@
 package com.dlk.ecommerce.service;
 
+import com.dlk.ecommerce.domain.entity.ImageTool;
+import com.dlk.ecommerce.domain.entity.Tool;
 import com.dlk.ecommerce.domain.response.file.ResUploadFileDTO;
 import com.dlk.ecommerce.repository.ImageToolRepository;
+import com.dlk.ecommerce.util.error.IdInvalidException;
 import com.dlk.ecommerce.util.error.StorageException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,13 +41,16 @@ public class FileService {
     private String baseUri;
 
     private final ObjectMapper objectMapper;
-    private final RestTemplate restTemplate; // RestTemplate để gọi API Python
-    private final ImageToolRepository imageToolRepository; // Repository để lưu vào DB
+    private final RestTemplate restTemplate;
+    private final ImageToolService imageToolService;
+    private final ToolService toolService;
 
     // Upload nhiều file cùng một lúc
     public List<ResUploadFileDTO> handleUploadMultipleFiles(
-            List<MultipartFile> files, String folderName
-    ) throws URISyntaxException, IOException, StorageException {
+            List<MultipartFile> files, String folderName, Long toolId
+    ) throws URISyntaxException, IOException, StorageException, IdInvalidException {
+        log.info(folderName);
+        log.info(files.toString());
         List<ResUploadFileDTO> uploadedFiles = new ArrayList<>();
 
         // Tạo thư mục nếu chưa tồn tại
@@ -60,9 +66,16 @@ public class FileService {
 
             float[] convert = byteArrayToFloatArray(featureVector);
             log.info("Extracted feature vector (FLOAT): " + Arrays.toString(convert));
-
-
             uploadedFiles.add(new ResUploadFileDTO(fileName, Instant.now(), featureVector));
+
+            Tool tool = toolService.getToolById(toolId);
+            ImageTool imageTool = new ImageTool().toBuilder()
+                    .fileName(fileName)
+                    .tool(tool)
+                    .featureVector(featureVector)
+                    .build();
+            imageToolService.createImageTool(imageTool);
+
         }
         return uploadedFiles;
     }

@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { callUpdateCourse } from "../../../services/CourseService";
+import { callUpdate } from "../../../services/Service";
 
-export function useUpdateCourse() {
+export function useUpdate() {
     const queryClient = useQueryClient();
-    const { mutate: updateCourse, isPending: isUpdating } = useMutation({
-        mutationFn: ({ data, courseId }) => {
-            return callUpdateCourse(data, courseId);
+    const { mutate: update, isPending: isUpdating } = useMutation({
+        mutationFn: ({ data, Id }) => {
+            return callUpdate(data, Id);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries("courses");
+            queryClient.invalidateQueries("s");
         }
     })
 
-    return { updateCourse, isUpdating }
+    return { update, isUpdating }
 }

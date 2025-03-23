@@ -15,10 +15,6 @@ const SelectComponent = ({ onSelectType }) => (
             {
                 value: 'product',
                 label: 'Dụng cụ',
-            },
-            {
-                value: 'course',
-                label: 'Khóa học',
             }
         ]}
     />

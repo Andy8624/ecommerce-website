@@ -9,6 +9,9 @@ import DetailedInfo from "./DetailedInfo"
 import SalesInfo from "./SalesInfo"
 import DeliveryInfo from "./DeliveryInfo";
 import { useCreateTool } from "../hooks/useCreateTool";
+import { uploadFile, uploadMultipleFiles } from "../../../services/FileService";
+import { useSelector } from "react-redux";
+
 
 const ProductForm = () => {
     const [form] = Form.useForm();
@@ -23,6 +26,7 @@ const ProductForm = () => {
     const [canNext, setCanNext] = useState(false)
     const [attributes, setAttributes] = useState([]);
 
+    const userId = useSelector(state => state?.account?.user?.id);
 
     const [prices, setPrices] = useState([]);
     const [stocks, setStocks] = useState([]);
@@ -115,8 +119,12 @@ const ProductForm = () => {
                 brand: finalData.brand,
                 warranty: finalData.warranty,
                 origin: finalData.origin,
+                length: finalData.length,
+                width: finalData.width,
+                height: finalData.height,
+                weight: finalData.weight,
                 attributes: dynamicAttributes,
-                salesInfo: salesInfo, // Lồng thông tin bán hàng vào đây
+                salesInfo: salesInfo,
             },
             images: productImages.map((file) => file.originFileObj),
             coverImage: coverImage.length > 0 ? coverImage[0].originFileObj : null,
@@ -154,7 +162,38 @@ const ProductForm = () => {
 
         // Gửi dữ liệu FormData lên server
         try {
-
+            // Upload ảnh bìa trước để lấy tên ảnh lưu vào table Product
+            const uploadedFileName = await uploadFile(dataToSend.coverImage, "tools");
+            console.log(uploadedFileName)
+            // hoàn thành được up load ảnh bìa giờ tới upload thông tin sản phẩm lên
+            // Tạo record table Product
+            console.log(dataToSend)
+            const productData = {
+                user: {
+                    userId: userId,
+                },
+                toolType: {
+                    toolTypeId: dataToSend.product.toolTypeId,
+                },
+                name: dataToSend.product.name,
+                description: dataToSend.product.description,
+                brand: dataToSend.product.brand,
+                origin: dataToSend.product.origin,
+                imageUrl: uploadedFileName,
+                discountedPrice: 10000,
+                warranty: dataToSend.product.warranty,
+                length: dataToSend.product.length,
+                width: dataToSend.product.width,
+                height: dataToSend.product.height,
+                weight: dataToSend.product.weight,
+                price: 10000,
+                stockQuantity: 100,
+            }
+            const res = await createNewTool(productData);
+            const toolId = res?.toolId;
+            // Từ Id của record Product vừa tạo -> tạo các ảnh sản phẩm vào table ImageTool
+            const multiUploadResponse = await uploadMultipleFiles(dataToSend.images, "tools", toolId);
+            console.log(multiUploadResponse)
 
 
             console.log('Dữ liệu đã được lưu vào cơ sở dữ liệu:');

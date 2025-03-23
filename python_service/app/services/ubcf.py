@@ -26,12 +26,11 @@ class UserBasedCollaborativeFiltering:
 
     def build_user_item_matrix(self, interactions):
         weight_map = {
-            "VIEW": 1,
-            "CLICK": 1,
-            "ADD_CART": 2,
+            "VIEW": 1,          # giữ
+            "ADD_CART": 2,      # giữ    
             "REMOVE_CART": -1,
-            "PURCHASE": 3,
-            "RATING": 3,
+            "PURCHASE": 3,      # giữ
+            "RATING": 3,        # giữ
             "COMMENT": 2,
             "SHARE": 1
         }

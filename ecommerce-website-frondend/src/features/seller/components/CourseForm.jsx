@@ -1,40 +1,40 @@
 import { Modal, Form, Input, InputNumber, Button } from "antd";
 import { useEffect } from "react";
 
-const CourseForm = ({ userId, visible, onCancel, onSubmit, editingCourse, isCreatingCourse }) => {
+const Form = ({ userId, visible, onCancel, onSubmit, editing, isCreating }) => {
     const [form] = Form.useForm();
     useEffect(() => {
         if (visible) {
-            if (editingCourse) {
-                form.setFieldsValue(editingCourse);
+            if (editing) {
+                form.setFieldsValue(editing);
             } else {
                 form.resetFields();
             }
         }
-    }, [editingCourse, form, visible]);
+    }, [editing, form, visible]);
 
     const handleCreateOrUpdate = async (values) => {
 
-        if (editingCourse !== null) {
-            const courseDataUpdate = {
+        if (editing !== null) {
+            const DataUpdate = {
                 ...values,
                 userId: userId,
-                courseId: editingCourse.courseId || null,
+                Id: editing.Id || null,
             };
-            await onSubmit(courseDataUpdate);
+            await onSubmit(DataUpdate);
         } else {
-            const courseDataCreate = {
+            const DataCreate = {
                 ...values,
                 userId: userId,
             }
-            await onSubmit(courseDataCreate);
+            await onSubmit(DataCreate);
         }
         form.resetFields();
     };
 
     return (
         <Modal
-            title={editingCourse ? "Cập nhật khóa học" : "Thêm khóa học"}
+            title={editing ? "Cập nhật khóa học" : "Thêm khóa học"}
             open={visible}
             onCancel={onCancel}
             footer={null}
@@ -46,7 +46,7 @@ const CourseForm = ({ userId, visible, onCancel, onSubmit, editingCourse, isCrea
             >
                 <Form.Item
                     label="URL playlist youtube"
-                    name="courseUrl"
+                    name="Url"
                     rules={[{ required: true, message: "Vui lòng nhập URL khóa học!" }]}
                 >
                     <Input />
@@ -68,9 +68,9 @@ const CourseForm = ({ userId, visible, onCancel, onSubmit, editingCourse, isCrea
                 </Form.Item>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" className="w-full" disabled={isCreatingCourse}>
-                        {isCreatingCourse && "Đang tiến hành "}
-                        {editingCourse ? "Cập nhật" : "Thêm"}
+                    <Button type="primary" htmlType="submit" className="w-full" disabled={isCreating}>
+                        {isCreating && "Đang tiến hành "}
+                        {editing ? "Cập nhật" : "Thêm"}
                     </Button>
                 </Form.Item>
             </Form>
@@ -78,4 +78,4 @@ const CourseForm = ({ userId, visible, onCancel, onSubmit, editingCourse, isCrea
     );
 };
 
-export default CourseForm;
+export default Form;

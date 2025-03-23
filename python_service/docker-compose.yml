@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   python-service:
     build: .
@@ -8,7 +10,14 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - ecommerce-network
+    volumes:
+      - pip_cache:/root/.cache/pip
+      - hf_cache:/root/.cache/huggingface
 
 networks:
   ecommerce-network:
     driver: bridge
+
+volumes:
+  pip_cache:
+  hf_cache: # Volume cache HF

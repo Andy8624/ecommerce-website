@@ -10,7 +10,9 @@ const ToolList = ({ pageSize }) => {
     if (isLoading) {
         return (
             <div className="text-center py-6">
-                <Spin tip="Đang tải dữ liệu sản phẩm..." size="large" />
+                <Spin tip="Đang tải dữ liệu sản phẩm..." size="large">
+                    <div style={{ height: "200px" }} />
+                </Spin>
             </div>
         );
     }
@@ -23,7 +25,7 @@ const ToolList = ({ pageSize }) => {
         />;
     }
 
-    const products = tools?.result || [];
+    const products = tools || [];
 
     if (products.length === 0) {
         return <Empty description="Không có sản phẩm nào" />;
@@ -32,7 +34,7 @@ const ToolList = ({ pageSize }) => {
     return (
         <div>
             {/* Danh sách sản phẩm */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {products.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((tool) => (
                     <ToolItem key={tool.toolId} tool={tool} />
                 ))}

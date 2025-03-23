@@ -1,50 +1,51 @@
-import { Button, Card } from "antd";
-import { ShoppingCartOutlined } from "@ant-design/icons";
-import { useCreateCartTool } from "../../cart/hooks/useCreateCartTool";
-import { useCheckExistCartTool } from "../../cart/hooks/useCheckExistCartTool";
-import { useUpdateCartItem } from "../../cart/hooks/useUpdateCartItem";
-import { useSelector } from "react-redux";
-import { useCart } from "../../cart/hooks/useCart";
+import { Card } from "antd";
+// import { ShoppingCartOutlined } from "@ant-design/icons";
+// import { useCreateCartTool } from "../../cart/hooks/useCreateCartTool";
+// import { useCheckExistCartTool } from "../../cart/hooks/useCheckExistCartTool";
+// import { useUpdateCartItem } from "../../cart/hooks/useUpdateCartItem";
+// import { useSelector } from "react-redux";
+// import { useCart } from "../../cart/hooks/useCart";
 import { TOOL_URL } from "../../../utils/Config";
-import { useState } from "react";
+// import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { handleAddToCart } from "../../cart/handleAddtoCart";
-import LoginModal from "../../../components/LoginModal";
-import { useCartContext } from "../../../hooks/useCartContext";
+// import { handleAddToCart } from "../../cart/handleAddtoCart";
+// import LoginModal from "../../../components/LoginModal";
+// import { useCartContext } from "../../../hooks/useCartContext";
 
 const { Meta } = Card;
 
 const ToolItem = ({ tool }) => {
+    // console.log("ToolItem: ", tool);
     const navigate = useNavigate();
-    const { cartItems, setCartItems, cartQuantity, setCartQuantity } = useCartContext();
-    const userId = useSelector(state => state?.account?.user?.id);
-    const permissions = useSelector(state => state.account.user?.role?.permissions);
-    const { carts } = useCart(userId);
-    const { createCartItem, isCreating } = useCreateCartTool();
-    const { updateCartItem } = useUpdateCartItem();
-    const { checkExist } = useCheckExistCartTool();
+    // const { cartItems, setCartItems, cartQuantity, setCartQuantity } = useCartContext();
+    // const userId = useSelector(state => state?.account?.user?.id);
+    // const permissions = useSelector(state => state.account.user?.role?.permissions);
+    // const { carts } = useCart(userId);
+    // const { createCartItem, isCreating } = useCreateCartTool();
+    // const { updateCartItem } = useUpdateCartItem();
+    // const { checkExist } = useCheckExistCartTool();
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    // const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const onAddToCartClick = async () => {
-        if (userId == undefined || userId == null || userId == "") {
-            return setIsModalVisible(true);
-        }
+    // const onAddToCartClick = async () => {
+    //     if (userId == undefined || userId == null || userId == "") {
+    //         return setIsModalVisible(true);
+    //     }
 
-        await handleAddToCart({
-            tool,
-            permissions,
-            carts,
-            checkExist,
-            createCartItem,
-            updateCartItem,
-            cartItems,
-            setCartItems,
-            cartQuantity,
-            setCartQuantity,
-            addQuantity: 1,
-        });
-    };
+    //     await handleAddToCart({
+    //         tool,
+    //         permissions,
+    //         carts,
+    //         checkExist,
+    //         createCartItem,
+    //         updateCartItem,
+    //         cartItems,
+    //         setCartItems,
+    //         cartQuantity,
+    //         setCartQuantity,
+    //         addQuantity: 1,
+    //     });
+    // };
 
 
     // Hàm chuyển đến trang chi tiết sản phẩm
@@ -55,45 +56,44 @@ const ToolItem = ({ tool }) => {
     return (
         <>
             <Card
-                className="transition-transform duration-100 hover:scale-105 shadow-xl"
+                className="transition-transform duration-100 hover:scale-95 shadow-xl"
                 hoverable
                 cover={
                     <img
                         alt={tool.name}
                         src={TOOL_URL + tool.imageUrl}
-                        className="h-52 w-full object-cover cursor-pointer"
+                        className="h-48 w-full object-cover cursor-pointer"
                         onClick={navigateToDetailPage}
                     />
                 }
-                actions={[
-                    <Button
-                        type="dark"
-                        className="text-base transition-transform duration-100 hover:scale-110 text-[var(--gold-light)] bg-[var(--primary-color)]"
-                        key="cart"
-                        onClick={onAddToCartClick}
-                        disabled={isCreating}
-                    >
-                        {isCreating ? "Đang thêm..." : <>
-                            <ShoppingCartOutlined className="mr-2" />
-                            Thêm vào giỏ hàng
-                        </>
-                        }
-                    </Button>
-                ]}
+            // actions={[
+            //     <Button
+            //         type="dark"
+            //         className="text-base transition-transform duration-100 hover:scale-110 text-[var(--gold-light)] bg-[var(--primary-color)]"
+            //         key="cart"
+            //         onClick={onAddToCartClick}
+            //         disabled={isCreating}
+            //     >
+            //         {isCreating ? "Đang thêm..." : <>
+            //             <ShoppingCartOutlined className="mr-2" />
+            //             Thêm vào giỏ hàng
+            //         </>
+            //         }
+            //     </Button>
+            // ]}
             >
                 <Meta
-                    style={{ height: '16vh' }}
                     title={
                         <span
-                            className="text-base cursor-pointer text-two-lines"
+                            className="text-sm cursor-pointer text-two-lines product-name"
                             onClick={navigateToDetailPage}
                         >
                             {tool.name}
                         </span>
                     }
                     description={
-                        <div className="text-base" onClick={navigateToDetailPage}>
-                            <div className="text-red-500 font-semibold">
+                        <div onClick={navigateToDetailPage}>
+                            <div className="text-red-500">
                                 {tool.discountedPrice !== 0 ? (
                                     <>
                                         <span className="text-gray-500 line-through">
@@ -107,17 +107,16 @@ const ToolItem = ({ tool }) => {
                                     </>
                                 )}
                             </div>
-                            <div className="text-gray-500">Còn lại: {tool.stockQuantity} sản phẩm</div>
                         </div>
                     }
                 />
             </Card>
 
-            <LoginModal
+            {/* <LoginModal
                 isModalVisible={isModalVisible}
                 setIsModalVisible={setIsModalVisible}
                 text="Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!"
-            />
+            /> */}
 
         </>
     );

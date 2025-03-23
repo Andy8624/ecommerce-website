@@ -38,15 +38,18 @@ public class FileController {
         return ResponseEntity.ok().body(fileService.handleUploadFile(file, folderName));
     }
 
-    @PostMapping("/upload-multiple")
+    @PostMapping(value = "/upload-multiple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<ResUploadFileDTO>> uploadMultipleFiles(
-            @RequestPart("files") List<MultipartFile> files,
-            @RequestPart("folderName") String folderName) {
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam("folderName") String folderName,
+            @RequestParam("toolId") Long toolId
+    ) {
+        log.info(files.toString());
         try {
             if (files.isEmpty()) {
                 return ResponseEntity.badRequest().body(null);
             }
-            List<ResUploadFileDTO> response = fileService.handleUploadMultipleFiles(files, folderName);
+            List<ResUploadFileDTO> response = fileService.handleUploadMultipleFiles(files, folderName, toolId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error(String.valueOf(e));
