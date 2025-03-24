@@ -1,18 +1,19 @@
 import { Col, Image, Row, Modal } from "antd";
 import { useState } from "react";
+import { TOOL_URL } from "../../../utils/Config";
 
-const ProductGallery = ({ images, productName, tool }) => {
-    const [selectedImage, setSelectedImage] = useState(images[0]); // Ảnh được chọn
-    const [hoveredImage, setHoveredImage] = useState(null); // Ảnh tạm thời khi hover
+const ProductGallery = ({ productName, tool }) => {
+    const [selectedImage, setSelectedImage] = useState(tool?.imageUrl);
+    const [hoveredImage, setHoveredImage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const images = tool?.imageTools || [];
     const openModal = (imageUrl) => {
-        setSelectedImage(imageUrl); // Đặt ảnh được chọn
-        setIsModalOpen(true); // Mở modal
+        setSelectedImage(imageUrl);
+        setIsModalOpen(true);
     };
 
     const closeModal = () => {
-        setIsModalOpen(false); // Đóng modal
+        setIsModalOpen(false);
     };
 
     return (
@@ -30,7 +31,7 @@ const ProductGallery = ({ images, productName, tool }) => {
                     }}
                 >
                     <Image
-                        src={hoveredImage || selectedImage} // Hiển thị ảnh đang hover hoặc ảnh được chọn
+                        src={hoveredImage == null ? TOOL_URL + tool?.imageUrl : TOOL_URL + hoveredImage}
                         alt={productName}
                         className="rounded-lg shadow"
                         style={{
@@ -48,16 +49,16 @@ const ProductGallery = ({ images, productName, tool }) => {
                     {images.slice(0, 5).map((imgUrl, index) => (
                         <Col key={index} span={4}>
                             <Image
-                                src={imgUrl}
+                                src={TOOL_URL + imgUrl?.fileName}
                                 alt={`Thumbnail ${index}`}
                                 preview={false}
-                                className={`rounded-lg shadow cursor-pointer ${selectedImage === imgUrl
+                                className={`rounded-lg shadow cursor-pointer ${selectedImage === imgUrl?.fileName
                                     ? "border-2 border-blue-500"
                                     : "border border-gray-300"
                                     }`}
-                                onMouseEnter={() => setHoveredImage(imgUrl)} // Đặt ảnh hover
+                                onMouseEnter={() => setHoveredImage(imgUrl?.fileName)} // Đặt ảnh hover
                                 onMouseLeave={() => setHoveredImage(null)} // Xóa ảnh hover
-                                onClick={() => openModal(imgUrl)} // Mở modal khi click ảnh nhỏ
+                                onClick={() => openModal(imgUrl?.fileName)} // Mở modal khi click ảnh nhỏ
                                 style={{
                                     width: "100%",
                                     height: "80px",
@@ -99,7 +100,7 @@ const ProductGallery = ({ images, productName, tool }) => {
                         }}
                     >
                         <Image
-                            src={selectedImage}
+                            src={TOOL_URL + selectedImage}
                             alt="Selected"
                             style={{
                                 width: "100%",
@@ -132,10 +133,10 @@ const ProductGallery = ({ images, productName, tool }) => {
                                     cursor: "pointer",
                                     height: "100px",
                                 }}
-                                onClick={() => setSelectedImage(imgUrl)}
+                                onClick={() => setSelectedImage(imgUrl?.fileName)}
                             >
                                 <Image
-                                    src={imgUrl}
+                                    src={TOOL_URL + imgUrl?.fileName}
                                     alt={`Thumbnail ${index}`}
                                     preview={false}
                                     style={{
@@ -143,7 +144,7 @@ const ProductGallery = ({ images, productName, tool }) => {
                                         height: "100px",
                                         objectFit: "cover",
                                         borderRadius: "4px",
-                                        border: selectedImage === imgUrl ? "2px solid #8294C4" : "1px solid #d9d9d9",
+                                        border: selectedImage === imgUrl?.fileName ? "2px solid #8294C4" : "1px solid #d9d9d9",
                                     }}
                                 />
                             </div>

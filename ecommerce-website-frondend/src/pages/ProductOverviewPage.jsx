@@ -12,7 +12,7 @@ const { Content } = Layout;
 const ProductOverviewPage = () => {
     const location = useLocation();
     const tool = location.state;
-    console.log(tool);
+    // console.log(tool);
     const shopData = {
         logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQS_T5NL66MkewmvfUvKiaauZ1TATYBTiYdg&s",
         name: "YOLO Stationery",
