@@ -3,10 +3,7 @@ package com.dlk.ecommerce.service.Impl;
 
 import com.dlk.ecommerce.domain.entity.Address;
 import com.dlk.ecommerce.domain.entity.User;
-import com.dlk.ecommerce.domain.request.ghn.GetDistrictIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.GetProvinceIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.GetWardIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.ReqCreateOrderGHN;
+import com.dlk.ecommerce.domain.request.ghn.*;
 import com.dlk.ecommerce.domain.request.user.ReqCreateShop;
 import com.dlk.ecommerce.repository.UserRepository;
 import com.dlk.ecommerce.service.AddressService;
@@ -25,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,9 +53,56 @@ public class GhnServiceImpl implements GhnService {
     }
 
     @Override
-    public Object calculateShippingCost(Object data) {
+    public Object calculateShippingCost(CalculateShippingCostRequest request) {
         HttpHeaders headers = ghnApiUtil.createHeaders();
         headers.set("ShopId", userService.getShopId());
+
+        Map<String, Object> data = new HashMap<>();
+
+        // Map các trường từ CalculateShippingCostRequest sang data
+        data.put("service_type_id", request.getService_type_id());
+
+        // Chuyển đổi tên tỉnh/quận/phường thành ID và code
+        data.put("from_district_id", getDistrictIdByName(
+                new GetDistrictIDRequest(request.getFrom_province(), request.getFrom_district()))
+        );
+        data.put("from_ward_code", getWardIdByName(
+                new GetWardIDRequest(request.getFrom_province(), request.getFrom_district(), request.getFrom_ward())
+        ).toString());
+
+        data.put("to_district_id", getDistrictIdByName(
+                new GetDistrictIDRequest(request.getTo_province(), request.getTo_district()))
+        );
+        data.put("to_ward_code", getWardIdByName(
+                new GetWardIDRequest(request.getTo_province(), request.getTo_district(), request.getTo_ward())
+        ).toString());
+
+        data.put("length", request.getLength());
+        data.put("width", request.getWidth());
+        data.put("height", request.getHeight());
+        data.put("weight", request.getWeight());
+        data.put("insurance_value", request.getInsurance_value());
+        data.put("coupon", null);
+
+        // Map các item
+        List<Map<String, Object>> items = new ArrayList<>();
+        if (request.getItems() != null) {
+            for (OrderItemGHN item : request.getItems()) {
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("name", item.getName());
+                itemMap.put("quantity", item.getQuantity());
+                itemMap.put("length", item.getLength());
+                itemMap.put("width", item.getWidth());
+                itemMap.put("height", item.getHeight());
+                itemMap.put("weight", item.getWeight());
+                items.add(itemMap);
+            }
+        }
+        data.put("items", items);
+
+//        log.info("Request: {}", request);
+//        log.info("Data for GHN API: {}", data);
+
         return ghnApiUtil.callGhnApi("/v2/shipping-order/fee", HttpMethod.POST, data);
     }
 
@@ -92,9 +138,27 @@ public class GhnServiceImpl implements GhnService {
     }
 
     @Override
-    public Object getEstimatedDeliveryTime(Object data) {
+    public Object getEstimatedDeliveryTime(DeliveryTimeRequest request) {
         HttpHeaders headers = ghnApiUtil.createHeaders();
         headers.set("ShopId", userService.getShopId());
+        log.info("Request: {}", request);
+        Map<String, Object> data = new HashMap<>();
+        data.put("from_district_id", getDistrictIdByName(
+                new GetDistrictIDRequest(request.getFrom_province(), request.getFrom_district()))
+        );
+        data.put("from_ward_code", getWardIdByName(
+                    new GetWardIDRequest(request.getFrom_province(), request.getFrom_district(), request.getFrom_ward())
+                ).toString()
+        );
+        data.put("to_district_id", getDistrictIdByName(
+                new GetDistrictIDRequest(request.getTo_province(), request.getTo_district()))
+        );
+        data.put("to_ward_code", getWardIdByName(
+                    new GetWardIDRequest(request.getTo_province(), request.getTo_district(), request.getTo_ward())
+                ).toString()
+        );
+        data.put("service_id", 53320);
+
         log.info("data: {}", data);
         return ghnApiUtil.callGhnApi("/v2/shipping-order/leadtime", HttpMethod.POST, data);
     }

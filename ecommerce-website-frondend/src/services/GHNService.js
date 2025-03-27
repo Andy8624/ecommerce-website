@@ -28,8 +28,11 @@ export const callCreateStoreFromGHN = async (data) => {
 export const callCalculateShippingCost = async (data) => {
     const path = "/api/v1/ghn/calculate-shipping-cost";
     const response = await axios.post(path, data);
-    // console.log("response", response?.data?.data);
-    return response?.data?.data;
-
+    return response?.data;
 };
 
+export const callGetTimeDelivery = async (data) => {
+    const path = "/api/v1/ghn/orders/delivery-time";
+    const response = await axios.post(path, data);
+    return response?.data;
+}

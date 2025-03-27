@@ -1,9 +1,10 @@
 import { Carousel } from 'antd';
 
 const images = [
-    '/public/images/slider1.png',
-    '/public/images/slider2.png',
-    '/public/images/slider3.png',
+    '/assets/banner/13.jpg',
+    '/assets/banner/12.jpg',
+    '/assets/banner/7.jpg',
+    '/assets/banner/9.jpg',
 ];
 
 const ImageSlider = () => {
@@ -13,21 +14,21 @@ const ImageSlider = () => {
         dots: true,
         effect: 'fade',
         easing: 'ease-in-out',
-        autoplaySpeed: 2000,
+        autoplaySpeed: 5000,
         pauseOnHover: true,
         swipeToSlide: true,
         className: 'slider-container'
     };
 
     return (
-        <div className="mx-6 mb-4 mb-0 bg-gray-100 rounded-lg shadow-md overflow-hidden">
+        <div className=" my-2 mb-0 bg-gray-100 shadow-md overflow-hidden">
             <Carousel {...settings}>
                 {images.map((image, index) => (
                     <div key={index} className="slide-item">
                         <img
                             src={image}
                             alt={`Slide ${index + 1}`}
-                            className="w-full h-[400px] rounded-lg object-cover transition-transform duration-500 hover:scale-105"
+                            className="w-full h-[31rem] object-cover"// transition-transform duration-500 hover:scale-105"
                         />
                     </div>
                 ))}

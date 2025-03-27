@@ -138,4 +138,8 @@ public class OrderToolService {
         Page<OrderTool> pageOrderTool = orderToolRepository.findAll(spec, pageable);
         return PaginationUtil.getPaginatedResult(pageOrderTool, pageable, orderToolMapper::mapToOrderToolDTO);
     }
+
+    public Integer getTotalSoldQuantity(Long toolId) {
+        return orderToolRepository.sumQuantityByToolIdAndOrderStatusSuccess(toolId);
+    }
 }

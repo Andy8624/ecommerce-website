@@ -6,7 +6,7 @@ const ProductDetails = ({ details }) => {
     return (
         <div
             style={{
-                padding: "16px",
+                padding: "1rem",
                 backgroundColor: "#fff",
                 borderRadius: "4px",
                 marginTop: "16px",
@@ -16,12 +16,11 @@ const ProductDetails = ({ details }) => {
             <Title
                 level={4}
                 style={{
-                    marginBottom: "16px",
-                    fontSize: "16px",
-                    fontWeight: "bold",
+                    fontSize: "1.2rem",
+                    fontWeight: "500",
                     color: "#333",
                     border: "1px solid #eaeaea",
-                    padding: "8px",
+                    padding: "0.9rem",
                     backgroundColor: "#f9f9f9",
                 }}
             >
@@ -29,10 +28,12 @@ const ProductDetails = ({ details }) => {
             </Title>
 
             {/* Chi tiết sản phẩm */}
-            <Row gutter={[16, 16]} style={{ fontSize: "14px", lineHeight: "1.8" }}>
-                {/* Danh mục */}
+            <Row gutter={[16, 16]} style={{
+                fontSize: "14px", lineHeight: "1.8", padding: "1rem",
+            }}>
+                {/* Loại sản phẩm */}
                 <Col span={8}>
-                    <Text strong style={{ color: "#555" }}>Danh Mục:</Text>
+                    <Text strong style={{ color: "#555" }}>Loại sản phẩm:</Text>
                 </Col>
                 <Col span={16}>
                     <Text
@@ -42,7 +43,17 @@ const ProductDetails = ({ details }) => {
                             cursor: "pointer",
                         }}
                     >
-                        Shopee - Nhà Sách Online - Bút viết - Viết Máy & Mực
+                        {details?.category}
+                    </Text>
+                </Col>
+
+                {/* Thương hiệu */}
+                <Col span={8}>
+                    <Text strong style={{ color: "#555" }}>Thương hiệu:</Text>
+                </Col>
+                <Col span={16}>
+                    <Text>
+                        {details?.brand}
                     </Text>
                 </Col>
 
@@ -51,15 +62,23 @@ const ProductDetails = ({ details }) => {
                     <Text strong style={{ color: "#555" }}>Kho:</Text>
                 </Col>
                 <Col span={16}>
-                    <Text style={{ color: "#333" }}>{details.stock}</Text>
+                    <Text style={{ color: "#333" }}>{details?.stock}</Text>
                 </Col>
 
-                {/* Loại bút */}
+                {/* Nguồn gốc xuất xứ */}
                 <Col span={8}>
-                    <Text strong style={{ color: "#555" }}>Loại bút:</Text>
+                    <Text strong style={{ color: "#555" }}>Xuất xứ:</Text>
                 </Col>
                 <Col span={16}>
-                    <Text style={{ color: "#333" }}>Bút nước</Text>
+                    <Text style={{ color: "#333" }}>{details?.origin}</Text>
+                </Col>
+
+                {/* Bảo hành */}
+                <Col span={8}>
+                    <Text strong style={{ color: "#555" }}>Bảo hành:</Text>
+                </Col>
+                <Col span={16}>
+                    <Text style={{ color: "#333" }}>{details?.warranty}</Text>
                 </Col>
 
                 {/* Gửi từ */}

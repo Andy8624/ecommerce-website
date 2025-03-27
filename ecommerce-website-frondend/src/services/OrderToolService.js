@@ -20,3 +20,9 @@ export const callGetOrderToolByToolId = async (toolId) => {
     // console.log(res);
     return res?.data?.result;
 }
+
+export const getTotalSoldQuantity = async (toolId) => {
+    const path = `/api/v1/ordertools/total-sold/${toolId}`;
+    const res = await axios.get(path);
+    return res?.data || 0;
+}

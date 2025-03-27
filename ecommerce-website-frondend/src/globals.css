@@ -1,15 +1,15 @@
 :root {
-    --primary-color: #18293d;
+    --primary-color: #52B1DD;
     --secondary-color: #fff;
 
     /* Màu vàng đậm hơn */
-    --gold-light: #fdd974;  /* Màu vàng sáng */
-    --gold-medium: #fdbd19; /* Màu vàng trung */
+    --gold-light: #fff;  /* Màu vàng sáng */
+    --gold-medium: #fff; /* Màu vàng trung */
 
     /* Màu vàng nhạt hơn */
-    --soft-gold-light: #FCEABB;
-    --soft-gold-medium: #f7dea0;
-    --soft-gold-dark: #e7c178;
+    --soft-gold-light: #fff;
+    --soft-gold-medium: #fff;
+    --soft-gold-dark: #fff;
 }
 /* Class cho chữ vàng gold đậm */
 .glowing-text {
@@ -56,7 +56,7 @@
 
 .signup-button {
     background: linear-gradient(to right, var(--gold-medium), var(--gold-light));
-    color: white;
+    color: var(--primary-color);
     font-weight: bold;
     font-size: 0.875rem;
     line-height: 1;

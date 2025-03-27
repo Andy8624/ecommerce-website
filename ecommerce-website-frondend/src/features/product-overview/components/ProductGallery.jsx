@@ -2,7 +2,7 @@ import { Col, Image, Row, Modal } from "antd";
 import { useState } from "react";
 import { TOOL_URL } from "../../../utils/Config";
 
-const ProductGallery = ({ productName, tool }) => {
+const ProductGallery = ({ tool }) => {
     const [selectedImage, setSelectedImage] = useState(tool?.imageUrl);
     const [hoveredImage, setHoveredImage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +32,6 @@ const ProductGallery = ({ productName, tool }) => {
                 >
                     <Image
                         src={hoveredImage == null ? TOOL_URL + tool?.imageUrl : TOOL_URL + hoveredImage}
-                        alt={productName}
                         className="rounded-lg shadow"
                         style={{
                             width: "450px",
@@ -53,14 +52,14 @@ const ProductGallery = ({ productName, tool }) => {
                                 alt={`Thumbnail ${index}`}
                                 preview={false}
                                 className={`rounded-lg shadow cursor-pointer ${selectedImage === imgUrl?.fileName
-                                    ? "border-2 border-blue-500"
+                                    ? "border-2 border-[var(--primary-color)]"
                                     : "border border-gray-300"
                                     }`}
                                 onMouseEnter={() => setHoveredImage(imgUrl?.fileName)} // Đặt ảnh hover
                                 onMouseLeave={() => setHoveredImage(null)} // Xóa ảnh hover
                                 onClick={() => openModal(imgUrl?.fileName)} // Mở modal khi click ảnh nhỏ
                                 style={{
-                                    width: "100%",
+                                    width: "80px",
                                     height: "80px",
                                     objectFit: "cover",
                                     cursor: "pointer"
@@ -131,7 +130,6 @@ const ProductGallery = ({ productName, tool }) => {
                                 style={{
                                     borderRadius: "4px",
                                     cursor: "pointer",
-                                    height: "100px",
                                 }}
                                 onClick={() => setSelectedImage(imgUrl?.fileName)}
                             >
@@ -140,11 +138,11 @@ const ProductGallery = ({ productName, tool }) => {
                                     alt={`Thumbnail ${index}`}
                                     preview={false}
                                     style={{
-                                        width: "100%",
+                                        width: "100px",
                                         height: "100px",
                                         objectFit: "cover",
                                         borderRadius: "4px",
-                                        border: selectedImage === imgUrl?.fileName ? "2px solid #8294C4" : "1px solid #d9d9d9",
+                                        border: selectedImage === imgUrl?.fileName ? "2px solid var(--primary-color)" : "1px solid #d9d9d9",
                                     }}
                                 />
                             </div>

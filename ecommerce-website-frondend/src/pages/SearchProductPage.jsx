@@ -1,4 +1,3 @@
-import CardContainer from "../components/CardContainer"
 import ToolListSearch from "../features/tools/components/ToolListSearch"
 
 const SearchProductPage = () => {
@@ -11,10 +10,8 @@ const SearchProductPage = () => {
     }
 
     return (
-        <div className="pt-1">
-            <CardContainer>
-                <ToolListSearch pageSize={12} toolData={searchData} />
-            </CardContainer>
+        <div className="p-8">
+            <ToolListSearch pageSize={12} toolData={searchData} />
         </div>
     )
 }

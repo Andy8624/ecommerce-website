@@ -20,8 +20,8 @@ const ToolItem = ({ tool }) => {
             onMouseLeave={() => setIsHovered(false)}
         >
             <Card
-                className="transition-transform duration-100 hover:scale-105 shadow-xl flex flex-col justify-between 
-                hover:border hover:border-primary overflow-hidden hover:border-2"
+                className="transition-transform duration-100 shadow-xl flex flex-col justify-between 
+                hover:border hover:border-[var(--primary-color)] overflow-hidden hover:border-2"
                 cover={
                     <div className="overflow-hidden rounded-t-lg">
                         <img
@@ -66,8 +66,8 @@ const ToolItem = ({ tool }) => {
 
                     {isHovered && (
                         <button
-                            className="absolute bottom-0 left-0 w-full bg-primary 
-                            text-white py-2  text-center transition-transform duration-100"
+                            className="absolute bottom-0 left-0 w-full bg-[var(--primary-color)] 
+                            text-white py-2 text-center transition-transform duration-100 text-xs hover:text-sm"
                             onClick={() => message.info("Chức năng tìm sản phẩm tương tự đang phát triển!")}
                         >
                             Tìm sản phẩm tương tự

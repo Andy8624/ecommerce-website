@@ -57,4 +57,10 @@ public class OrderToolController {
                                                                @PathVariable("toolId")  long toolId) throws IdInvalidException {
         return ResponseEntity.ok(orderToolService.getOrderToolsByToolId(pageable, toolId));
     }
+
+    @GetMapping("/total-sold/{toolId}")
+    @ApiMessage("Get total sold of tool")
+    public ResponseEntity<Integer> getTotalSoldOfTool(@PathVariable("toolId") long toolId) {
+        return ResponseEntity.ok(orderToolService.getTotalSoldQuantity(toolId));
+    }
 }

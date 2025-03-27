@@ -47,7 +47,7 @@ public class Tool extends BaseEntity {
     @Column(nullable = false)
     boolean deleted = false;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_active")
     boolean isActive = true;
 
     // Quản lý chi tiết sản phẩm

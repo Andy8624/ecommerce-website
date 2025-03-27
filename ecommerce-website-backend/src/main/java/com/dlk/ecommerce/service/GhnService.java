@@ -1,10 +1,7 @@
 package com.dlk.ecommerce.service;
 
 import com.dlk.ecommerce.domain.entity.User;
-import com.dlk.ecommerce.domain.request.ghn.GetDistrictIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.GetProvinceIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.GetWardIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.ReqCreateOrderGHN;
+import com.dlk.ecommerce.domain.request.ghn.*;
 import com.dlk.ecommerce.util.error.IdInvalidException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -43,7 +40,7 @@ public interface GhnService {
      * @param data Đối tượng chứa dữ liệu cần thiết để tính phí vận chuyển.
      * @return Đối tượng chứa thông tin phí vận chuyển.
      */
-    Object calculateShippingCost(Object data);
+    Object calculateShippingCost(CalculateShippingCostRequest data);
 
     /**
      * Tạo mới một shop trên GHN API.
@@ -87,7 +84,7 @@ public interface GhnService {
      * @param data Đối tượng chứa thông tin đơn hàng cần tính thời gian giao hàng
      * @return Đối tượng chứa thông tin thời gian dự kiến giao hàng
      */
-    Object getEstimatedDeliveryTime(Object data);
+    Object getEstimatedDeliveryTime(DeliveryTimeRequest data);
 
     /**
      *

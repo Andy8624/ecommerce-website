@@ -1,9 +1,6 @@
 package com.dlk.ecommerce.controller;
 
-import com.dlk.ecommerce.domain.request.ghn.GetDistrictIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.GetProvinceIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.GetWardIDRequest;
-import com.dlk.ecommerce.domain.request.ghn.ReqCreateOrderGHN;
+import com.dlk.ecommerce.domain.request.ghn.*;
 import com.dlk.ecommerce.domain.request.user.ReqCreateShop;
 import com.dlk.ecommerce.service.GhnService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
@@ -44,7 +41,7 @@ public class GhnController {
     // Sử dụng API này để tính phí vận chuyển.
     @PostMapping("/calculate-shipping-cost")
     @ApiMessage("Shipping cost calculated successfully")
-    public ResponseEntity<Object> calculateShippingCost(@RequestBody Object data) {
+    public ResponseEntity<Object> calculateShippingCost(@RequestBody CalculateShippingCostRequest data) {
         return ResponseEntity.ok(ghnService.calculateShippingCost(data));
     }
 
@@ -86,7 +83,7 @@ public class GhnController {
     // Sử dụng API này để tính được thời gian dự kiến giao hàng tới người nhận.
     @PostMapping("/orders/delivery-time")
     @ApiMessage("Estimated delivery time calculated successfully")
-    public ResponseEntity<Object> getEstimatedDeliveryTime(@RequestBody Object data) {
+    public ResponseEntity<Object> getEstimatedDeliveryTime(@RequestBody DeliveryTimeRequest data) {
         return ResponseEntity.ok(ghnService.getEstimatedDeliveryTime(data));
     }
 

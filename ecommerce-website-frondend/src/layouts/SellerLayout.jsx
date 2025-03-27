@@ -2,7 +2,6 @@ import { Outlet } from "react-router-dom";
 import SellerNavbar from "../components/SellerNavbar";
 import { Layout } from "antd";
 import { useState } from "react";
-import CardContainer from "../components/CardContainer";
 import TopHeaderSeller from "../components/header/TopHeaderSeller";
 
 const SellerLayout = () => {
@@ -15,9 +14,9 @@ const SellerLayout = () => {
                 <TopHeaderSeller
 
                 />
-                <CardContainer>
+                <div className="p-5">
                     <Outlet />
-                </CardContainer>
+                </div>
             </Layout>
         </Layout >
     );

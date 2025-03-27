@@ -45,7 +45,6 @@ const TopHeader = () => {
                 } else {
                     navigate("/seller");
                 }
-
             },
         },
         {
@@ -107,7 +106,9 @@ const TopHeader = () => {
         {
             key: "user",
             label: (
-                <span className="flex items-center gap-2 soft-gold-text ">
+                <span
+                    className="flex items-center gap-2 soft-gold-text "
+                >
                     <Avatar
                         src={AVT_URL + getUserById?.imageUrl}
                         size={20}
@@ -116,14 +117,20 @@ const TopHeader = () => {
                     <span className="text-sm">{email}</span>
                 </span>
             ),
-            onClick: () => navigate("/profile")
+            onClick: () => {
+                if (userId == undefined || userId == null || userId == "") {
+                    return setIsModalVisible(true);
+                } else {
+                    navigate("/profile")
+                }
+            }
         },
     ];
 
     return (
         <div
             className="flex justify-between items-center text-white px-[65px] mt-2 text-[0.85rem] fixed-header"
-            style={{ backgroundColor: "var(--primary-color)", zIndex: "1001" }}
+            style={{ backgroundColor: "var(--primary-color)", zIndex: "100" }}
         >
             {/* Menu bên trái */}
             <div className="flex items-center gap-4">

@@ -1,5 +1,6 @@
 import CardContainer from "../components/CardContainer";
-// import ImageSlider from "../components/ImageSlider";
+import CategoryComponent from "../components/CategoryComponent";
+import ImageSlider from "../components/ImageSlider";
 import SectionTitle from "../components/SectionTitle";
 // import WellcomeHeader from "../components/WellcomeHeader";
 import ToolList from "../features/tools/components/ToolList";
@@ -13,8 +14,11 @@ const Home = () => {
             </CardContainer> */}
             {/* <ExampleComponent /> */}
 
-            {/* <ImageSlider /> */}
-
+            <ImageSlider />
+            <div className="p-7 bg-white">
+                <SectionTitle>DANH MỤC</SectionTitle>
+                <CategoryComponent />
+            </div>
 
             <div className="p-7">
                 <SectionTitle>Sản phẩm bán chạy</SectionTitle>

@@ -68,7 +68,7 @@ public class ToolService {
                 .imageUrl(request.getImageUrl())
                 .price(request.getPrice())
                 .discountedPrice(request.getDiscountedPrice())
-                .isActive(request.isActive())
+                .isActive(true)
                 .build();
         Tool newTool = toolRepository.save(tool);
         return toolMapper.mapToResCreateToolDTO(newTool);

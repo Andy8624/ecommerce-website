@@ -96,8 +96,7 @@ const router = createBrowserRouter(
                 {
                     index: true,
                     path: "",
-                    element:
-                        <SellerHome />,
+                    element: <SellerHome />,
                 },
                 {
                     path: "products",

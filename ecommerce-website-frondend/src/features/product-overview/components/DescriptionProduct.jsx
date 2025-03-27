@@ -16,45 +16,23 @@ const DescriptionProduct = ({ description }) => {
             <Title
                 level={4}
                 style={{
-                    marginBottom: "16px",
-                    fontSize: "16px", // Cỡ chữ nhỏ hơn
-                    fontWeight: "bold",
+                    fontSize: "1.2rem",
+                    fontWeight: "500",
                     color: "#333",
-                    border: "1px solid #eaeaea", // Viền nhẹ
-                    padding: "8px",
-                    backgroundColor: "#f9f9f9", // Nền xám nhạt
+                    border: "1px solid #eaeaea",
+                    padding: "0.9rem",
+                    backgroundColor: "#f9f9f9",
                 }}
             >
-                MÔ TẢ SẢN PHẨM
+                Mô tả sản phẩm
             </Title>
 
             {/* Mô tả sản phẩm */}
-            <div style={{ fontSize: "14px", lineHeight: "1.8", color: "#555" }}>
-                <Text>
-                    <b> Chào mừng đến với cửa hàng của tôi!!!!!!</b>
-                </Text>
-                <ul style={{ paddingLeft: "20px", marginTop: "12px", color: "#555" }}>
-                    <li>Chúng tôi là một nhà máy văn phòng phẩm chuyên nghiệp.</li>
-                    <li>Hàng hóa sẽ được vận chuyển sau khi kiểm tra.</li>
-                    <li>Bao bì tinh tế, chất lượng cao và giá thấp.</li>
-                    <li>Giao hàng trong vòng 24 giờ.</li>
-                    <li>Sẽ có sản phẩm mới trong cửa hàng mỗi ngày.</li>
-                    <li>Dịch vụ khách hàng trực tuyến 24 giờ mỗi ngày.</li>
-                    <li>Nếu sản phẩm bị hư hỏng, bạn có thể liên hệ ngay để được đổi trả.</li>
-                    <li>Mua sắm vui vẻ, thân yêu của tôi!!!</li>
-                </ul>
-                <Text>
-                    <b>Mô tả sản phẩm:</b>
-                </Text>
-                <ul style={{ paddingLeft: "20px", marginTop: "12px", color: "#555" }}>
-                    <li>Tên: Bút</li>
-                    <li>Chất liệu: Khác</li>
-                    <li>Phong cách: Nhật Bản và Hàn Quốc</li>
-                    <li>Kích thước: Như được hiển thị</li>
-                    <li>Hình dạng: Như hình</li>
-                    <li>Thời gian: 2022</li>
-                    <li>{description}</li>
-                </ul>
+            <div style={{
+                fontSize: "1rem", padding: "0.9rem",
+                lineHeight: "1.8", color: "#555"
+            }}>
+                <div>{description}</div>
             </div>
         </div>
     );

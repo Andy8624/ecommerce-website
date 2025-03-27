@@ -53,5 +53,6 @@ export const searchToolByName = async (searchTerm) => {
 export const getToolsByToolIds = async (data) => {
   const path = `/api/v1/tools/toolIds`;
   const res = await axios.post(path, data);
+  console.log(res);
   return res?.data;
 }

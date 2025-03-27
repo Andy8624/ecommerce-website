@@ -46,7 +46,10 @@ public class SecurityConfiguration {
             "/api/v1/recommendation/**",
             "/ws/**",
             "/api/v1/messages/**",
-            "/api/v1/image-tools/**"
+            "/api/v1/image-tools/**",
+            "/api/v1/ghn/**",
+            "/api/v1/addresses/**",
+            "/api/v1/ordertools/total-sold/**"
     };
 
     @Bean
