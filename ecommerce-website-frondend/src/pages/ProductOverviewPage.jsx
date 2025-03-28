@@ -62,7 +62,7 @@ const ProductOverviewPage = () => {
 
                 {/* Product Details */}
                 <CardContainer>
-                    <ProductDetails details={productDetailsData} />
+                    <ProductDetails details={productDetailsData} moreDetails={tool?.attributes} />
                 </CardContainer>
 
                 <CardContainer>

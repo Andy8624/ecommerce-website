@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Data
 public class ReqToolDTO {
@@ -52,6 +53,8 @@ public class ReqToolDTO {
 
     @NotNull(message = "Tool Type must not be null")
     TypeOfTool toolType;
+
+    Map<String, String> attributes;
 
     @Data
     @NoArgsConstructor

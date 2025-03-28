@@ -2,7 +2,8 @@ import { Row, Col, Typography } from "antd";
 
 const { Text, Title } = Typography;
 
-const ProductDetails = ({ details }) => {
+const ProductDetails = ({ details, moreDetails }) => {
+    console.log("ProductDetails -> moreDetails", moreDetails);
     return (
         <div
             style={{
@@ -88,6 +89,20 @@ const ProductDetails = ({ details }) => {
                 <Col span={16}>
                     <Text style={{ color: "#333" }}>{details.shippingFrom}</Text>
                 </Col>
+
+                {/* More details */}
+                {moreDetails?.map((detail) => (
+                    <>
+                        <Col span={8} key={detail.id}>
+                            <Text strong style={{ color: "#555" }}>
+                                {detail.name}:
+                            </Text>
+                        </Col>
+                        <Col span={16}>
+                            <Text style={{ color: "#333" }}>{detail.value}</Text>
+                        </Col>
+                    </>
+                ))}
             </Row>
         </div>
     );

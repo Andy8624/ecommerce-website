@@ -1,6 +1,7 @@
 package com.dlk.ecommerce.domain.response.tool;
 
 import com.dlk.ecommerce.domain.entity.ImageTool;
+import com.dlk.ecommerce.domain.entity.ProductAttributes;
 import com.dlk.ecommerce.domain.entity.ProductReview;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
@@ -45,6 +46,7 @@ public class ResToolDTO {
     Double height;
     Double weight;
     List<ProductReview> productReviews;
+    List<ProductAttributes> attributes;
 
     @Data
     @NoArgsConstructor

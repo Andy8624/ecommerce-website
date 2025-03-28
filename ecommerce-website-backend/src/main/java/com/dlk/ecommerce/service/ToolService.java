@@ -4,6 +4,7 @@ import com.dlk.ecommerce.domain.entity.Tool;
 import com.dlk.ecommerce.domain.entity.ToolType;
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.mapper.ToolMapper;
+import com.dlk.ecommerce.domain.request.product_attributes.ProductAttributesRequest;
 import com.dlk.ecommerce.domain.request.tool.ReqToolDTO;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.tool.ResCreateToolDTO;
@@ -17,6 +18,7 @@ import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import com.turkraft.springfilter.parser.FilterParser;
 import com.turkraft.springfilter.parser.node.FilterNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ToolService {
     private final ToolRepository toolRepository;
     private final FilterParser filterParser;
@@ -34,6 +37,7 @@ public class ToolService {
     private final UserService userService;
     private final ToolTypeService toolTypeService;
     private final ToolMapper toolMapper;
+    private final ProductAttributeService productAttributeService;
 
     public Tool getToolById(long toolId) throws IdInvalidException {
         return toolRepository.findByIdIfNotDeleted(toolId).orElseThrow(
@@ -51,6 +55,8 @@ public class ToolService {
     public ResCreateToolDTO createTool(ReqToolDTO request) throws IdInvalidException {
         User dbUser = userService.fetchUserById(request.getUser().getUserId());
         ToolType dbToolType = toolTypeService.getToolTypeById(request.getToolType().getToolTypeId());
+        log.info("Create Tool Request: {}", request);
+        log.info("attributes: {}", request.getAttributes());
 
         Tool tool = new Tool().toBuilder()
                 .user(dbUser)
@@ -71,6 +77,12 @@ public class ToolService {
                 .isActive(true)
                 .build();
         Tool newTool = toolRepository.save(tool);
+        ProductAttributesRequest attrRequest = new ProductAttributesRequest(
+                newTool.getToolId(),
+                request.getAttributes()
+        );
+
+        productAttributeService.addAttributes(attrRequest);
         return toolMapper.mapToResCreateToolDTO(newTool);
     }
 

@@ -45,20 +45,6 @@ public class CartService {
         return cartMapper.toCartDTO(newCart);
     }
 
-//    public Cart updateCart(Cart cart, String id) throws IdInvalidException {
-//        Cart dbCart = getCartById(id);
-//
-//        if (cart.getUser() != null && cart.getUser().getUserId() != null) {
-//            User user = userRepository.findById(cart.getUser().getUserId())
-//                    .orElseThrow(() -> new IdInvalidException("User with id: " + cart.getUser().getUserId() + " not found"));
-//            dbCart.setUser(user);
-//        } else {
-//            throw new IdInvalidException("User cannot be null or empty");
-//        }
-//
-//        return cartRepository.save(dbCart);
-//    }
-
     public ResCartDTO getCartByUserId(String userId) throws IdInvalidException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IdInvalidException("User with id: " + userId + " not found"));

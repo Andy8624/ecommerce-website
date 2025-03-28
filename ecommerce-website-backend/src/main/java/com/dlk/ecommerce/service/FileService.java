@@ -49,8 +49,8 @@ public class FileService {
     public List<ResUploadFileDTO> handleUploadMultipleFiles(
             List<MultipartFile> files, String folderName, Long toolId
     ) throws URISyntaxException, IOException, StorageException, IdInvalidException {
-        log.info(folderName);
-        log.info(files.toString());
+//        log.info(folderName);
+//        log.info(files.toString());
         List<ResUploadFileDTO> uploadedFiles = new ArrayList<>();
 
         // Tạo thư mục nếu chưa tồn tại
@@ -62,10 +62,10 @@ public class FileService {
 
             // Gọi API Python để trích xuất đặc trưng
             byte[] featureVector = extractFeatureFromPythonAPI(file);
-            log.info("Extracted feature vector (BLOB): " + Arrays.toString(featureVector));
+//            log.info("Extracted feature vector (BLOB): " + Arrays.toString(featureVector));
 
             float[] convert = byteArrayToFloatArray(featureVector);
-            log.info("Extracted feature vector (FLOAT): " + Arrays.toString(convert));
+//            log.info("Extracted feature vector (FLOAT): " + Arrays.toString(convert));
             uploadedFiles.add(new ResUploadFileDTO(fileName, Instant.now(), featureVector));
 
             Tool tool = toolService.getToolById(toolId);
@@ -114,7 +114,7 @@ public class FileService {
             featureVector[i] = featureVectorNode.get(i).floatValue();
         }
 
-        log.info("Extracted feature vector (FLOAT): " + Arrays.toString(featureVector));
+//        log.info("Extracted feature vector (FLOAT): " + Arrays.toString(featureVector));
 
 
         // Chuyển mảng float[] thành mảng byte (BLOB)

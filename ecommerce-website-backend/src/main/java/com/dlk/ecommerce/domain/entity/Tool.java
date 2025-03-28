@@ -86,6 +86,9 @@ public class Tool extends BaseEntity {
     @JsonIgnore
     List<ImageTool> imageTools;
 
+    @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<ProductAttributes> attributes;
+
     @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)
     List<ProductReview> productReviews;
 

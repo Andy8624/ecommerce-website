@@ -7,8 +7,8 @@ export const readTools = async () => {
 
 export const createTool = async (newTool) => {
   const res = await axios.post(`/api/v1/tools`, newTool);
-  console.log(res?.data);
-  console.log("Request create gửi đi");
+  // console.log(res?.data);
+  // console.log("Request create gửi đi");
   return res?.data;
 }
 

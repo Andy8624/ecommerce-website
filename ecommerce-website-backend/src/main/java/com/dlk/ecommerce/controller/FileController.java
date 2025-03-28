@@ -44,7 +44,7 @@ public class FileController {
             @RequestParam("folderName") String folderName,
             @RequestParam("toolId") Long toolId
     ) {
-        log.info(files.toString());
+//        log.info(files.toString());
         try {
             if (files.isEmpty()) {
                 return ResponseEntity.badRequest().body(null);
@@ -52,7 +52,7 @@ public class FileController {
             List<ResUploadFileDTO> response = fileService.handleUploadMultipleFiles(files, folderName, toolId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error(String.valueOf(e));
+//            log.error(String.valueOf(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

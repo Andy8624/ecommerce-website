@@ -17,5 +17,4 @@ public interface ToolRepository extends JpaRepository<Tool, Long>,
 
     @Query("SELECT t FROM Tool t WHERE t.toolId = :id AND t.deleted = false")
     Optional<Tool> findByIdIfNotDeleted(@Param("id") Long id);
-
 }

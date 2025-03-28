@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 const ProductManagement = () => {
     const userId = useSelector(state => state?.account?.user?.id);
     const { tools } = useGetAllToolByUserId(userId);
-    console.log(tools);
+    // console.log(tools);
     const { createNewTool } = useCreateTool();
     const { updateTool } = useUpdateTool();
     const { deleteTool, isDeleting } = useDeleteTool();
@@ -27,19 +27,29 @@ const ProductManagement = () => {
         deleteTool(toolId);
     };
 
-    const filteredTools = tools.filter((tool) => {
+    const isNewProduct = (createdAt, countDay) => {
+        const createdDate = new Date(createdAt);
+        const today = new Date(); // Ngày hiện tại
+        const diffTime = today - createdDate; // Số mili-giây giữa hai ngày
+        const diffDays = diffTime / (1000 * 60 * 60 * 24); // Chuyển mili-giây sang ngày
+
+        return diffDays <= countDay; // Kiểm tra nếu sản phẩm được tạo trong vòng CountDay ngày
+    };
+
+    const filteredTools = tools?.filter((tool) => {
         if (filter === "Tất cả") return true;
-        if (filter === "Thêm gần đây") return tool.isNew;
-        if (filter === "Đã ẩn") return tool.isHidden;
-        if (filter === "Đã hết hàng") return tool.isOutOfStock;
+        if (filter === "Thêm gần đây") return isNewProduct(tool?.createdAt);
+        if (filter === "Đã ẩn") return !tool?.is_active;
+        if (filter === "Đang hoạt động") return tool?.is_active;
+        if (filter === "Đã hết hàng") return tool?.stockQuantity === 0;
         return true;
     });
 
     return (
-        <div className="p-3">
+        <div>
             <div className="flex justify-between items-center mb-3">
                 <Segmented
-                    options={["Tất cả", "Thêm gần đây", "Đã ẩn", "Đã hết hàng"]}
+                    options={["Tất cả", "Thêm gần đây", "Đang hoạt động", "Đã ẩn", "Đã hết hàng"]}
                     value={filter}
                     onChange={setFilter}
                     className="bg-gray-100 p-2 rounded-lg"

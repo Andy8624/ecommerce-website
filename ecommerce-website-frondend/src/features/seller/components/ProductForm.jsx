@@ -1,7 +1,7 @@
-import { Steps, Form, Button, Typography, Divider } from "antd";
+import { Steps, Form, Button, Divider } from "antd";
 import { useState } from "react";
 
-const { Title } = Typography;
+
 const { Step } = Steps;
 
 import BasicInfo from "./BasicInfo"
@@ -188,12 +188,13 @@ const ProductForm = () => {
                 weight: dataToSend.product.weight,
                 price: 10000,
                 stockQuantity: 100,
+                attributes: dataToSend.product.attributes,
             }
             const res = await createNewTool(productData);
             const toolId = res?.toolId;
             // Từ Id của record Product vừa tạo -> tạo các ảnh sản phẩm vào table ImageTool
-            const multiUploadResponse = await uploadMultipleFiles(dataToSend.images, "tools", toolId);
-            console.log(multiUploadResponse)
+            uploadMultipleFiles(dataToSend.images, "tools", toolId);
+            // console.log(multiUploadResponse)
 
 
             console.log('Dữ liệu đã được lưu vào cơ sở dữ liệu:');
@@ -208,7 +209,7 @@ const ProductForm = () => {
 
     return (
         <>
-            <Title level={2}>Thêm sản phẩm</Title>
+            {/* <Title level={2}>Thêm sản phẩm</Title> */}
             <Form form={form} onFinish={handleSubmit}>
                 <Steps current={currentStep} onChange={setCurrentStep} className="mt-5">
                     <Step title="Thông tin cơ bản" />
