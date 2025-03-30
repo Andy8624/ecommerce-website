@@ -10,6 +10,7 @@ export const getToolOfCart = async (id) => {
 export const getCartTool = async (id) => {
     const path = `/api/v1/cart-tools/${id}`;
     const res = await axios.get(path);
+    // console.log(res?.data);
     return res?.data;
 }
 

@@ -1,6 +1,5 @@
 package com.dlk.ecommerce.config;
 
-import com.dlk.ecommerce.controller.CourseController;
 import com.dlk.ecommerce.domain.entity.*;
 import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.repository.*;
@@ -26,8 +25,6 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final ToolRepository toolRepository;
     private final UserService userService;
     private final PaymentMethodRepository paymentMethodRepository;
-    private final CourseRepository courseRepository;
-    private final CourseController courseController;
     private final AddressRepository addressRepository;
 
 
@@ -40,7 +37,6 @@ public class DatabaseInitializer implements CommandLineRunner {
         long countToolTypes = toolTypeRepository.count();
         long countTools = toolRepository.count();
         long countPaymentMethod = paymentMethodRepository.count();
-        long countCourse = courseRepository.count();
         long countAddress = addressRepository.count();
 
 
@@ -317,150 +313,6 @@ public class DatabaseInitializer implements CommandLineRunner {
             toolTypeRepository.saveAll(toolTypes);
         }
 
-//        if (toolRepository.count() == 0) {
-//            User seller1 = userRepository.findByEmail("seller1@gmail.com").orElse(null);
-//            User seller2 = userRepository.findByEmail("seller2@gmail.com").orElse(null);
-//            // Khởi tạo Tool
-//            List<Tool> tools = new ArrayList<>();
-//
-//            tools.add(Tool.builder()
-//                    .name("Bút Jinhao TIANDAO 1935\n")
-//                    .description("Bút dành cho tín đồ thích bút to. \n")
-//                    .price(new BigDecimal("180000"))
-//                    .discountedPrice(new BigDecimal("169000"))
-//                    .stockQuantity(100)
-//                    .imageUrl("but1.png")
-//                    .toolType(toolTypeRepository.findById(1L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller1)
-//                    .build());
-//
-//            tools.add(Tool.builder()
-//                    .name("BÚT BI OHTO CELSUS CERAMIC 0.5MM CB-15C\n")
-//                    .description("Một lựa chọn hoàn hảo cho ai đang tìm bút bi ký.\n" +
-//                            "\n⭐  Xuất xứ : Nhật Bản\n" +
-//                            "\n" +
-//                            "⚡\uFE0F  Hãng sản xuất : OHTO\n" +
-//                            "\n" +
-//                            "OHTO là một hãng bút đã hơn 100 tuổi với thế mạnh là sản xuất bút bi nên những cây bút bi của OHTO gấy ấn tượng mạnh với người tiêu dùng.\n" +
-//                            "\n" +
-//                            "⭐  Bút bi dạng nước sử dụng gốm cho đầu bút bi. Bề mặt bi không trơn nhẵn mà có vô số các lỗ nhỏ, mực sẽ bám vào các lỗ này giúp nét viết ra liên tục và mượt mà.\n" +
-//                            "\n" +
-//                            " \n" +
-//                            "\n" +
-//                            "⭐  Thân bút bằng kim loại có độ bóng và tạo ra cảm giác sang trọng, \"đầm tay\" khi viết.")
-//                    .price(new BigDecimal("550000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .stockQuantity(50)
-//                    .imageUrl("but2.png")
-//                    .toolType(toolTypeRepository.findById(1L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller1)
-//                    .build());
-//
-//            tools.add(Tool.builder()
-//                    .name("Giấy hoa Xa Trục Thảo - Set Happy School - 2.5mm - 12 tờ A4 không lem\n")
-//                    .description("- Giấy A4 định lượng 100 có phụ gia chống thấm đảm bảo không lem và có độ bền cao trong môi trường ẩm.\n" +
-//                            "\n" +
-//                            "- Màu kem chụp ăn ảnh, cho ra màu trắng thuần.\n" +
-//                            "\n" +
-//                            "- Ô li 2.5mm tương tự vở học sinh.\n" +
-//                            "\n" +
-//                            "- In màu offset 1 mặt siêu rõ nét và lên ảnh rực rỡ, 12 tờ là 12 mẫu khác nhau, chủ đề thầy trò xinh xắn.\n" +
-//                            "\n" +
-//                            "- Đường kẻ màu xanh nhạt viết nổi chữ.\n" +
-//                            "\n" +
-//                            "- Để lẻ tờ, dễ viết, dễ chụp ảnh, dễ chọn lọc và đưa vào bộ sưu tập.\n" +
-//                            "\n" +
-//                            "- Mua 5 set tặng thêm 1 set.\n" +
-//                            "\n" +
-//                            "Sản phẩm do Xa Trục Thảo thiết kế và in ấn, phân phối bởi Cánh Diều.")
-//                    .price(new BigDecimal("20000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .stockQuantity(200)
-//                    .imageUrl("giay1.png")
-//                    .toolType(toolTypeRepository.findById(2L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller1)
-//                    .build());
-//
-//            tools.add(Tool.builder()
-//                    .name("Mực Pilot Iroshizuku 50ml - màu mới")
-//                    .description("Pilot ra mắt 3 màu mực bút máy Iroshizuku mới vào năm 2022. Những loại mực tuyệt đẹp này được lấy cảm hứng từ môi trường tươi đẹp của Nhật Bản. \n" +
-//                            "\n" +
-//                            "1. Hana-ikada (花筏) - Bè hoa anh đào Nhật Bản: lấy cảm hứng từ những bông hoa anh đào xinh đẹp, trôi bồng bềnh trên dòng sông đang chảy.\n" +
-//                            "\n" +
-//                            "2. Hotaru-bi (蛍火) - Ánh sáng đom đóm: lấy cảm hứng từ ánh sáng dịu nhẹ của những chú đom đóm mỏng manh. Màu này là một màu xanh lá cây tươi sáng với màu vàng ấm áp.\n" +
-//                            "\n" +
-//                            "3. Sui-gyoku (翠玉) - Ngọc lục bảo: lấy cảm hứng từ ánh sáng xanh lục đậm của một loại đá quý ngọc lục bảo vô cùng quý giá.")
-//                    .price(new BigDecimal("440000"))
-//                    .discountedPrice(new BigDecimal("419000"))
-//                    .stockQuantity(30)
-//                    .imageUrl("muc1.png")
-//                    .toolType(toolTypeRepository.findById(3L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller1)
-//                    .build());
-//
-//            tools.add(Tool.builder()
-//                    .name("Bút mài Cánh Diều 303 - thân nhám mới\n")
-//                    .description("Đây là cây bút máy ngòi mài với nét mảnh và êm. Nét mảnh của mẫu 303 mảnh hơn mẫu " +
-//                            "301 nhưng không mảnh bằng mẫu 302 (êm hơn mẫu 302). Thân bút vừa với cả bàn tay người lớn và học sinh. Bút phù hợp với người đã có kỹ thuật viết bút mài tốt.S")
-//                    .price(new BigDecimal("90000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .stockQuantity(25)
-//                    .imageUrl("but3.png")
-//                    .toolType(toolTypeRepository.findById(1L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller1)
-//                    .build());
-//
-//            tools.add(Tool.builder()
-//                    .name("Bút Cánh Diều 202 ngòi kim tinh\n")
-//                    .description("Bút Cánh Diều 202 có thiết kế nhỏ gọn phù hợp với học sinh tiểu học, với kiểu ngòi kim tinh kín giúp hạn chế tối đa lem bẩn mực do chạm vào ngòi. \n" +
-//                            "Bút có định vị tay cầm, phần định vị làm vân sọc ngang giúp cầm bút êm, không trơn.")
-//                    .price(new BigDecimal("25000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .stockQuantity(25)
-//                    .imageUrl("canhdieu1.png")
-//                    .toolType(toolTypeRepository.findById(1L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller2)
-//                    .build());
-//
-//            tools.add(Tool.builder()
-//                    .name("Bút Cánh Diều 107 ngòi kim tinh\n")
-//                    .description("- Bút có định vị tay cầm, phần định vị làm vân sọc ngang giúp cầm bút êm, không " +
-//                            "trơn.\n \n" +
-//                            "- Mực ra đều, vừa đủ nên nhanh khô.\n" +
-//                            "\n" +
-//                            "- Ngòi nét nhỏ phù hợp học sinh tiểu học viết hàng ngày.\n" +
-//                            "\n" +
-//                            "- Bút có sẵn Converter (piston) bơm mực đi kèm. Bút lắp ống mực chuẩn 2,6mm.\n" +
-//                            "\n" +
-//                            "- Thân bút bằng nhựa dẻo, bền, va đập không bị nứt vỡ. Có nhiều lựa chọn màu sắc rất đáng yêu.\n" +
-//                            "\n" +
-//                            "- Bút giá 35k, ngòi thay giá 5k (ngòi rất dễ thay). Bút dùng cùng loại ngòi với bút CD 202 và CD 106\n" +
-//                            "✅Bút có 2 kiểu ngòi:")
-//                    .price(new BigDecimal("30000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .stockQuantity(25)
-//                    .imageUrl("canhdieu2.png")
-//                    .toolType(toolTypeRepository.findById(1L).orElse(null))
-//                    .isActive(true)
-//                    .deleted(false)
-//                    .user(seller2)
-//                    .build());
-//
-//            toolRepository.saveAll(tools);
-//        }
-
         if (countPaymentMethod == 0) {
             List<PaymentMethod> paymentMethods = new ArrayList<>();
             paymentMethods.add(PaymentMethod.builder().name("Thanh toán khi nhận hàng").isActive(true).build());
@@ -468,32 +320,6 @@ public class DatabaseInitializer implements CommandLineRunner {
             paymentMethods.add(PaymentMethod.builder().name("Thanh toán qua Paypal").isActive(true).build());
             paymentMethodRepository.saveAll(paymentMethods);
         }
-
-//        if (countCourse == 0) {
-//            List<Course> courses = new ArrayList<>();
-//            courses.add(Course.builder()
-//                    .courseUrl("https://www.youtube.com/playlist?list=PLAyNEaBn-10Tc0BMn1OiHbMID2VPMv-Y1")
-//                    .price(new BigDecimal("500000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .user(userRepository.findByEmail("seller1@gmail.com").orElse(null))
-//                    .build());
-//
-//            courses.add(Course.builder()
-//                    .courseUrl("https://www.youtube.com/playlist?list=PLp1vfj-6olW8lapBHPGT5gxFO5_NKTKsW")
-//                    .price(new BigDecimal("1000000"))
-//                    .discountedPrice(new BigDecimal("899000"))
-//                    .user(userRepository.findByEmail("seller1@gmail.com").orElse(null))
-//                    .build());
-//
-//            courses.add(Course.builder()
-//                    .courseUrl("https://www.youtube.com/playlist?list=PLp1vfj-6olW8XnVFezjNZ2viSGx2WY4_K")
-//                    .price(new BigDecimal("100000"))
-//                    .discountedPrice(new BigDecimal("0"))
-//                    .user(userRepository.findByEmail("seller2@gmail.com").orElse(null))
-//                    .build());
-//
-//            courseRepository.saveAll(courses);
-//        }
 
         if (countAddress == 0) {
             List<Address> addresses = new ArrayList<>();
@@ -542,7 +368,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
 
 
-        if (countPermissions > 0 && countRoles > 0 && countUsers > 0 && countToolTypes > 0 && countTools > 0 && countPaymentMethod > 0 && countCourse > 0 && countAddress > 0) {
+        if (countPermissions > 0 && countRoles > 0 && countUsers > 0 && countToolTypes > 0 && countTools > 0 && countPaymentMethod > 0 && countAddress > 0) {
             System.out.println(">>> SKIP INIT DATABASE ~ ALREADY HAVE DATA...");
         } else
             System.out.println(">>> END INIT DATABASE");

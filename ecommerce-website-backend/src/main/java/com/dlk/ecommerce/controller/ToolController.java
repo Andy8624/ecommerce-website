@@ -9,6 +9,7 @@ import com.dlk.ecommerce.domain.response.tool.ResUpdateToolDTO;
 import com.dlk.ecommerce.service.ToolService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class ToolController {
 
     @PostMapping
     @ApiMessage("Create a tool")
-    public ResponseEntity<ResCreateToolDTO> create(@Valid @RequestBody ReqToolDTO tool) throws IdInvalidException {
+    public ResponseEntity<ResCreateToolDTO> create(@Valid @RequestBody ReqToolDTO tool) throws IdInvalidException, JsonProcessingException {
         return ResponseEntity.status(HttpStatus.CREATED).body(toolService.createTool(tool));
     }
 
@@ -46,8 +47,14 @@ public class ToolController {
         return ResponseEntity.ok(toolService.updateTool(tool, id));
     }
 
+    @DeleteMapping("/hard-delete/{id}")
+    @ApiMessage("HARD Delete a tool")
+    public ResponseEntity<Void> hardDelete(@PathVariable("id") long id) throws IdInvalidException {
+        return ResponseEntity.ok(toolService.hardDeleteTool(id));
+    }
+
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a tool")
+    @ApiMessage("SOFT Delete a tool")
     public ResponseEntity<Void> delete(@PathVariable("id") long id) throws IdInvalidException {
         return ResponseEntity.ok(toolService.deleteTool(id));
     }
@@ -61,9 +68,10 @@ public class ToolController {
     @GetMapping
     @ApiMessage("Get all tools")
     public ResponseEntity<ResPaginationDTO> getAllTool(
+            @Filter Specification<Tool> spec,
             Pageable pageable
     ) {
-        return ResponseEntity.ok(toolService.getAllTool(pageable));
+        return ResponseEntity.ok(toolService.getAllTool(spec, pageable));
     }
 
     @GetMapping("/user-tools/{id}")

@@ -1,7 +1,26 @@
 import { List, InputNumber, Checkbox, Button } from 'antd';
-import { DeleteOutlined, HighlightOutlined, VideoCameraAddOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { TOOL_URL } from "../../../utils/Config"
+import { useQuery } from '@tanstack/react-query';
+import { callGetVariantDetailById } from '../../../services/VariantDetailService';
 const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedItems }) => {
+    console.log(item);
+    const { isLoading: isLoadingVariantDetail1, data: variantDetail1 } = useQuery({
+        queryKey: ['variantDetail', item?.variantDetailId1],
+        queryFn: () => callGetVariantDetailById(item?.variantDetailId1),
+        enabled: !!item?.variantDetailId1,
+        staleTime: 60 * 10 * 1000, // 10p
+    })
+
+    const { isLoading: isLoadingVariantDetail2, data: variantDetail2 } = useQuery({
+        queryKey: ['variantDetail', item?.variantDetailId2],
+        queryFn: () => callGetVariantDetailById(item?.variantDetailId2),
+        enabled: !!item?.variantDetailId2,
+        staleTime: 60 * 10 * 1000, // 10p
+    })
+
+    const price = variantDetail1?.price || item.price;
+
     return (
         <List.Item
             className="border rounded-lg mb-2 py-2 px-2 bg-gray-50" // Giảm padding và margin giữa các item
@@ -25,6 +44,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
             ]}
         >
             <List.Item.Meta
+                // className="mr-[3rem]"
                 avatar={
                     <div className="flex items-center space-x-3 mx-2">
                         <Checkbox
@@ -35,37 +55,60 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
                     </div>
                 }
                 title={
-                    <div className="flex items-center space-x-2 w-4/5">
-                        {item.type === "product" ? (
-                            <HighlightOutlined className="text-green-500 text-sm flex-none" />
-                        ) : (
-                            <VideoCameraAddOutlined className="text-green-500 text-sm flex-none" />
-                        )}
+                    <div className="w-64">
                         <span
-                            className="text-sm font-semibold text-base overflow-hidden line-clamp-1 w-full text-two-lines"
+                            className="text-sm text-base overflow-hidden line-clamp-1 w-full text-two-lines"
+                            title={item.name}
                         >
                             {item.name}
                         </span>
                     </div>
                 }
                 description={(
-                    <div className="text-sm">
-                        {item.discountPrice !== 0 ? (
+                    <div className="text-sm min-w-full">
+                        {/* {item.discountPrice !== 0 ? (
                             <>
                                 <p className="line-through text-gray-500">₫{item.price.toLocaleString()}</p>
                                 <p className="text-red-500 font-medium">₫{item.discountPrice.toLocaleString()}</p>
                             </>
                         ) : (
                             <p className="text-red-500 font-medium">₫{item.price.toLocaleString()}</p>
-                        )}
+                        )} */}
+                        <p className="text-red-500 font-medium">₫{price?.toLocaleString()}</p>
+
                     </div>
                 )}
             />
+            <div className="mr-[100px] capitalize min-w-32">
+                {isLoadingVariantDetail1 || isLoadingVariantDetail2 ? (
+                    <span className="text-gray-500">Đang tải...</span>
+                ) : (
+                    <>
+                        {variantDetail1?.category_name && variantDetail1?.category_detail_name && (
 
-            <div className="text-right font-semibold text-sm">
-                ₫{((item.discountPrice || item.price) * item.quantity).toLocaleString()}
+                            <span className="font-medium text-gray-500 text-sm">
+                                {variantDetail1.category_name}: {" "}
+                                {variantDetail1.category_detail_name}
+                            </span>
+
+                        )}
+                        {variantDetail2?.category_name && variantDetail2?.category_detail_name && (
+                            <span className="font-medium text-gray-500 text-sm">
+                                <br />
+                                {variantDetail2.category_name}: {" "}
+                                {variantDetail2.category_detail_name}
+                            </span>
+
+                        )}
+                    </>
+                )}
             </div>
-        </List.Item>
+
+            <div className="text-sm text-red-500">
+                {/* ₫{((item.discountPrice || item.price) * item.quantity).toLocaleString()} */}
+                ₫{((price) * item.quantity).toLocaleString()}
+            </div>
+        </List.Item >
     );
 };
 

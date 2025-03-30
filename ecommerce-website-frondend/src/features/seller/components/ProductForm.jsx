@@ -9,8 +9,10 @@ import DetailedInfo from "./DetailedInfo"
 import SalesInfo from "./SalesInfo"
 import DeliveryInfo from "./DeliveryInfo";
 import { useCreateTool } from "../hooks/useCreateTool";
-import { uploadFile, uploadMultipleFiles } from "../../../services/FileService";
+import { deleteFile, uploadFile, uploadMultipleFiles } from "../../../services/FileService";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { callHardDeleteProduct } from "../../../services/ToolService";
 
 
 const ProductForm = () => {
@@ -164,10 +166,8 @@ const ProductForm = () => {
         try {
             // Upload ảnh bìa trước để lấy tên ảnh lưu vào table Product
             const uploadedFileName = await uploadFile(dataToSend.coverImage, "tools");
-            console.log(uploadedFileName)
             // hoàn thành được up load ảnh bìa giờ tới upload thông tin sản phẩm lên
             // Tạo record table Product
-            console.log(dataToSend)
             const productData = {
                 user: {
                     userId: userId,
@@ -189,16 +189,30 @@ const ProductForm = () => {
                 price: 10000,
                 stockQuantity: 100,
                 attributes: dataToSend.product.attributes,
+                categoryDetails: {
+                    category: dataToSend.product.salesInfo.categories,
+                    categoryDetail: dataToSend.product.salesInfo.variants,
+                },
             }
+            console.log(productData)
+
             const res = await createNewTool(productData);
-            const toolId = res?.toolId;
-            // Từ Id của record Product vừa tạo -> tạo các ảnh sản phẩm vào table ImageTool
-            uploadMultipleFiles(dataToSend.images, "tools", toolId);
-            // console.log(multiUploadResponse)
-
-
-            console.log('Dữ liệu đã được lưu vào cơ sở dữ liệu:');
-
+            if (res == null) {
+                toast.error("Có lỗi xảy ra khi tạo sản phẩm");
+                // xóa ảnh bìa (trong thư mục) khi tạo sp k thành công
+                deleteFile(uploadedFileName, "tools");
+            } else {
+                const toolId = res?.toolId;
+                // Từ Id của record Product vừa tạo -> tạo các ảnh sản phẩm vào table ImageTool
+                const response = await uploadMultipleFiles(dataToSend.images, "tools", toolId);
+                if (response == null) {
+                    toast.error("Có lỗi xảy ra khi tạo ảnh sản phẩm");
+                    // xóa cứng sp (trong db) khi tạo ảnh k thành công
+                    callHardDeleteProduct(toolId);
+                } else {
+                    toast.success("Tạo ảnh sản phẩm thành công");
+                }
+            }
             localStorage.removeItem("attributes");
         } catch (error) {
             console.error('Có lỗi xảy ra khi lưu dữ liệu:', error);

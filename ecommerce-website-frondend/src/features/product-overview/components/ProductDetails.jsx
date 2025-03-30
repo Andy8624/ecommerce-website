@@ -1,9 +1,9 @@
 import { Row, Col, Typography } from "antd";
+import { Fragment } from "react";
 
 const { Text, Title } = Typography;
 
 const ProductDetails = ({ details, moreDetails }) => {
-    console.log("ProductDetails -> moreDetails", moreDetails);
     return (
         <div
             style={{
@@ -92,8 +92,8 @@ const ProductDetails = ({ details, moreDetails }) => {
 
                 {/* More details */}
                 {moreDetails?.map((detail) => (
-                    <>
-                        <Col span={8} key={detail.id}>
+                    <Fragment key={detail.id}>
+                        <Col span={8}>
                             <Text strong style={{ color: "#555" }}>
                                 {detail.name}:
                             </Text>
@@ -101,7 +101,7 @@ const ProductDetails = ({ details, moreDetails }) => {
                         <Col span={16}>
                             <Text style={{ color: "#333" }}>{detail.value}</Text>
                         </Col>
-                    </>
+                    </Fragment>
                 ))}
             </Row>
         </div>

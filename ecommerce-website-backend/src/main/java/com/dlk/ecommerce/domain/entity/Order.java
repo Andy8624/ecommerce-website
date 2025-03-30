@@ -1,7 +1,6 @@
 package com.dlk.ecommerce.domain.entity;
 
 import com.dlk.ecommerce.util.constant.OrderStatusEnum;
-import com.dlk.ecommerce.util.constant.OrderType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -43,9 +42,6 @@ public class Order extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "address_id")
     Address address;
-
-    @Enumerated(EnumType.STRING)
-    OrderType type;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     List<OrderTool> orderTools;

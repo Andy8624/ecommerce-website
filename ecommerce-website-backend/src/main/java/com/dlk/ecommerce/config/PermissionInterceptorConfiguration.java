@@ -18,8 +18,6 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
         String[] whiteList = {
                 "/", "/api/v1/auth/**",
                 "/api/v1/tools/**",
-                "/api/v1/courses/**",
-                "/api/v1/ordercourses/**",
                 "/api/v1/carts/**",
                 "/api/v1/cart-tools/**",
                 "/api/v1/files/**",
@@ -27,13 +25,14 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
                 "/api/v1/paymentmethods/**",
                 "/api/v1/orders/**",
                 "/api/v1/ordertools/**",
-                "/api/v1/cart-courses/**",
                 "/api/v1/ghn/**",
                 "/api/v1/users/**",
                 "/api/v1/kafka/**",
                 "/api/v1/cf-data",
                 "/api/v1/messages/**",
-                "/api/v1/image-tools/**"
+                "/api/v1/image-tools/**",
+                "/api/v1/categories/**",
+                "/api/v1/variant-detail/**"
         };
         registry.addInterceptor(getPermissionInterceptor())
                 .excludePathPatterns(whiteList)

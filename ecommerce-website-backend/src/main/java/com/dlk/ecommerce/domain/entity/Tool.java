@@ -10,8 +10,10 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tools")
 @Data
@@ -19,7 +21,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@SQLDelete(sql = "UPDATE tools SET deleted = true WHERE tool_id = ?")
 public class Tool extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -91,6 +92,13 @@ public class Tool extends BaseEntity {
 
     @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)
     List<ProductReview> productReviews;
+
+    @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<ProductVariant> variants = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "category_id") // Đảm bảo đúng với tên cột trong DB
+    Category category;
 
     // Thuộc tính lưu trữ điểm đánh giá trung bình của sản phẩm
     Double averageRating = 0.0;

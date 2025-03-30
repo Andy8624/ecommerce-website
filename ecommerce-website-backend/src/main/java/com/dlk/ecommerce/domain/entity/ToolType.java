@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tool_types")
 @Data

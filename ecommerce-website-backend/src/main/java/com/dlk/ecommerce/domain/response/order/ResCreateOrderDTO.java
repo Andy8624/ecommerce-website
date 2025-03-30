@@ -1,7 +1,6 @@
 package com.dlk.ecommerce.domain.response.order;
 
 import com.dlk.ecommerce.util.constant.OrderStatusEnum;
-import com.dlk.ecommerce.util.constant.OrderType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,7 +21,6 @@ public class ResCreateOrderDTO {
     PaymentMethodOrder paymentMethod;
     Instant createdAt;
     String createdBy;
-    OrderType type;
 
     @Data
     @NoArgsConstructor

@@ -157,7 +157,7 @@ public class UserService {
         User dbUser = findUserByEmail(email);
         if (dbUser != null) {
             dbUser.setRefreshToken(refreshToken);
-            log.info("Update refresh token for user: " + dbUser.getEmail());
+//            log.info("Update refresh token for user: " + dbUser.getEmail());
             userRepository.save(dbUser);
         }
     }

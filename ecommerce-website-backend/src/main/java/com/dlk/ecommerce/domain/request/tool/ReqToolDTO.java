@@ -1,5 +1,6 @@
 package com.dlk.ecommerce.domain.request.tool;
 
+import com.dlk.ecommerce.domain.request.category.ProductCategoryDetailRequest;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -55,6 +56,8 @@ public class ReqToolDTO {
     TypeOfTool toolType;
 
     Map<String, String> attributes;
+
+    ProductCategoryDetailRequest categoryDetails;
 
     @Data
     @NoArgsConstructor

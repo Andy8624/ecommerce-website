@@ -11,6 +11,7 @@ const CartProvider = ({ children }) => {
     const userId = useSelector(state => state?.account?.user?.id);
     const { carts } = useCart(userId);
     const { cartTools } = useCartTool(carts?.cartId);
+    // console.log(cartTools);
 
     const [cartQuantity, setCartQuantity] = useState(0);
 
@@ -25,6 +26,8 @@ const CartProvider = ({ children }) => {
                 quantity: item.quantity,
                 image: item.tool.imageUrl,
                 toolId: item.tool.toolId,
+                variantDetailId1: item.variantDetailId1,
+                variantDetailId2: item.variantDetailId2,
                 ownerUser: {
                     userId: item.tool.user.userId,
                     email: item.tool.user.email,

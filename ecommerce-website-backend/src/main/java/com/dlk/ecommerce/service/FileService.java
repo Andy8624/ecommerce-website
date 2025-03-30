@@ -45,109 +45,6 @@ public class FileService {
     private final ImageToolService imageToolService;
     private final ToolService toolService;
 
-    // Upload nhiều file cùng một lúc
-    public List<ResUploadFileDTO> handleUploadMultipleFiles(
-            List<MultipartFile> files, String folderName, Long toolId
-    ) throws URISyntaxException, IOException, StorageException, IdInvalidException {
-//        log.info(folderName);
-//        log.info(files.toString());
-        List<ResUploadFileDTO> uploadedFiles = new ArrayList<>();
-
-        // Tạo thư mục nếu chưa tồn tại
-        createDirectory(baseUri + folderName);
-
-        for (MultipartFile file : files) {
-            checkValidFile(file);
-            String fileName = store(file, folderName);
-
-            // Gọi API Python để trích xuất đặc trưng
-            byte[] featureVector = extractFeatureFromPythonAPI(file);
-//            log.info("Extracted feature vector (BLOB): " + Arrays.toString(featureVector));
-
-            float[] convert = byteArrayToFloatArray(featureVector);
-//            log.info("Extracted feature vector (FLOAT): " + Arrays.toString(convert));
-            uploadedFiles.add(new ResUploadFileDTO(fileName, Instant.now(), featureVector));
-
-            Tool tool = toolService.getToolById(toolId);
-            ImageTool imageTool = new ImageTool().toBuilder()
-                    .fileName(fileName)
-                    .tool(tool)
-                    .featureVector(featureVector)
-                    .build();
-            imageToolService.createImageTool(imageTool);
-
-        }
-        return uploadedFiles;
-    }
-
-    // Hàm gọi API Python để trích xuất đặc trưng
-    private byte[] extractFeatureFromPythonAPI(MultipartFile file) {
-        // Tạo URL của API Python
-        String apiUrl = "http://localhost:8000/python/api/v1/extract-feature";
-
-        // Tạo MultipartRequest để gửi file
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", file.getResource());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-        // Gửi yêu cầu POST đến API Python và nhận kết quả
-        ResponseEntity<Object> response = restTemplate.exchange(
-                apiUrl,
-                HttpMethod.POST,
-                requestEntity,
-                Object.class
-        );
-
-        // Chuyển đổi phản hồi thành JsonNode
-        JsonNode jsonNode = objectMapper.convertValue(response.getBody(), JsonNode.class);
-
-        // Truy xuất featureVector từ JsonNode
-        JsonNode featureVectorNode = jsonNode.get("featureVector");
-
-        // Chuyển JsonNode thành mảng số thực (float[])
-        float[] featureVector = new float[featureVectorNode.size()];
-        for (int i = 0; i < featureVectorNode.size(); i++) {
-            featureVector[i] = featureVectorNode.get(i).floatValue();
-        }
-
-//        log.info("Extracted feature vector (FLOAT): " + Arrays.toString(featureVector));
-
-
-        // Chuyển mảng float[] thành mảng byte (BLOB)
-        return convertFloatArrayToByteArray(featureVector);
-    }
-
-    // Chuyển từ float array thành byte array
-    public static byte[] convertFloatArrayToByteArray(float[] featureVector) {
-        ByteBuffer buffer = ByteBuffer.allocate(featureVector.length * 4); // 4 bytes per float
-        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Chỉ định byte order (LITTLE_ENDIAN)
-
-        for (float f : featureVector) {
-            buffer.putFloat(f); // Ghi giá trị float vào ByteBuffer
-        }
-
-        return buffer.array();  // Trả về mảng byte
-    }
-
-    // Chuyển từ byte array thành float array
-    public static float[] byteArrayToFloatArray(byte[] byteArray) {
-        int length = byteArray.length / 4;  // Mỗi float chiếm 4 byte
-        float[] floatArray = new float[length];
-
-        ByteBuffer buffer = ByteBuffer.wrap(byteArray);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Đảm bảo thứ tự byte
-
-        for (int i = 0; i < length; i++) {
-            floatArray[i] = buffer.getFloat();  // Đọc 4 byte và chuyển thành float
-        }
-
-        return floatArray;
-    }
-
     public void createDirectory(String folderName) throws URISyntaxException {
         // tạo thư mục nếu chưa tồn tại
         URI uri = new URI(folderName);
@@ -191,9 +88,128 @@ public class FileService {
         if (!isValid) {
             throw new StorageException("File extension is not valid... Only support " + allowedExtensions);
         }
-
     }
 
+    // Upload 1 file
+    public ResUploadFileDTO handleUploadFile(MultipartFile file, String folderName) throws URISyntaxException, IOException, StorageException {
+        // check valid file
+        checkValidFile(file);
+
+        // tạo thư mục nếu chưa tồn tại
+        createDirectory(baseUri + folderName);
+
+        // lưu file
+        String fileName = store(file, folderName);
+
+        return new ResUploadFileDTO(fileName, Instant.now(), null);
+    }
+
+    // Upload nhiều file cùng một lúc
+    public List<ResUploadFileDTO> handleUploadMultipleFiles(
+            List<MultipartFile> files, String folderName, Long toolId
+    ) throws URISyntaxException, IOException, StorageException, IdInvalidException {
+        List<ResUploadFileDTO> uploadedFiles = new ArrayList<>();
+
+        // Tạo thư mục nếu chưa tồn tại
+        createDirectory(baseUri + folderName);
+
+        for (MultipartFile file : files) {
+            checkValidFile(file);
+            String fileName = store(file, folderName);
+
+            // Gọi API Python để trích xuất đặc trưng
+            byte[] featureVector = extractFeatureFromPythonAPI(file);
+
+            float[] convert = byteArrayToFloatArray(featureVector);
+            uploadedFiles.add(new ResUploadFileDTO(fileName, Instant.now(), featureVector));
+
+            Tool tool = toolService.getToolById(toolId);
+            ImageTool imageTool = new ImageTool().toBuilder()
+                    .fileName(fileName)
+                    .tool(tool)
+                    .featureVector(featureVector)
+                    .build();
+            imageToolService.createImageTool(imageTool);
+        }
+        return uploadedFiles;
+    }
+
+    public boolean deleteFile(String folderName, String fileName) throws URISyntaxException, StorageException {
+        URI uri = new URI(baseUri + folderName + "/" + fileName);
+        Path path = Paths.get(uri);
+
+        try {
+            return Files.deleteIfExists(path);
+        } catch (IOException e) {
+            log.error("Lỗi khi xóa file: {}", fileName, e);
+            throw new StorageException("Không thể xóa file: " + fileName);
+        }
+    }
+
+    // Hàm gọi API Python để trích xuất đặc trưng
+    private byte[] extractFeatureFromPythonAPI(MultipartFile file) {
+        // Tạo URL của API Python
+        String apiUrl = "http://localhost:8000/python/api/v1/extract-feature";
+
+        // Tạo MultipartRequest để gửi file
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", file.getResource());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Gửi yêu cầu POST đến API Python và nhận kết quả
+        ResponseEntity<Object> response = restTemplate.exchange(
+                apiUrl,
+                HttpMethod.POST,
+                requestEntity,
+                Object.class
+        );
+
+        // Chuyển đổi phản hồi thành JsonNode
+        JsonNode jsonNode = objectMapper.convertValue(response.getBody(), JsonNode.class);
+
+        // Truy xuất featureVector từ JsonNode
+        JsonNode featureVectorNode = jsonNode.get("featureVector");
+
+        // Chuyển JsonNode thành mảng số thực (float[])
+        float[] featureVector = new float[featureVectorNode.size()];
+        for (int i = 0; i < featureVectorNode.size(); i++) {
+            featureVector[i] = featureVectorNode.get(i).floatValue();
+        }
+
+        // Chuyển mảng float[] thành mảng byte (BLOB)
+        return convertFloatArrayToByteArray(featureVector);
+    }
+
+    // Chuyển từ float array thành byte array
+    public static byte[] convertFloatArrayToByteArray(float[] featureVector) {
+        ByteBuffer buffer = ByteBuffer.allocate(featureVector.length * 4); // 4 bytes per float
+        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Chỉ định byte order (LITTLE_ENDIAN)
+
+        for (float f : featureVector) {
+            buffer.putFloat(f); // Ghi giá trị float vào ByteBuffer
+        }
+
+        return buffer.array();  // Trả về mảng byte
+    }
+
+    // Chuyển từ byte array thành float array
+    public static float[] byteArrayToFloatArray(byte[] byteArray) {
+        int length = byteArray.length / 4;  // Mỗi float chiếm 4 byte
+        float[] floatArray = new float[length];
+
+        ByteBuffer buffer = ByteBuffer.wrap(byteArray);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Đảm bảo thứ tự byte
+
+        for (int i = 0; i < length; i++) {
+            floatArray[i] = buffer.getFloat();  // Đọc 4 byte và chuyển thành float
+        }
+
+        return floatArray;
+    }
 
 //    public ResDownloadFile handleDownloadFile(String fileName, String folder) throws StorageException, FileNotFoundException,
 //            URISyntaxException {
@@ -231,42 +247,6 @@ public class FileService {
 //        return new InputStreamResource(new FileInputStream(file));
 //    }
 
-    // Upload 1 file
-    public ResUploadFileDTO handleUploadFile(MultipartFile file, String folderName) throws URISyntaxException, IOException, StorageException {
-        // check valid file
-        checkValidFile(file);
 
-        // tạo thư mục nếu chưa tồn tại
-        createDirectory(baseUri + folderName);
-
-        // lưu file
-        String fileName = store(file, folderName);
-
-        return new ResUploadFileDTO(fileName, Instant.now(), null);
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

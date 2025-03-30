@@ -35,7 +35,6 @@ public class SecurityConfiguration {
             "/api/v1/auth/refresh",
             "/api/v1/auth/check-email/**",
             "/api/v1/tools/**",
-            "/api/v1/courses/**",
             "/api/v1/carts/**",
             "/api/v1/cart-tools/**",
             "/resources/**",
@@ -49,7 +48,9 @@ public class SecurityConfiguration {
             "/api/v1/image-tools/**",
             "/api/v1/ghn/**",
             "/api/v1/addresses/**",
-            "/api/v1/ordertools/total-sold/**"
+            "/api/v1/ordertools/total-sold/**",
+            "/api/v1/categories/**",
+            "/api/v1/variant-detail/**"
     };
 
     @Bean

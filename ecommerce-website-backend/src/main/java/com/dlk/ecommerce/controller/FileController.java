@@ -3,6 +3,7 @@ package com.dlk.ecommerce.controller;
 import com.dlk.ecommerce.domain.response.file.ResDownloadFile;
 import com.dlk.ecommerce.domain.response.file.ResUploadFileDTO;
 import com.dlk.ecommerce.service.FileService;
+import com.dlk.ecommerce.util.annotation.ApiMessage;
 import com.dlk.ecommerce.util.error.StorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class FileController {
     private String baseUri;
 
     @PostMapping
+    @ApiMessage("Tạo 1 ảnh thành công")
     public ResponseEntity<ResUploadFileDTO> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("folder") String folderName
@@ -39,6 +41,7 @@ public class FileController {
     }
 
     @PostMapping(value = "/upload-multiple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiMessage("Tạo nhiều ảnh thành công")
     public ResponseEntity<List<ResUploadFileDTO>> uploadMultipleFiles(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("folderName") String folderName,
@@ -55,6 +58,15 @@ public class FileController {
 //            log.error(String.valueOf(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @DeleteMapping("/{folder}/{fileName}")
+    @ApiMessage("Xóa file thành công")
+    public ResponseEntity<String> deleteFile(@PathVariable String folder, @PathVariable String fileName) throws URISyntaxException, StorageException {
+            boolean deleted = fileService.deleteFile(folder, fileName);
+            return deleted ?
+                    ResponseEntity.ok("File deleted successfully") :
+                    ResponseEntity.badRequest().body("File not found");
     }
 
 

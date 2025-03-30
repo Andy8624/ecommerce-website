@@ -23,6 +23,9 @@ public class CartTool extends BaseEntity {
     @Min(value = 1, message = "Quantity must be at least 1")
     int quantity;
 
+    String variantDetailId1;
+    String variantDetailId2;
+
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     Cart cart;

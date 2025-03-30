@@ -1,5 +1,6 @@
 package com.dlk.ecommerce.service;
 
+import com.dlk.ecommerce.domain.entity.ProductAttributes;
 import com.dlk.ecommerce.domain.entity.Tool;
 import com.dlk.ecommerce.domain.entity.ToolType;
 import com.dlk.ecommerce.domain.entity.User;
@@ -13,6 +14,9 @@ import com.dlk.ecommerce.domain.response.tool.ResUpdateToolDTO;
 import com.dlk.ecommerce.repository.ToolRepository;
 import com.dlk.ecommerce.util.PaginationUtil;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turkraft.springfilter.converter.FilterSpecification;
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import com.turkraft.springfilter.parser.FilterParser;
@@ -38,6 +42,9 @@ public class ToolService {
     private final ToolTypeService toolTypeService;
     private final ToolMapper toolMapper;
     private final ProductAttributeService productAttributeService;
+    private final CategoryDetailService categoryDetailService;
+    private final CategoryService categoryService;
+//    private final ProductVariantService productVariantService;
 
     public Tool getToolById(long toolId) throws IdInvalidException {
         return toolRepository.findByIdIfNotDeleted(toolId).orElseThrow(
@@ -52,11 +59,11 @@ public class ToolService {
         return toolMapper.mapToResToolDTO(tool);
     }
 
-    public ResCreateToolDTO createTool(ReqToolDTO request) throws IdInvalidException {
+    public ResCreateToolDTO createTool(ReqToolDTO request) throws IdInvalidException, JsonProcessingException {
         User dbUser = userService.fetchUserById(request.getUser().getUserId());
         ToolType dbToolType = toolTypeService.getToolTypeById(request.getToolType().getToolTypeId());
-        log.info("Create Tool Request: {}", request);
-        log.info("attributes: {}", request.getAttributes());
+
+        LogFormatter.logFormattedRequest("Request tạo sp", request);
 
         Tool tool = new Tool().toBuilder()
                 .user(dbUser)
@@ -77,12 +84,20 @@ public class ToolService {
                 .isActive(true)
                 .build();
         Tool newTool = toolRepository.save(tool);
+
+        // Tạo thông tin loại sản phẩm (Màu: Đỏ, Xanh, ...) (Kích thước: 1m, 2m, ...)
+        // Trong đó có số lượng và giá của từng loại
+        categoryService.createCategory(
+                request.getCategoryDetails().getCategory(),
+                newTool,
+                request.getCategoryDetails().getCategoryDetail()
+        );
+
         ProductAttributesRequest attrRequest = new ProductAttributesRequest(
                 newTool.getToolId(),
                 request.getAttributes()
         );
-
-        productAttributeService.addAttributes(attrRequest);
+        List<ProductAttributes> attr = productAttributeService.addAttributes(attrRequest);
         return toolMapper.mapToResCreateToolDTO(newTool);
     }
 
@@ -108,26 +123,33 @@ public class ToolService {
         return toolMapper.mapToResUpdateToolDTO(updatedTool);
     }
 
+    public Void hardDeleteTool(Long toolId) throws IdInvalidException {
+        Tool dbTool = getToolById(toolId);
+        toolRepository.delete(dbTool);
+        return null;
+    }
+
     public Void deleteTool(Long toolId) throws IdInvalidException {
         Tool dbTool = getToolById(toolId);
-        toolRepository.delete(dbTool); // đây là xóa mềm do đã thiết lập SQL ở model
+        dbTool.setDeleted(true);
+        toolRepository.save(dbTool);
         return null;
     }
 
     public Void restoreTool(Long toolId) throws IdInvalidException {
-        Tool dbTool = toolRepository.getToolDeletedById(toolId).orElseThrow(
-                () -> new IdInvalidException("Tool with id: " + toolId + " not found or haven't deleted yet")
-        );
+        Tool dbTool = getToolById(toolId);
         dbTool.setDeleted(false);
         toolRepository.save(dbTool);
         return null;
     }
 
-    public ResPaginationDTO getAllTool(Pageable pageable) {
+    public ResPaginationDTO getAllTool(Specification<Tool> specUser, Pageable pageable) {
         FilterNode node = filterParser.parse("deleted=false");
         FilterSpecification<Tool> spec = filterSpecificationConverter.convert(node);
-
-        Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
+//        log.info("spec {}", spec);
+        Specification<Tool> combineSpec = Specification.where(spec).and(specUser);
+//        log.info("combineSpec {}", combineSpec);
+        Page<Tool> pageTools = toolRepository.findAll(combineSpec, pageable);
         return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 

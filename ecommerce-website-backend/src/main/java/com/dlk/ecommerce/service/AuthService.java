@@ -87,14 +87,14 @@ public class AuthService {
         String refresh_token = securityUtil.createRefreshToken(loginDTO.getEmail(), res);
         userService.updateUserToken(refresh_token, loginDTO.getEmail());
 
-        log.info("Login DTO {}", loginDTO);
+//        log.info("Login DTO {}", loginDTO);
         // Lấy deviceId để làm session đăng nhập
         String sessionId = loginDTO.getDeviceId();
-        log.info("sessionId login: {}", sessionId);
+//        log.info("sessionId login: {}", sessionId);
         // Lưu phiên đăng nhập vào Redis
         assert dbUser != null;
         authRedisService.saveLoginSession(dbUser.getUserId(), sessionId, loginDTO.getIp(), loginDTO.getUserAgent());
-        log.info("✅ Saved login session");
+//        log.info("✅ Saved login session");
 
         // set cookies
         ResponseCookie responseCookie = ResponseCookie
@@ -113,14 +113,14 @@ public class AuthService {
                 .orElseThrow(() -> new IdInvalidException("Access token not valid"));
 
         // Đưa access token vào blacklist trong Redis (Dùng JTI để giảm độ dài của key)
-        log.info("🔴 Check token in blacklist: {}", old_access_token);
+//        log.info("🔴 Check token in blacklist: {}", old_access_token);
         String JTI = securityUtil.getJtiFromToken(old_access_token);
-        log.info("🛑 Add JTI access token to blacklist: {}", JTI);
+//        log.info("🛑 Add JTI access token to blacklist: {}", JTI);
         authRedisService.addToBlacklist(JTI, accessTokenExpiration);
 
         // Xóa session đăng nhập trong Redis
         String userId = userService.findUserByEmail(email).getUserId();
-        log.info("Logout session ID: {}", device_id);
+//        log.info("Logout session ID: {}", device_id);
         authRedisService.deleteSession(userId, device_id);
 
         userService.updateUserToken(null, email);

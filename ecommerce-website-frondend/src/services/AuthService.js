@@ -44,9 +44,10 @@ export const login = async (email, password) => {
 }
 
 
-export const getAccount = () => {
+export const getAccount = async () => {
     const path = `/api/v1/auth/account`;
-    const res = axios.get(path);
+    const res = await axios.get(path);
+    // console.log(res);
     return res;
 
 }

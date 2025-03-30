@@ -44,16 +44,19 @@ export const uploadMultipleFiles = async (files, folderName, toolId) => {
 
         // Gửi request với `multipart/form-data`
         const response = await axios.post("/api/v1/files/upload-multiple", formData);
-
-
-        console.log(response);
-        // if (response.data && Array.isArray(response.data)) {
-        //     return response.data.map(file => file.fileName);
-        // } else {
-        //     throw new Error("Multiple file upload failed!");
-        // }
+        return response?.data;
     } catch (error) {
         console.error("Error uploading multiple files:", error);
         throw error;
     }
 };
+
+export const deleteFile = async (fileName, folderName) => {
+    try {
+        const response = await axios.delete(`/api/v1/files/${folderName}/${fileName}`);
+        return response?.data;
+    } catch (error) {
+        console.error("Error deleting file:", error);
+        throw error;
+    }
+}

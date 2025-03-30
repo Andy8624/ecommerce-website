@@ -1,23 +1,50 @@
 import { TruckOutlined } from "@ant-design/icons";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Col, Typography, Rate, Select, InputNumber, Row } from "antd";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Col, Typography, Rate, InputNumber, Row } from "antd";
+import { useEffect, useState } from "react";
 import { getTotalSoldQuantity } from "../../../services/OrderToolService";
-import { getAddressByUserId } from "../../../services/AddressService";
 import { useSelector } from "react-redux";
 import { callCalculateShippingCost, callGetTimeDelivery } from "../../../services/GHNService";
 import { useAddressUser } from "../../../hooks/useAddressUser";
+import { useCategory } from "../hooks/useCategory";
+import { useUpdateCartItem } from "../../cart/hooks/useUpdateCartItem";
+import { handleAddToCart } from "../../cart/handleAddtoCart";
+import { useCartContext } from "../../../hooks/useCartContext";
+import { useCart } from "../../cart/hooks/useCart";
+import { useCreateCartTool } from "../../cart/hooks/useCreateCartTool";
+import { useCheckExistCartTool } from "../../cart/hooks/useCheckExistCartTool";
+import { toast } from "react-toastify";
 const { Text, Paragraph } = Typography;
-const { Option } = Select;
 
-const ProductInfo = ({
-    tool,
-    options,
-}) => {
+const ProductInfo = ({ tool }) => {
     const [quantity, setQuantity] = useState(1);
-    const [selectedOption, setSelectedOption] = useState(options[0]?.id);
     const userId = useSelector(state => state?.account?.user?.id);
+    const [selectedOption1, setSelectedOption1] = useState(null);
+    const [selectedOption2, setSelectedOption2] = useState(null);
+    const [detailPrice, setDetailPrice] = useState(null);
+    const [variantDetailId1, setVariantDetailId1] = useState(null);
+    const [variantDetailId2, setVariantDetailId2] = useState(null);
+    console.log(variantDetailId1);
+    console.log(variantDetailId2);
 
+    console.log(selectedOption1, selectedOption2);
+
+    const categoryDetailId1 = tool?.variants[0]?.attributes[0]?.categoryDetailId;
+    const categoryDetailId2 = tool?.variants[0]?.attributes[1]?.categoryDetailId;
+    const { category: category1 } = useCategory(categoryDetailId1);
+    const { category: category2 } = useCategory(categoryDetailId2);
+
+    // const minPrice = tool?.variants.reduce((min, v) =>
+    //     (v.price < min ? v.price : min),
+    //     tool?.variants[0]?.price
+    // );
+
+    // const maxPrice = tool?.variants.reduce((max, v) =>
+    //     (v.price > max ? v.price : max),
+    //     tool?.variants[0]?.price
+    // );
+    // console.log(minPrice);
+    // console.log(maxPrice);
 
     const { isLoading: isLoadingTotalSoldQuantity, data: totalSoldQuantity } = useQuery({
         queryKey: ['totalSoldQuantity', tool?.toolId],
@@ -84,6 +111,86 @@ const ProductInfo = ({
         enabled: !!addresses,
         staleTime: Infinity,
     })
+
+
+    useEffect(() => {
+        if (category1 && selectedOption1) {
+            const variant = tool?.variants?.find((v) => {
+                // Kiểm tra nếu có 1 hoặc 2 attributes
+                if (v?.attributes.length === 1) {
+                    return v.attributes[0]?.categoryDetailId === selectedOption1;
+                }
+                if (v?.attributes.length >= 2) {
+                    return (
+                        (v.attributes[0]?.categoryDetailId === selectedOption1 &&
+                            v.attributes[1]?.categoryDetailId === selectedOption2) ||
+                        (v.attributes[0]?.categoryDetailId === selectedOption2 &&
+                            v.attributes[1]?.categoryDetailId === selectedOption1)
+                    );
+                }
+                return false;
+            });
+            setDetailPrice(variant?.price);
+            setVariantDetailId1(variant?.attributes[0]?.variantDetailId || null);
+            setVariantDetailId2(variant?.attributes[1]?.variantDetailId || null);
+        }
+    }, [selectedOption1, selectedOption2, tool?.variants]); // Thêm tool?.variants vào dependency để đảm bảo cập nhật đúng
+
+
+    const handleColorClick = (colorName) => {
+        setSelectedOption1(colorName);
+    };
+
+    const handleCategory2Click = (optionName) => {
+        setSelectedOption2(optionName);
+    };
+
+    // ---------------------------------------------------------
+
+    const {
+        cartItems, setCartItems,
+        cartQuantity, setCartQuantity,
+    } = useCartContext();
+    const permissions = useSelector(state => state.account.user?.role?.permissions);
+    const { carts } = useCart(userId);
+
+    const { createCartItem } = useCreateCartTool();
+    const { updateCartItem } = useUpdateCartItem();
+    const { checkExist } = useCheckExistCartTool();
+    console.log(tool)
+    const onAddToCart = async () => {
+        if ((category1 && !selectedOption1) || (category2 && !selectedOption2)) {
+            toast.error("Vui lòng chọn thuộc tính sản phẩm");
+            return;
+        }
+        if (tool && quantity > 0) {
+            await handleAddToCart({
+                tool,
+                permissions,
+                carts,
+                checkExist,
+                createCartItem,
+                updateCartItem,
+                cartItems,
+                setCartItems,
+                cartQuantity,
+                setCartQuantity,
+                addQuantity: quantity,
+                variantDetailId1,
+                variantDetailId2
+            });
+        }
+    };
+
+    // const handleBuyNow = async () => {
+    //     const buyNowItem = {
+    //         product,
+    //         quantity,
+    //         userId
+    //     }
+    //     navigate('/checkout', { state: { buyNowItem: buyNowItem } });
+    // };
+
     const formattedShippingCost = "₫" + (estimatedShippingCost?.total.toLocaleString() || "10,500");
     return (
         <Col xs={24} md={12}>
@@ -103,20 +210,28 @@ const ProductInfo = ({
 
             {/* Giá */}
             <div className="relative">
-                <Paragraph className="absolute left-50 p-3 bg-gray-50 w-[100%]">
-                    {tool?.discountedPrice > 0 ? (
-                        <>
+                {detailPrice ?
+                    <Paragraph className="absolute left-50 p-3 bg-gray-50 w-[100%]">
+                        <Text className="text-[#d0011b] mx-2 text-3xl">
+                            ₫{detailPrice.toLocaleString()}
+                        </Text>                    </Paragraph>
+                    :
+                    <Paragraph className="absolute left-50 p-3 bg-gray-50 w-[100%]">
+                        {tool?.discountedPrice > 0 ? (
+                            <>
+                                <Text className="text-[#d0011b] mx-2 text-3xl">
+                                    ₫{tool?.discountedPrice.toLocaleString()}
+                                </Text>
+                                <Text delete className="text-gray-400 text-xl">
+                                    ₫{tool?.price.toLocaleString()}
+                                </Text>
+                            </>
+                        ) : (
                             <Text className="text-[#d0011b] mx-2 text-3xl">
-                                ₫{tool?.discountedPrice.toLocaleString()}
-                            </Text>
-                            <Text delete className="text-gray-400 text-xl">
                                 ₫{tool?.price.toLocaleString()}
                             </Text>
-                        </>
-                    ) : (
-                        <Text className="text-green-600">{tool?.price.toLocaleString()}₫</Text>
-                    )}
-                </Paragraph>
+                        )}
+                    </Paragraph>}
             </div>
 
             {/* Vận chuyển */}
@@ -129,38 +244,54 @@ const ProductInfo = ({
             </Paragraph>
 
             {/* Bộ lọc 1 */}
-            <Paragraph>
-                <Text className="text-gray-500">Màu sắc:</Text>
-                <Select
-                    className="ml-2"
-                    value={selectedOption}
-                    onChange={(value) => setSelectedOption(value)}
-                    style={{ width: "12rem" }}
-                >
-                    {options.map((opt) => (
-                        <Option key={opt.id} value={opt.id}>
-                            {opt.name} ({opt.stock} sản phẩm)
-                        </Option>
-                    ))}
-                </Select>
-            </Paragraph>
+            {category1 && (
+                <Paragraph>
+                    <Text className="text-gray-500">{category1?.name}</Text>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {category1?.categoryDetails.map((opt) => (
+                            <button
+                                key={opt.id}
+                                onClick={() => handleColorClick(opt.id)}
+                                style={{
+                                    padding: '8px 12px',
+                                    margin: '4px',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    backgroundColor: selectedOption1 === opt.id ? '#e6f7ff' : 'white',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {opt.name}
+                            </button>
+                        ))}
+                    </div>
+                </Paragraph>
+            )}
 
             {/* Bộ lọc 2 */}
-            <Paragraph>
-                <Text className="text-gray-500">Kích thước:</Text>
-                <Select
-                    className="ml-2"
-                    value={selectedOption}
-                    onChange={(value) => setSelectedOption(value)}
-                    style={{ width: "12rem" }}
-                >
-                    {options.map((opt) => (
-                        <Option key={opt.id} value={opt.id}>
-                            {opt.name} ({opt.stock} sản phẩm)
-                        </Option>
-                    ))}
-                </Select>
-            </Paragraph>
+            {category2 && (
+                <Paragraph>
+                    <Text className="text-gray-500">{category2?.name}</Text>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {category2?.categoryDetails.map((opt) => (
+                            <button
+                                key={opt.id}
+                                onClick={() => handleCategory2Click(opt.id)}
+                                style={{
+                                    padding: '8px 12px',
+                                    margin: '4px',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    backgroundColor: selectedOption2 === opt.id ? '#e6f7ff' : 'white',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {opt.name}
+                            </button>
+                        ))}
+                    </div>
+                </Paragraph>
+            )}
 
             {/* Số lượng */}
             <Paragraph>
@@ -180,6 +311,7 @@ const ProductInfo = ({
             <Row gutter={[8, 8]} className="mt-4">
                 <Col>
                     <button
+                        onClick={onAddToCart}
                         className="px-4 py-2 
                         rounded transition-all duration-150 
                         border border-[var(--primary-color)]

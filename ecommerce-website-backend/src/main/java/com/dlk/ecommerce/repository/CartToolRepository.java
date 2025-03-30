@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CartToolRepository extends JpaRepository<CartTool, Long>,
         JpaSpecificationExecutor<CartTool> {
-    Optional<CartTool> findByCartAndTool(Cart cart, Tool tool);
-
+    Optional<CartTool> findByCartAndToolAndVariantDetailId1AndVariantDetailId2(
+            Cart cart, Tool tool, String variantDetailId1, String variantDetailId2
+    );
 }

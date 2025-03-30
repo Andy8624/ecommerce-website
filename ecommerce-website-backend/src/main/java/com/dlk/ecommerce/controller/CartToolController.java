@@ -5,6 +5,7 @@ import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.service.CartToolService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class CartToolController {
     @GetMapping("/{id}")
     @ApiMessage("Get cart tool by ID")
     public ResponseEntity<CartTool> getById(@PathVariable("id") long id) throws IdInvalidException {
+        LogFormatter.logFormattedRequest("CartToolID", id);
         return ResponseEntity.ok(cartToolService.getCartToolById(id));
     }
 

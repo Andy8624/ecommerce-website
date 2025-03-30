@@ -60,7 +60,11 @@ public class CartToolService {
         cartTool.setTool(tool);
 
         // Sử dụng phương thức tìm kiếm đã tạo
-        Optional<CartTool> existingCartTool = findExistingCartTool(cart, tool);
+        Optional<CartTool> existingCartTool = findExistingCartTool(
+                cart, tool,
+                cartTool.getVariantDetailId1(),
+                cartTool.getVariantDetailId2()
+        );
 
         if (existingCartTool.isPresent()) {
             // Cập nhật số lượng nếu tìm thấy
@@ -73,12 +77,17 @@ public class CartToolService {
         }
     }
 
-    public Optional<CartTool> findExistingCartTool(Cart cart, Tool tool) {
-        return cartToolRepository.findByCartAndTool(cart, tool);
+    public Optional<CartTool> findExistingCartTool(Cart cart, Tool tool,
+                                                   String variantDetailId1,
+                                                   String variantDetailId2) {
+        return cartToolRepository.findByCartAndToolAndVariantDetailId1AndVariantDetailId2(cart, tool, variantDetailId1,
+                variantDetailId2);
     }
 
     public long isExist(CartTool cartTool) {
-        Optional<CartTool> cartToolDBOptional = findExistingCartTool(cartTool.getCart(), cartTool.getTool());
+        Optional<CartTool> cartToolDBOptional = findExistingCartTool(
+                cartTool.getCart(), cartTool.getTool(),
+                cartTool.getVariantDetailId1(), cartTool.getVariantDetailId2());
         CartTool cartToolDb = cartToolDBOptional.orElse(null);
         if (cartToolDb != null) {
             return cartToolDb.getCartToolId();

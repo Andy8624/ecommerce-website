@@ -54,7 +54,7 @@ const CartComponent = () => {
 
     return (
         <div className="bg-gray-200 flex justify-center">
-            <div className="w-full max-w-4xl p-8 bg-white shadow-lg rounded-lg my-[20px]">
+            <div className="w-full mx-[10rem] p-8 bg-white shadow-lg rounded-lg my-[20px]">
                 <h2 className="text-2xl font-bold mb-3 text-center">
                     <div className="mb-1">Giỏ hàng của bạn</div>
                 </h2>

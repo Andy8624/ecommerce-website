@@ -12,7 +12,9 @@ export const handleAddToCart = async ({
     setCartItems,
     cartQuantity,
     setCartQuantity,
-    addQuantity
+    addQuantity,
+    variantDetailId1,
+    variantDetailId2
 }) => {
 
     if (permissions.length === 0) {
@@ -22,8 +24,11 @@ export const handleAddToCart = async ({
     const newCartItem = {
         tool: { toolId: tool.toolId },
         cart: { cartId: carts?.cartId },
+        variantDetailId1,
+        variantDetailId2,
         quantity: addQuantity
     };
+    // console.log(newCartItem);
 
     const cartToolId = await checkExist(newCartItem);
     if (cartToolId === 0) {
@@ -31,8 +36,9 @@ export const handleAddToCart = async ({
         setCartQuantity(cartQuantity + 1);
     } else {
         const cartTools = await getCartTool(cartToolId);
+        // console.log(cartTools);
         const newQuantity = cartTools.quantity += addQuantity;
-        setCartItems(cartItems.map(item =>
+        setCartItems(cartItems?.map(item =>
             item.id === cartToolId ? { ...item, quantity: newQuantity } : item
         ));
 
