@@ -31,6 +31,8 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     OrderStatusEnum status;
 
+    String shopId;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;

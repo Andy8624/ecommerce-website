@@ -1,18 +1,28 @@
-import { Table, Button, Dropdown } from "antd";
-import { TOOL_URL } from "../../../utils/Config";
+import { Table, Button, Dropdown, Input } from "antd"; // Add Input import
+import { SearchOutlined } from '@ant-design/icons'; // Add SearchOutlined import
 import { useState } from "react";
+import { TOOL_URL } from "../../../utils/Config";
 
 const ProductTable = ({ tools, onEdit, onDelete, isDeleting }) => {
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [searchText, setSearchText] = useState(''); // Add search state
 
-    const onSelectChange = (newSelectedRowKeys) => {
-        setSelectedRowKeys(newSelectedRowKeys);
+    // Add search filter function
+    const getFilteredTools = () => {
+        return tools?.filter(tool =>
+            tool.name.toLowerCase().includes(searchText.toLowerCase()) ||
+            tool.toolType?.name.toLowerCase().includes(searchText.toLowerCase())
+        );
     };
 
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: onSelectChange,
-    };
+    // const onSelectChange = (newSelectedRowKeys) => {
+    //     setSelectedRowKeys(newSelectedRowKeys);
+    // };
+
+    // const rowSelection = {
+    //     selectedRowKeys,
+    //     onChange: onSelectChange,
+    // };
 
     const columns = [
         {
@@ -28,7 +38,7 @@ const ProductTable = ({ tools, onEdit, onDelete, isDeleting }) => {
                     <img
                         src={record.imageUrl ? TOOL_URL + record.imageUrl : TOOL_URL + "default.png"}
                         alt={record.name}
-                        className="w-12 h-12 object-cover rounded-lg shadow-sm"
+                        className="w-12 h-12 object-cover rounded-lg shadow-sm ms-5"
                     />
                     <span className="font-medium">{record.name}</span>
                 </div>
@@ -102,14 +112,14 @@ const ProductTable = ({ tools, onEdit, onDelete, isDeleting }) => {
                             </Button>
                         ),
                     },
-                    {
-                        key: "stockReminder",
-                        label: (
-                            <Button type="link" className="text-yellow-500 hover:text-yellow-700">
-                                Nhắc nhở tồn kho
-                            </Button>
-                        ),
-                    },
+                    // {
+                    //     key: "stockReminder",
+                    //     label: (
+                    //         <Button type="link" className="text-yellow-500 hover:text-yellow-700">
+                    //             Nhắc nhở tồn kho
+                    //         </Button>
+                    //     ),
+                    // },
                 ];
 
                 return (
@@ -136,15 +146,23 @@ const ProductTable = ({ tools, onEdit, onDelete, isDeleting }) => {
     ];
 
     return (
-        <Table
-            className="shadow-lg"
-            dataSource={tools}
-            rowKey="toolId"
-            columns={columns}
-            pagination={{ pageSize: 3 }}
-            expandable={{ expandedRowRender: (record) => <p className="p-4">{record.description}</p> }}
-            rowSelection={rowSelection}
-        />
+        <div className="space-y-4">
+            <Input
+                placeholder="Tìm kiếm theo tên sản phẩm hoặc loại..."
+                prefix={<SearchOutlined />}
+                onChange={e => setSearchText(e.target.value)}
+                className="max-w-md my-1"
+            />
+            <Table
+                className="shadow-lg"
+                dataSource={getFilteredTools()}
+                rowKey="toolId"
+                columns={columns}
+                pagination={{ pageSize: 5 }}
+            // expandable={{ expandedRowRender: (record) => <p className="p-4">{record.description}</p> }}
+            // rowSelection={rowSelection}
+            />
+        </div>
     );
 };
 

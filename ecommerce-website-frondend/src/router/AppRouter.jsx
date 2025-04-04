@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, ScrollRestoration } from "react-router-dom";
 import BuyerLayout from "../layouts/BuyerLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import SellerLayout from "../layouts/SellerLayout";
@@ -39,15 +39,27 @@ const router = createBrowserRouter(
                 {
                     index: true,
                     path: "",
-                    element: <Home />,
+                    element:
+                        <>
+                            <Home />
+                            <ScrollRestoration />
+                        </>
                 },
                 {
                     path: "cart",
-                    element: <Cart />,
+                    element:
+                        <>
+                            <Cart />,
+                            <ScrollRestoration />
+                        </>
                 },
                 {
                     path: "checkout",
-                    element: <CheckoutPage />,
+                    element:
+                        <>
+                            <CheckoutPage />,
+                            <ScrollRestoration />
+                        </>
                 },
                 {
                     path: "order-history",
@@ -55,7 +67,11 @@ const router = createBrowserRouter(
                 },
                 {
                     path: "tool/:toolId",
-                    element: <ProductOverviewPage />,
+                    element:
+                        <>
+                            <ProductOverviewPage />
+                            <ScrollRestoration />
+                        </>
                 },
                 {
                     path: "profile",
@@ -79,8 +95,7 @@ const router = createBrowserRouter(
                 {
                     index: true,
                     path: "admin-home",
-                    element:
-                        <AdminHome />,
+                    element: <AdminHome />,
                 },
             ]
         },
@@ -162,7 +177,7 @@ const router = createBrowserRouter(
         }
 
     ],
-    { future: { v7_relativeSplatPath: true, } }
+    { future: { v7_relativeSplatPath: true } }
 )
 
 const AppRouter = () => {

@@ -27,17 +27,17 @@ public class OrderToolController {
         return ResponseEntity.ok(orderToolService.getOrderToolByIdDTO(id));
     }
 
-    @PostMapping
-    @ApiMessage("Create an order tool")
-    public ResponseEntity<ResCreateOrderToolDTO> create(@Valid @RequestBody ReqOrderToolDTO orderTool) throws IdInvalidException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderToolService.createOrderTool(orderTool));
-    }
+//    @PostMapping
+//    @ApiMessage("Create an order tool")
+//    public ResponseEntity<ResCreateOrderToolDTO> create(@Valid @RequestBody ReqOrderToolDTO orderTool) throws IdInvalidException {
+//        return ResponseEntity.status(HttpStatus.CREATED).body(orderToolService.createOrderTool(orderTool));
+//    }
 
-    @PutMapping("/{orderToolId}")
-    @ApiMessage("Update an order tool")
-    public ResponseEntity<ResUpdateOrderToolDTO> update(@PathVariable("orderToolId") String id, @Valid @RequestBody ReqOrderToolDTO orderTool) throws IdInvalidException {
-        return ResponseEntity.ok(orderToolService.updateOrderTool(orderTool, id));
-    }
+//    @PutMapping("/{orderToolId}")
+//    @ApiMessage("Update an order tool")
+//    public ResponseEntity<ResUpdateOrderToolDTO> update(@PathVariable("orderToolId") String id, @Valid @RequestBody ReqOrderToolDTO orderTool) throws IdInvalidException {
+//        return ResponseEntity.ok(orderToolService.updateOrderTool(orderTool, id));
+//    }
 
     @GetMapping
     @ApiMessage("Get all order tools")

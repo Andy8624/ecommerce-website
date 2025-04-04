@@ -19,4 +19,6 @@ public interface OrderRepository extends JpaRepository<Order, String>,
     List<Order> findByPaymentMethodPaymentMethodId(long id);
 
     List<Order> findByStatus(OrderStatusEnum status);
+
+    List<Order> findByShopId(String shopId);
 }

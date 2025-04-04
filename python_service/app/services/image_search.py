@@ -153,7 +153,7 @@ class ImageSearchService:
                     "avgDistance": avg_distance,
                     "imageIds": data.get("image_ids", [])
                 })
-            except Exception as e:
+            except Exception as e:  
                 logging.error(f"❌ Lỗi tính toán avgDistance cho toolId={tool_id}: {e}")
 
         results.sort(key=lambda x: x["avgDistance"])

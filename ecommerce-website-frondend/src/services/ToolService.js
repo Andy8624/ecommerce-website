@@ -38,7 +38,7 @@ export const callGetToolByToolId = async (id) => {
 }
 
 export const callGetAllToolByUserId = async (id) => {
-  const path = `/api/v1/tools/user-tools/${id}`;
+  const path = `/api/v1/tools/user-tools/${id}?size=100&page=0&sort=createdAt,desc`;
   const res = await axios.get(path);
   return res?.data?.result;
 }
@@ -59,5 +59,11 @@ export const getToolsByToolIds = async (data) => {
 export const callHardDeleteProduct = async (id) => {
   const path = `/api/v1/tools/hard-delete/${id}`;
   const res = await axios.delete(path);
+  return res?.data;
+}
+
+export const callGetStockByToolId = async (toolId) => {
+  const path = `/api/v1/tools/stock/${toolId}`;
+  const res = await axios.get(path);
   return res?.data;
 }

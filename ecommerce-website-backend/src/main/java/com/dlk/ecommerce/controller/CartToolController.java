@@ -47,7 +47,7 @@ public class CartToolController {
 
     @DeleteMapping("/{id}")
     @ApiMessage("Hard delete cart tool by ID")
-    public ResponseEntity<Void> deleteCartTool(@PathVariable("id") long cartToolId) throws IdInvalidException {
+    public ResponseEntity<Void> deleteCartTool(@PathVariable("id") Long cartToolId) throws IdInvalidException {
         cartToolService.deleteCartTool(cartToolId);
         return ResponseEntity.ok(null);
     }

@@ -1,35 +1,51 @@
 package com.dlk.ecommerce.service;
 
-import com.dlk.ecommerce.domain.entity.Address;
-import com.dlk.ecommerce.domain.entity.Order;
-import com.dlk.ecommerce.domain.entity.PaymentMethod;
-import com.dlk.ecommerce.domain.entity.User;
+import com.dlk.ecommerce.domain.entity.*;
 import com.dlk.ecommerce.domain.mapper.OrderMapper;
+import com.dlk.ecommerce.domain.request.order.CreateOrderRequest;
+import com.dlk.ecommerce.domain.request.order.OrderStatusRequest;
+import com.dlk.ecommerce.domain.request.orderTool.OrderToolRequest;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.order.ResCreateOrderDTO;
 import com.dlk.ecommerce.domain.response.order.ResOrderDTO;
 import com.dlk.ecommerce.domain.response.order.ResUpdateOrderDTO;
+import com.dlk.ecommerce.domain.response.orderTool.ResCreateOrderToolDTO;
 import com.dlk.ecommerce.repository.OrderRepository;
 import com.dlk.ecommerce.util.PaginationUtil;
 import com.dlk.ecommerce.util.constant.OrderStatusEnum;
 import com.dlk.ecommerce.util.error.EnumNameNotValidException;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
+import com.turkraft.springfilter.converter.FilterSpecification;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
+import com.turkraft.springfilter.parser.FilterParser;
+import com.turkraft.springfilter.parser.node.FilterNode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final PaymentMethodService paymentMethodService;
     private final AddressService addressService;
     private final OrderMapper orderMapper;
+    private final OrderToolService orderToolService;
+    private final FilterParser filterParser;
+    private final FilterSpecificationConverter filterSpecificationConverter;
+
 
     public Order getOrderById(String id) throws IdInvalidException {
         return orderRepository.findById(id).orElseThrow(
@@ -44,8 +60,16 @@ public class OrderService {
         return orderMapper.mapToResOrderDTO(order);
     }
 
+    @Transactional
+    public CreateOrderRequest createOrder(CreateOrderRequest order) throws IdInvalidException {
+//        LogFormatter.logFormattedRequest("Order", order.getOrderTools());
+//        LogFormatter.logFormattedRequest("User", order.getUser().getUserId());
+//        LogFormatter.logFormattedRequest("Address", order.getAddress());
+//        LogFormatter.logFormattedRequest("PaymentMethod", order.getPaymentMethod());
+//        LogFormatter.logFormattedRequest("Status", order.getStatus());
+//        LogFormatter.logFormattedRequest("ShippingCost", order.getShippingCost());
+//        LogFormatter.logFormattedRequest("CartId", order.getCartId());
 
-    public ResCreateOrderDTO createOrder(Order order) throws IdInvalidException {
         if (order == null) {
             throw new IdInvalidException("Order must not be null");
         }
@@ -82,17 +106,57 @@ public class OrderService {
             throw new IdInvalidException("Order status cannot be null or empty");
         }
         try {
-            // Gọi từ giá trị để xác thực enum
             OrderStatusEnum status = OrderStatusEnum.fromValue(String.valueOf(order.getStatus()));
-            order.setStatus(status); // Nếu cần gán lại giá trị
+            order.setStatus(status);
         } catch (EnumNameNotValidException e) {
             throw new IdInvalidException("Invalid order status: " + order.getStatus() + ". " + e.getMessage());
         }
 
+        Order newOrder = orderRepository.save(Order.builder()
+                .shippingCost(order.getShippingCost())
+                .status(order.getStatus())
+                .user(order.getUser())
+                .paymentMethod(order.getPaymentMethod())
+                .address(order.getAddress())
+                .shopId(order.getShopId())
+                .build());
+        String orderId = newOrder.getOrderId();
+        order.setOrderId(orderId);
 
+        // Process order tools and handle failures
+        boolean allOrderToolsCreatedSuccessfully = createAllOrderToolsOrRollback(order.getOrderTools(), newOrder);
 
-        Order newOrder =  orderRepository.save(order);
-        return orderMapper.mapToResCreateOrderDTO(newOrder);
+        // If any order tool creation failed, throw an exception to trigger transaction rollback
+        if (!allOrderToolsCreatedSuccessfully) {
+            throw new RuntimeException("Failed to create one or more order tools. The order has been rolled back.");
+        }
+
+        return order;
+    }
+
+    private boolean createAllOrderToolsOrRollback(List<OrderToolRequest> orderTools, Order order) {
+        boolean allSuccessful = true;
+        List<String> failedOrderTools = new ArrayList<>();
+
+        for (OrderToolRequest orderTool : orderTools) {
+            try {
+                Boolean res = orderToolService.createOrderTool(orderTool, order);
+                if (res == null || !res) {
+                    allSuccessful = false;
+                    failedOrderTools.add(orderTool.toString());
+                }
+            } catch (Exception e) {
+                allSuccessful = false;
+                failedOrderTools.add(orderTool.toString() + ": " + e.getMessage());
+                log.error("Failed to create order tool: {}", e.getMessage(), e);
+            }
+        }
+
+        if (!allSuccessful) {
+            log.error("Order tool creation failed for tools: {}", failedOrderTools);
+        }
+
+        return allSuccessful;
     }
 
     public ResUpdateOrderDTO updateOrder(Order order, String id) throws IdInvalidException {
@@ -135,7 +199,7 @@ public class OrderService {
         try {
             // Gọi từ giá trị để xác thực enum
             OrderStatusEnum status = OrderStatusEnum.fromValue(String.valueOf(order.getStatus()));
-            dbOrder.setStatus(status); // Nếu cần gán lại giá trị
+            dbOrder.setStatus(status);
         } catch (EnumNameNotValidException e) {
             throw new IdInvalidException("Invalid order status: " + order.getStatus() + ". " + e.getMessage());
         }
@@ -180,5 +244,25 @@ public class OrderService {
         return dbOrder.stream()
                 .map(orderMapper::mapToResOrderDTO)
                 .collect(Collectors.toList());
+    }
+
+    public ResPaginationDTO getOrderByShopId(Specification<Order> specUser, Pageable pageable, String shopId) {
+        FilterNode node = filterParser.parse("shopId='" + shopId + "'");
+        FilterSpecification<Order> spec = filterSpecificationConverter.convert(node);
+        Specification<Order> combineSpec = Specification.where(spec).and(specUser);
+
+        Page<Order> pageOrders = orderRepository.findAll(combineSpec, pageable);
+        return PaginationUtil.getPaginatedResult(pageOrders, pageable);
+    }
+
+    public Void updateOrderStatus(String orderId, OrderStatusRequest status) throws IdInvalidException {
+        LogFormatter.logFormattedRequest("status", status);
+
+        Order order = getOrderById(orderId);
+        LogFormatter.logFormattedRequest("order", order);
+
+        order.setStatus(status.getStatus());
+        orderRepository.save(order);
+        return null;
     }
 }

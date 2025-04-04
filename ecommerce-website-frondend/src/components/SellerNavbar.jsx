@@ -11,7 +11,7 @@ import { TbLayoutSidebarLeftExpandFilled, TbLayoutSidebarRightExpand } from "rea
 
 const { Sider } = Layout;
 
-const SellerNavbar = ({ collapsed, setCollapsed }) => {
+const SellerNavbar = ({ collapsed, setCollapsed, setCurrentNamePage }) => {
     const location = useLocation();
 
     const menuItems = [
@@ -19,28 +19,41 @@ const SellerNavbar = ({ collapsed, setCollapsed }) => {
             key: "/seller",
             icon: <HomeOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller">Trang chủ</Link>,
+            name: "Trang chủ"
         },
         {
             key: "/seller/products",
             icon: <ShopOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller/products">Sản phẩm</Link>,
+            name: "Quản lý sản phẩm"
         },
         {
             key: "/seller/orders",
             icon: <OrderedListOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller/orders">Đơn hàng</Link>,
+            name: "Quản lý đơn hàng"
         },
         {
             key: "/seller/statistics",
             icon: <BarChartOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/seller/statistics">Thống kê</Link>,
+            name: "Thống kê"
         },
         {
             key: "/",
             icon: <RollbackOutlined style={{ fontSize: "20px" }} />,
             label: <Link to="/">Trở về</Link>,
+            name: "Trở về"
         },
     ];
+
+    // Add onClick handler for menu
+    const handleMenuClick = (e) => {
+        const selectedItem = menuItems.find(item => item.key === e.key);
+        if (selectedItem) {
+            setCurrentNamePage(selectedItem.name);
+        }
+    };
 
     return (
         <Sider
@@ -83,6 +96,7 @@ const SellerNavbar = ({ collapsed, setCollapsed }) => {
                 selectedKeys={[location.pathname]}
                 className="profile-menu"
                 items={menuItems}
+                onClick={handleMenuClick}
             />
         </Sider>
     );

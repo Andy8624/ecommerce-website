@@ -135,7 +135,7 @@ public class CartToolService {
         return PaginationUtil.getPaginatedResult(pageCartTool, pageable);
     }
 
-    public void deleteCartTool(long id) throws IdInvalidException {
+    public void deleteCartTool(Long id) throws IdInvalidException {
         CartTool cartTool = getCartToolById(id);
         cartToolRepository.deleteById(cartTool.getCartToolId());
     }

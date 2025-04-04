@@ -22,12 +22,9 @@ const ProductInfo = ({ tool }) => {
     const [selectedOption1, setSelectedOption1] = useState(null);
     const [selectedOption2, setSelectedOption2] = useState(null);
     const [detailPrice, setDetailPrice] = useState(null);
+    const [detailStock, setDetailStock] = useState(null);
     const [variantDetailId1, setVariantDetailId1] = useState(null);
     const [variantDetailId2, setVariantDetailId2] = useState(null);
-    console.log(variantDetailId1);
-    console.log(variantDetailId2);
-
-    console.log(selectedOption1, selectedOption2);
 
     const categoryDetailId1 = tool?.variants[0]?.attributes[0]?.categoryDetailId;
     const categoryDetailId2 = tool?.variants[0]?.attributes[1]?.categoryDetailId;
@@ -87,7 +84,7 @@ const ProductInfo = ({ tool }) => {
             weekday: 'long',
         });
 
-    // console.log(tool);
+
 
     // Caching theo ID của SHOP (nếu sản phẩm cùng shop thì không cần gọi lại)
     const { isLoading: isLoadingEstimatedShippingCost, data: estimatedShippingCost } = useQuery({
@@ -131,6 +128,7 @@ const ProductInfo = ({ tool }) => {
                 return false;
             });
             setDetailPrice(variant?.price);
+            setDetailStock(variant?.stockQuantity);
             setVariantDetailId1(variant?.attributes[0]?.variantDetailId || null);
             setVariantDetailId2(variant?.attributes[1]?.variantDetailId || null);
         }
@@ -157,12 +155,23 @@ const ProductInfo = ({ tool }) => {
     const { createCartItem } = useCreateCartTool();
     const { updateCartItem } = useUpdateCartItem();
     const { checkExist } = useCheckExistCartTool();
-    console.log(tool)
     const onAddToCart = async () => {
         if ((category1 && !selectedOption1) || (category2 && !selectedOption2)) {
             toast.error("Vui lòng chọn thuộc tính sản phẩm");
             return;
         }
+
+        if (quantity > detailStock) {
+            toast.error("Số lượng sản phẩm không đủ");
+            return;
+        }
+        if (quantity < 1) {
+            toast.error("Số lượng sản phẩm không hợp lệ");
+            return;
+        }
+
+
+
         if (tool && quantity > 0) {
             await handleAddToCart({
                 tool,
@@ -192,6 +201,10 @@ const ProductInfo = ({ tool }) => {
     // };
 
     const formattedShippingCost = "₫" + (estimatedShippingCost?.total.toLocaleString() || "10,500");
+
+    const stockDetail = detailStock == null ? tool?.stockQuantity : detailStock;
+    // console.log("stockDetail", stockDetail);
+
     return (
         <Col xs={24} md={12}>
             <div className="text-3xl mb-4">{tool?.name}</div>
@@ -298,13 +311,13 @@ const ProductInfo = ({ tool }) => {
                 <Text className="text-gray-500">Số lượng:</Text>
                 <InputNumber
                     min={1}
-                    max={tool?.stockQuantity}
+                    max={stockDetail}
                     value={quantity}
                     onChange={(value) => setQuantity(value)}
                     className="ml-2"
                     style={{ width: "100px" }}
                 />
-                <Text className="ml-2 text-sx text-gray-500">({tool?.stockQuantity} sản phẩm có sẵn)</Text>
+                <Text className="ml-2 text-sx text-gray-500">({stockDetail} sản phẩm có sẵn)</Text>
             </Paragraph>
 
             {/* Nút hành động */}

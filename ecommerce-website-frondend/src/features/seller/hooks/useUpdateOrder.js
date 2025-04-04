@@ -5,7 +5,6 @@ export function useUpdateOrder() {
     const queryClient = useQueryClient();
 
     const { mutate: updateOrder, isLoading: isUpdating } = useMutation({
-        mutationKey: ["orders"],
         mutationFn: ({ orderId, orderUpdate }) => {
             // console.log(orderUpdate);
             callUpdateOrderByOrderId(orderId, orderUpdate)

@@ -77,10 +77,11 @@ public class ToolController {
     @GetMapping("/user-tools/{id}")
     @ApiMessage("Get tool owner by user")
     public ResponseEntity<ResPaginationDTO> getByUserId(
+            @Filter Specification<Tool> spec,
             Pageable pageable,
             @PathVariable("id") String id
     ) throws IdInvalidException {
-        return ResponseEntity.ok(toolService.getToolByUserId(pageable, id));
+        return ResponseEntity.ok(toolService.getToolByUserId(spec, pageable, id));
     }
 
     @GetMapping("/type-tools/{id}")
@@ -105,5 +106,11 @@ public class ToolController {
     @ApiMessage("Get tools by list of IDs")
     public ResponseEntity<List<ResToolDTO>> getToolsByIds(@RequestBody List<Long> toolIds) {
         return ResponseEntity.ok(toolService.getToolsByIds(toolIds));
+    }
+
+    @GetMapping("/stock/{toolId}")
+    @ApiMessage("Get stock product")
+    public ResponseEntity<Integer> getStockByToolId(@PathVariable long toolId) {
+        return ResponseEntity.status(HttpStatus.OK).body(toolService.getStockByToolId(toolId));
     }
 }

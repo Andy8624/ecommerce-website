@@ -22,6 +22,9 @@ public class ResCreateOrderDTO {
     Instant createdAt;
     String createdBy;
 
+    public ResCreateOrderDTO(int i) {
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

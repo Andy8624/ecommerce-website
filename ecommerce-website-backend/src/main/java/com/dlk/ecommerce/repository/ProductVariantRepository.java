@@ -5,4 +5,5 @@ import com.dlk.ecommerce.domain.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, String> {
+    Integer getStockById(String id);
 }

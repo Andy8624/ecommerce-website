@@ -2,8 +2,6 @@ import { Button, Segmented } from "antd";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useGetAllToolByUserId } from "../hooks/useGetAllToolByUserId";
-import { useCreateTool } from "../hooks/useCreateTool";
-import { useUpdateTool } from "../hooks/useUpdateTool";
 import { useDeleteTool } from "../hooks/useDeleteTool";
 import ProductTable from "./ProductTable";
 import { useNavigate } from "react-router-dom";
@@ -11,9 +9,6 @@ import { useNavigate } from "react-router-dom";
 const ProductManagement = () => {
     const userId = useSelector(state => state?.account?.user?.id);
     const { tools } = useGetAllToolByUserId(userId);
-    // console.log(tools);
-    const { createNewTool } = useCreateTool();
-    const { updateTool } = useUpdateTool();
     const { deleteTool, isDeleting } = useDeleteTool();
     const navigate = useNavigate();
 
@@ -38,7 +33,7 @@ const ProductManagement = () => {
 
     const filteredTools = tools?.filter((tool) => {
         if (filter === "Tất cả") return true;
-        if (filter === "Thêm gần đây") return isNewProduct(tool?.createdAt);
+        if (filter === "Thêm gần đây") return isNewProduct(tool?.createdAt, 2);
         if (filter === "Đã ẩn") return !tool?.is_active;
         if (filter === "Đang hoạt động") return tool?.is_active;
         if (filter === "Đã hết hàng") return tool?.stockQuantity === 0;
@@ -52,14 +47,16 @@ const ProductManagement = () => {
                     options={["Tất cả", "Thêm gần đây", "Đang hoạt động", "Đã ẩn", "Đã hết hàng"]}
                     value={filter}
                     onChange={setFilter}
-                    className="bg-gray-100 p-2 rounded-lg"
+                    className="rounded-lg p-2 shadow-md border border-gray-300"
                 />
+
                 <Button onClick={handleCreateOrUpdate} type="primary">
                     Thêm sản phẩm
                 </Button>
             </div>
 
-            <ProductTable tools={filteredTools} onDelete={handleDelete} isDeleting={isDeleting} />
+            <ProductTable
+                tools={filteredTools} onDelete={handleDelete} isDeleting={isDeleting} />
         </div>
     );
 };

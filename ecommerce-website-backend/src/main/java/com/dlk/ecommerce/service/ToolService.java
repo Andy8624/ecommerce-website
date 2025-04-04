@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,7 +81,7 @@ public class ToolService {
                 .stockQuantity(request.getStockQuantity())
                 .imageUrl(request.getImageUrl())
                 .price(request.getPrice())
-                .discountedPrice(request.getDiscountedPrice())
+                .discountedPrice(BigDecimal.valueOf(0))
                 .isActive(true)
                 .build();
         Tool newTool = toolRepository.save(tool);
@@ -123,6 +124,12 @@ public class ToolService {
         return toolMapper.mapToResUpdateToolDTO(updatedTool);
     }
 
+    public void updateStockQuantity(long toolId, int quantity) throws IdInvalidException {
+        Tool dbTool = getToolById(toolId);
+        dbTool.setStockQuantity(quantity);
+        toolRepository.save(dbTool);
+    }
+
     public Void hardDeleteTool(Long toolId) throws IdInvalidException {
         Tool dbTool = getToolById(toolId);
         toolRepository.delete(dbTool);
@@ -158,12 +165,13 @@ public class ToolService {
         return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 
-    public ResPaginationDTO getToolByUserId(Pageable pageable, String id) throws IdInvalidException {
+    public ResPaginationDTO getToolByUserId(Specification<Tool> specUser, Pageable pageable, String id) throws IdInvalidException {
         userService.fetchUserById(id);
         FilterNode node = filterParser.parse("deleted=false and user.id='" + id + "'");
         FilterSpecification<Tool> spec = filterSpecificationConverter.convert(node);
+        Specification<Tool> combineSpec = Specification.where(spec).and(specUser);
 
-        Page<Tool> pageTools = toolRepository.findAll(spec, pageable);
+        Page<Tool> pageTools = toolRepository.findAll(combineSpec, pageable);
         return PaginationUtil.getPaginatedResult(pageTools, pageable, toolMapper::mapToResToolDTO);
     }
 
@@ -186,5 +194,12 @@ public class ToolService {
         return tools.stream()
                 .map(toolMapper::mapToResToolDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Integer getStockByToolId(long toolId) {
+        Tool tool = toolRepository.findByIdIfNotDeleted(toolId).orElseThrow(
+                () -> new IllegalArgumentException("Tool with id: " + toolId + " not found")
+        );
+        return tool.getStockQuantity();
     }
 }

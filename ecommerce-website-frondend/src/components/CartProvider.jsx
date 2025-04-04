@@ -23,11 +23,18 @@ const CartProvider = ({ children }) => {
                 name: item.tool.name,
                 price: item.tool.price,
                 discountPrice: item.tool.discountedPrice,
+                width: item.tool.width,
+                height: item.tool.height,
+                length: item.tool.length,
+                weight: item.tool.weight,
                 quantity: item.quantity,
                 image: item.tool.imageUrl,
                 toolId: item.tool.toolId,
                 variantDetailId1: item.variantDetailId1,
                 variantDetailId2: item.variantDetailId2,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+
                 ownerUser: {
                     userId: item.tool.user.userId,
                     email: item.tool.user.email,
@@ -35,6 +42,8 @@ const CartProvider = ({ children }) => {
                     imageUrl: item.tool.user.imageUrl,
                     gender: item.tool.user.gender,
                     phone: item.tool.user.phone,
+                    shopAddressId: item.tool.user.shopAddressId,
+                    shopName: item.tool.user.shopName,
                 },
                 role: {
                     roleId: item.tool.user.role.roleId,

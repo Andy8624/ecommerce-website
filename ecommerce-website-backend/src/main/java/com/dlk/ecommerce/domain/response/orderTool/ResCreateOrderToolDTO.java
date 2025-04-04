@@ -19,6 +19,22 @@ public class ResCreateOrderToolDTO {
     Instant createdAt;
     String createdBy;
 
+    String name;
+    BigDecimal price;
+    Integer stock;
+
+    String variantDetailId1;
+    String product_variant_id_1;
+    String category_detail_id_1;
+    String category_name_1;
+    String category_detail_name_1;
+
+    String variantDetailId2;
+    String product_variant_id_2;
+    String category_detail_id_2;
+    String category_name_2;
+    String category_detail_name_2;
+
 
     @Data
     @NoArgsConstructor

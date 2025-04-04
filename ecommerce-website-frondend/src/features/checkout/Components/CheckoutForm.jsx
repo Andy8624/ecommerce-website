@@ -2,21 +2,23 @@ import { Form, Button, Select } from 'antd';
 import { useState } from 'react';
 import ModalAddressForm from './ModalAddressForm';
 import { useCreateAddressUser } from '../hooks/addresses/useCreateAddressUser';
+import { AiFillEnvironment } from 'react-icons/ai';
+import { CreditCardOutlined } from '@ant-design/icons';
 const { Option } = Select;
 
-const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading, setSelectedAddress, setPaymentMethod }) => {
+const CheckoutForm = ({ userId, paymentMethodDB, addressUser, setSelectedAddress, setSelectedPaymentMethod }) => {
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const handleSelectAddress = (value) => {
-        setSelectedAddress(value); // Cập nhật địa chỉ đã chọn
+    const handleSelectAddress = (addressId) => {
+        const selectedAddress = addressUser?.find((address) => address.addressId === addressId);
+        setSelectedAddress(selectedAddress);
     };
 
     const handleSelectPaymentMethod = (value) => {
-        setPaymentMethod(value); // Cập nhật phương thức thanh toán đã chọn
+        const selectedPaymentMethod = paymentMethodDB?.find((method) => method.paymentMethodId === value);
+        setSelectedPaymentMethod(selectedPaymentMethod);
     };
-
-
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -28,12 +30,12 @@ const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading,
         const address = {
             ...newAddress,
             user: {
-                userId: userId
-            }
-        }
+                userId: userId,
+            },
+        };
         createAddressUser(address);
         setIsModalVisible(false);
-    }
+    };
 
     const showModal = () => {
         setIsModalVisible(true);
@@ -44,13 +46,16 @@ const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading,
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={onFinish}
-                className="space-y-4"
+                className="space-y-4 bg-white rounded-lg p-4 shadow-lg my-3"
             >
                 <Form.Item
-                    label="Địa chỉ giao hàng"
+                    label={
+                        <span className="text-[var(--primary-color)] flex text-xl align-center">
+                            <span className="mt-1 me-2"><AiFillEnvironment /></span>
+                            <span>Địa chỉ giao hàng</span>
+                        </span>
+                    }
                     name="shippingAddress"
-                    rules={[{ required: true, message: 'Vui lòng chọn hoặc thêm địa chỉ' }]}
                 >
                     <Select
                         placeholder="Chọn địa chỉ"
@@ -68,45 +73,39 @@ const CheckoutForm = ({ userId, paymentMethodDB, addressUser, onFinish, loading,
                                 </Button>
                             </>
                         )}
+                        defaultValue={addressUser && addressUser?.length > 0 ? addressUser[0]?.addressId : undefined}
                     >
                         {addressUser?.map((address) => (
-                            <Option key={address.addressId} value={address.addressId}>
-                                {`${address.street}, ${address.ward}, ${address.district}, ${address.city}`}
+                            <Option key={address?.addressId} value={address?.addressId}>
+                                {`${address?.street}, ${address?.ward}, ${address?.district}, ${address?.city}`}
                             </Option>
                         ))}
                     </Select>
                 </Form.Item>
 
                 <Form.Item
-                    label="Phương thức thanh toán"
+                    label={
+                        <span className="text-[var(--primary-color)] flex text-xl align-center">
+                            <span className="me-2"><CreditCardOutlined /></span>
+                            <span>Phương thức thanh toán</span>
+                        </span>
+                    }
                     name="paymentMethod"
-                    rules={[{ required: true, message: 'Vui lòng chọn phương thức thanh toán' }]}
                 >
                     <Select
                         placeholder="Chọn phương thức thanh toán"
                         className="rounded-md"
                         onChange={handleSelectPaymentMethod}
+                        defaultValue={paymentMethodDB && paymentMethodDB?.length > 0 ? paymentMethodDB[0].paymentMethodId : undefined}
                     >
                         {paymentMethodDB?.map((method) => (
-                            <Option key={method.paymentMethodId} value={method.paymentMethodId}>
-                                {method.name}
+                            <Option key={method?.paymentMethodId} value={method?.paymentMethodId}>
+                                {method?.name}
                             </Option>
                         ))}
                     </Select>
                 </Form.Item>
-
-                <Form.Item>
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={loading}
-                        className="w-full rounded-lg py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold shadow-md"
-                    >
-                        Xác nhận thanh toán
-                    </Button>
-                </Form.Item>
             </Form>
-
             <ModalAddressForm
                 isVisible={isModalVisible}
                 onOk={handleAddAddress}

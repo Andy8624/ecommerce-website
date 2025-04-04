@@ -4,6 +4,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class ReqOrderToolDTO {
     @NotNull(message = "Quantity must not be null")
@@ -15,6 +17,9 @@ public class ReqOrderToolDTO {
 
     @NotNull(message = "Order must not be null")
     private OrderInOrderTool order;
+
+    String name;
+    BigDecimal price;
 
     @Data
     public static class ToolInOrderTool {

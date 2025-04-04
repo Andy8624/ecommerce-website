@@ -1,6 +1,9 @@
 package com.dlk.ecommerce.controller;
 
 import com.dlk.ecommerce.domain.entity.Order;
+import com.dlk.ecommerce.domain.entity.Tool;
+import com.dlk.ecommerce.domain.request.order.CreateOrderRequest;
+import com.dlk.ecommerce.domain.request.order.OrderStatusRequest;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.order.ResCreateOrderDTO;
 import com.dlk.ecommerce.domain.response.order.ResOrderDTO;
@@ -9,9 +12,12 @@ import com.dlk.ecommerce.service.OrderService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
 
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +39,7 @@ public class OrderController {
 
     @PostMapping
     @ApiMessage("Create a order")
-    public ResponseEntity<ResCreateOrderDTO> create(@Valid @RequestBody Order order) throws IdInvalidException {
+    public ResponseEntity<CreateOrderRequest> create(@Valid @RequestBody CreateOrderRequest order) throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(order));
     }
 
@@ -73,5 +79,23 @@ public class OrderController {
     @ApiMessage("Get status-order by status")
     public ResponseEntity<List<ResOrderDTO>> getOrderByStatus(@RequestBody Order order) {
         return ResponseEntity.ok(orderService.getOrderByStatus(order.getStatus()));
+    }
+
+    @GetMapping("/shop-order/{shopId}")
+    @ApiMessage("Get orders by shop id")
+    public ResponseEntity<ResPaginationDTO> getOrderByShopId(
+            @Filter Specification<Order> spec,
+            Pageable pageable,
+            @PathVariable String shopId
+    ) {
+        return ResponseEntity.ok(orderService.getOrderByShopId(spec, pageable, shopId));
+    }
+
+    @PutMapping("/status/{orderId}")
+    @ApiMessage("Update order status")
+    public ResponseEntity<Void> updateOrderStatus(
+            @PathVariable String orderId,
+            @RequestBody OrderStatusRequest status) throws IdInvalidException {
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.updateOrderStatus(orderId, status));
     }
 }

@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { callCreateOrder } from "../../../../services/OrderService";
-import { toast } from "react-toastify";
 
 export function useCreateOrder() {
     const queryClient = useQueryClient();
@@ -10,8 +9,8 @@ export function useCreateOrder() {
             queryClient.invalidateQueries("orders");
             return data;
         },
-        onError: () => {
-            toast.error("Tạo đơn hàng thất bại");
+        onError: (error) => {
+            return error;
         }
     })
 

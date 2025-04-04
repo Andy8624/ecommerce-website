@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { setLogoutUser } from '../../redux/slices/accountSlice';
 import { callLogout } from '../../services/AuthService';
 
-const TopHeaderSeller = ({ title }) => {
+const TopHeaderSeller = ({ currentNamePage }) => {
     const userId = useSelector(state => state.account?.user?.id);
     const { getUserById } = useGetUserById(userId);
 
@@ -43,8 +43,8 @@ const TopHeaderSeller = ({ title }) => {
 
     return (
         <Header className="bg-white shadow-md flex justify-between items-center px-6">
-            <div className="text-blue-400 font-semibold text-lg">
-                {title}
+            <div className="ms-2 text-[var(--primary-color)] font-bold text-3xl">
+                {currentNamePage}
             </div>
             <div className="flex items-center gap-4">
                 {/* Badge thông báo */}

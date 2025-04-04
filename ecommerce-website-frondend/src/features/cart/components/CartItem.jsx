@@ -3,8 +3,9 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { TOOL_URL } from "../../../utils/Config"
 import { useQuery } from '@tanstack/react-query';
 import { callGetVariantDetailById } from '../../../services/VariantDetailService';
+import { callGetStockByToolId } from "../../../services/ToolService"
+
 const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedItems }) => {
-    console.log(item);
     const { isLoading: isLoadingVariantDetail1, data: variantDetail1 } = useQuery({
         queryKey: ['variantDetail', item?.variantDetailId1],
         queryFn: () => callGetVariantDetailById(item?.variantDetailId1),
@@ -19,16 +20,25 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
         staleTime: 60 * 10 * 1000, // 10p
     })
 
+    const { isLoading: isGetStock, data: stock } = useQuery({
+        queryKey: ['stock', item?.toolId],
+        queryFn: () => callGetStockByToolId(item?.toolId),
+        enabled: !!item?.toolId,
+        staleTime: 60 * 10 * 1000, // 10p
+    })
+
+    const detailStock = variantDetail1?.stock || stock;
     const price = variantDetail1?.price || item.price;
 
     return (
         <List.Item
-            className="border rounded-lg mb-2 py-2 px-2 bg-gray-50" // Giảm padding và margin giữa các item
+            className="border rounded-lg mb-2 py-2 px-2 bg-gray-50"
             actions={[
                 <div key={item.id} className="flex items-center space-x-2">
                     {item.type === 'product' && (
                         <InputNumber
                             min={1}
+                            max={detailStock}
                             value={item.quantity}
                             onChange={(value) => onUpdateQuantity(item.id, value)}
                             size="small"
