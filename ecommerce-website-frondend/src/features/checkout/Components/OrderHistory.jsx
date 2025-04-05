@@ -1,170 +1,176 @@
-import { Typography, message, Empty, Spin } from 'antd';
-import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetOrderByUserId } from '../hooks/orders/useGetOrderByUserId';
-import { useGetOrderToolByOrderId } from '../hooks/orders/useGetOrderToolByOrderId';
-import { useGetToolByToolId } from '../hooks/tools/useGetToolByToolId';
-import { useUpdateOrder } from '../../seller/hooks/useUpdateOrder';
-import OrderDetailSelectStatus from './OrderDetailSelectStatus';
-import OrderHistoryList from './OrderHistoryList';
+import { Badge, Card, Collapse, List, Image, Descriptions, Spin, Empty, Button, Space } from 'antd';
+import { ShoppingOutlined } from '@ant-design/icons';
+import { TOOL_URL } from '../../../utils/Config';
+import { useUpdateOrderStatus } from '../../seller/hooks/useUpdateOrderStatus';
 
+const formatVietnamDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Ho_Chi_Minh'
+    });
+};
 
-const { Title } = Typography;
+const getStatusColor = (status) => {
+    switch (status) {
+        case 'PENDING':
+            return 'yellow';
+        case 'CONFIRMED':
+            return 'cyan';
+        case 'SHIPPING':
+            return 'purple';
+        case 'COMPLETED':
+            return 'green';
+        case 'CANCELLED':
+            return 'red';
+        default:
+            return 'default';
+    }
+};
 
 const OrderHistory = () => {
-    const [selectedStatus, setSelectedStatus] = useState('ALL');
-    const [orderItemsMap, setOrderItemsMap] = useState({});
-    const [loadingOrderItems, setLoadingOrderItems] = useState(true);
-
     const userId = useSelector(state => state?.account?.user?.id);
     const { orders, isLoading } = useGetOrderByUserId(userId);
+    const { updateOrderStatus } = useUpdateOrderStatus();
 
-    const { getToolByToolId, isLoadingTool } = useGetToolByToolId();
-    const { getOrderToolByOrderId } = useGetOrderToolByOrderId();
-
-    const fetchOrderItems = async () => {
-        const allOrderItems = {};
-
-        if (!Array.isArray(orders) || orders.length === 0) {
-            return allOrderItems;
+    const handleUpdateStatus = async (orderId, newStatus) => {
+        try {
+            await updateOrderStatus({ orderId, status: newStatus });
+        } catch (error) {
+            console.error("Error updating order status:", error);
         }
-
-        for (const order of orders) {
-            let orderDetail;
-            let fetchedItems;
-            orderDetail = await getOrderToolByOrderId(order.orderId);
-            fetchedItems = await Promise.all(
-                orderDetail.map(async (item) => {
-                    item.tool = await getToolByToolId(item.tool.toolId);
-                    return item;
-                })
-            );
-            allOrderItems[order.orderId] = fetchedItems;
-
-
-
-        }
-        // console.log(allOrderItems);
-        return allOrderItems;
     };
 
+    const renderOrderProducts = (order) => (
+        <List
+            className="mt-4"
+            dataSource={order.orderTools}
+            renderItem={(item) => (
+                <List.Item>
+                    <div className="flex items-center w-full">
+                        <Image
+                            src={`${TOOL_URL}${item.tool.imageUrl}`}
+                            alt={item.name}
+                            width={80}
+                            height={80}
+                            className="object-cover rounded-md"
+                        />
+                        <div className="ml-4 flex-grow">
+                            <h4 className="font-medium">{item.name}</h4>
+                            <p className="text-gray-500">
+                                {item.category_name_1 && `${item.category_name_1}: ${item.category_detail_name_1}`}
+                                {item.category_name_2 && `, ${item.category_name_2}: ${item.category_detail_name_2}`}
+                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                                <span className="text-red-500 font-medium">
+                                    {item.price.toLocaleString()}đ
+                                </span>
+                                <span>x{item.quantity}</span>
+                            </div>
+                        </div>
+                    </div>
+                </List.Item>
+            )}
+        />
+    );
 
-    useEffect(() => {
-        const loadOrderItems = async () => {
-            if (orders && orders.length) {
-                setLoadingOrderItems(true);
-                const allOrderItems = await fetchOrderItems();
-                setOrderItemsMap(allOrderItems);
-                setLoadingOrderItems(false);
-            } else {
-                setLoadingOrderItems(false);
-            }
-        };
-        loadOrderItems();
-    }, [orders, getOrderToolByOrderId, getToolByToolId]);
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-96"><Spin size="large" /></div>;
+    }
 
-
-    const { updateOrder } = useUpdateOrder();
-
-    useEffect(() => {
-        if (updateOrder) {
-            fetchOrderItems();
-        }
-    }, [updateOrder]);
-
-    const handleCancelOrder = (orderId, order) => {
-        const orderUpdate = {
-            status: "CANCELLED",
-            shippingCost: order.shippingCost,
-            user: {
-                userId: order.user.id
-            },
-            paymentMethod: {
-                paymentMethodId: order.paymentMethod.id
-            },
-            address: {
-                addressId: order.address.id
-            }
-        };
-        updateOrder({ orderId, orderUpdate })
-        message.success(`Đơn hàng ${orderId} đã được hủy thành công.`);
-    };
-
-    const handleReceiveOrder = (orderId, order) => {
-        const orderUpdate = {
-            status: "SUCCESS",
-            shippingCost: order.shippingCost,
-            user: {
-                userId: order.user.id
-            },
-            paymentMethod: {
-                paymentMethodId: order.paymentMethod.id
-            },
-            address: {
-                addressId: order.address.id
-            }
-        };
-        updateOrder({ orderId, orderUpdate })
-        message.success(`Xác nhận đơn hàng ${orderId} đã nhận hàng thành công.`);
-    };
-
-    const handleReturnRequest = (orderId, order) => {
-        const orderUpdate = {
-            status: "RETURN_REQUESTED",
-            shippingCost: order.shippingCost,
-            user: {
-                userId: order.user.id
-            },
-            paymentMethod: {
-                paymentMethodId: order.paymentMethod.id
-            },
-            address: {
-                addressId: order.address.id
-            }
-        };
-        updateOrder({ orderId, orderUpdate })
-        message.success(`Xác nhận đơn hàng ${orderId} đã nhận hàng thành công.`);
-    };
-
-    const handleStatusChange = (value) => {
-        setSelectedStatus(value);
-    };
-
-    const filteredOrders = selectedStatus === 'ALL'
-        ? orders
-        : orders.filter(order => order.status === selectedStatus);
+    if (!orders?.length) {
+        return <Empty description="Bạn chưa có đơn hàng nào" />;
+    }
 
     return (
-        <div className="container mx-auto p-4">
-            <Title level={2} className="text-center text-2xl font-bold mb-6">
-                Đơn hàng của bạn
-                <OrderDetailSelectStatus onStatusChange={handleStatusChange} />
-            </Title>
+        <div className="max-w-6xl mx-auto p-4 space-y-4">
+            <h2 className="text-2xl font-bold mb-6">Lịch sử đơn hàng</h2>
+            <List
+                dataSource={orders}
+                renderItem={(order) => (
+                    <Card key={order.orderId} className="mb-4 shadow-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <div>
+                                <span className="text-gray-500">Mã đơn hàng: </span>
+                                <span className="font-medium">{order.orderId}</span>
+                            </div>
+                            <Badge color={getStatusColor(order.status)} text={order.status} />
+                        </div>
 
-            {isLoading || loadingOrderItems || isLoadingTool ? (
-                <Spin tip="Đang tải dữ liệu đơn hàng..." >
-                    <div style={{ minHeight: '50vh' }} />
-                </Spin>
-            ) : !Array.isArray(orders) || orders.length === 0 ? (
-                <Empty
-                    description="Bạn chưa có đơn hàng nào."
-                    imageStyle={{
-                        height: 60,
-                    }}
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
-            ) : (
-                <OrderHistoryList
-                    filteredOrders={filteredOrders}
-                    orderItemsMap={orderItemsMap}
-                    handleCancelOrder={handleCancelOrder}
-                    handleReceiveOrder={handleReceiveOrder}
-                    handleReturnRequest={handleReturnRequest}
-                />
-            )}
+                        <Descriptions bordered size="small" column={2} className="mb-4">
+                            <Descriptions.Item label="Cửa hàng">
+                                {order.user.shopName}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Ngày đặt"
+                                className="w-[200px]">
+                                {formatVietnamDate(order.createdAt)}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Địa chỉ giao hàng">
+                                {`${order.address.street}, ${order.address.ward}, ${order.address.district}, ${order.address.city}`}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Phương thức thanh toán"
+                                className="w-[200px]">
+                                {order.paymentMethod.name}
+                            </Descriptions.Item>
+                        </Descriptions>
+
+                        <Collapse
+                            className="bg-white border-gray-200"
+                            items={[{
+                                key: '1',
+                                label: (
+                                    <div className="flex items-center space-x-2">
+                                        <ShoppingOutlined />
+                                        <span>{`Danh sách sản phẩm (${order.orderTools.length})`}</span>
+                                    </div>
+                                ),
+                                children: renderOrderProducts(order),
+                            }]}
+                        />
+
+                        <div className="mt-4 flex justify-between items-center">
+                            <Space>
+                                {(order.status === 'PENDING' || order.status === 'CONFIRMED') && (
+                                    <Button
+                                        danger
+                                        onClick={() => handleUpdateStatus(order.orderId, 'CANCELLED')}
+                                    >
+                                        Hủy đơn hàng
+                                    </Button>
+                                )}
+                                {order.status === 'SHIPPING' && (
+                                    <Button
+                                        type="primary"
+                                        onClick={() => handleUpdateStatus(order.orderId, 'COMPLETED')}
+                                    >
+                                        Đã nhận được hàng
+                                    </Button>
+                                )}
+                            </Space>
+
+                            <div className="text-right">
+                                <span className="text-gray-500 mr-2">Phí vận chuyển:</span>
+                                <span className="font-medium">{order.shippingCost.toLocaleString()}đ</span>
+                                <span className="text-gray-500 mx-2">|</span>
+                                <span className="text-gray-500 mr-2">Tổng tiền:</span>
+                                <span className="text-xl font-bold text-red-500">
+                                    {(order.orderTools.reduce((total, item) => total + (item.price * item.quantity), 0) + order.shippingCost).toLocaleString()}đ
+                                </span>
+                            </div>
+                        </div>
+                    </Card>
+                )}
+            />
         </div>
     );
 };
-
 
 export default OrderHistory;

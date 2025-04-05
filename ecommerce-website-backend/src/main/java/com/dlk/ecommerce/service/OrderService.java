@@ -215,12 +215,13 @@ public class OrderService {
         return PaginationUtil.getPaginatedResult(pageOrder, pageable, orderMapper::mapToResOrderDTO);
     }
 
-    public List<ResOrderDTO> getOrderByUserId(String userId) throws IdInvalidException {
+    public List<Order> getOrderByUserId(String userId) throws IdInvalidException {
         userService.fetchUserById(userId);
         List<Order> dbOrder = orderRepository.findByUserUserId(userId);
-        return dbOrder.stream()
-                .map(orderMapper::mapToResOrderDTO)
-                .collect(Collectors.toList());
+        return dbOrder;
+//        return dbOrder.stream()
+//                .map(orderMapper::mapToResOrderDTO)
+//                .collect(Collectors.toList());
     }
 
     public List<ResOrderDTO> getOrderByAddressId(String addressId) throws IdInvalidException {

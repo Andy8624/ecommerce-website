@@ -6,6 +6,7 @@ import ProductDetails from "../features/product-overview/components/ProductDetai
 import CardContainer from "../components/CardContainer";
 import DescriptionProduct from "../features/product-overview/components/DescriptionProduct";
 import { useLocation } from "react-router-dom";
+import ProductPreview from "../features/product-overview/components/ProductPreview";
 
 const { Content } = Layout;
 
@@ -56,6 +57,10 @@ const ProductOverviewPage = () => {
 
                 <CardContainer>
                     <DescriptionProduct description={tool?.description} />
+                </CardContainer>
+
+                <CardContainer>
+                    <ProductPreview />
                 </CardContainer>
             </Content>
         </Layout >

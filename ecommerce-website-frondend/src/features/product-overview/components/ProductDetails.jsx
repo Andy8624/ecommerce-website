@@ -14,19 +14,9 @@ const ProductDetails = ({ details, moreDetails }) => {
             }}
         >
             {/* Tiêu đề */}
-            <Title
-                level={4}
-                style={{
-                    fontSize: "1.2rem",
-                    fontWeight: "500",
-                    color: "#333",
-                    border: "1px solid #eaeaea",
-                    padding: "0.9rem",
-                    backgroundColor: "#f9f9f9",
-                }}
-            >
+            <h4 className="text-2xl text-gray-800 mb-5">
                 CHI TIẾT SẢN PHẨM
-            </Title>
+            </h4>
 
             {/* Chi tiết sản phẩm */}
             <Row gutter={[16, 16]} style={{

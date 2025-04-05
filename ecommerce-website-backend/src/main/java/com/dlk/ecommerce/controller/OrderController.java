@@ -59,7 +59,7 @@ public class OrderController {
 
     @GetMapping("/user-order/{userId}")
     @ApiMessage("Get user-order by user ID")
-    public ResponseEntity<List<ResOrderDTO>> getUserOrder(@PathVariable("userId") String id) throws IdInvalidException {
+    public ResponseEntity<List<Order>> getUserOrder(@PathVariable("userId") String id) throws IdInvalidException {
         return ResponseEntity.ok(orderService.getOrderByUserId(id));
     }
 

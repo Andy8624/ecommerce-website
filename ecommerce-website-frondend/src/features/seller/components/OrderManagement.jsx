@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button, Tag, Card, List, Image, Descriptions, Space, Badge, Collapse, Segmented, Input } from "antd";
+import { ShoppingOutlined, SearchOutlined, PrinterOutlined } from "@ant-design/icons";
 import { useOrder } from "../hooks/useOrder";
 import { TOOL_URL } from "../../../utils/Config";
-import { ShoppingOutlined, SearchOutlined } from "@ant-design/icons";
 import { useUpdateOrderStatus } from "../hooks/useUpdateOrderStatus";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
@@ -51,11 +51,88 @@ const OrderManagement = () => {
     const queryClient = useQueryClient();
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
-            updateOrderStatus({ orderId, status: newStatus });
-            queryClient.invalidateQueries(["order", userId]);
+            await updateOrderStatus({ orderId, status: newStatus });
+            // Only invalidate queries after the update is successful
+            queryClient.invalidateQueries(["orders", userId]);
+            queryClient.invalidateQueries(["orders"]);
+            queryClient.invalidateQueries(["order"]);
         } catch (error) {
             console.error("Error updating order status:", error);
         }
+    };
+
+    const handlePrintOrder = (order) => {
+        const printContent = `
+            <html>
+                <head>
+                    <title>Chi tiết đơn hàng</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .section { margin-bottom: 20px; }
+                        .product-item { margin-bottom: 10px; }
+                        .total { text-align: right; margin-top: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>CHI TIẾT ĐƠN HÀNG</h2>
+                        <p>Mã đơn hàng: ${order.orderId}</p>
+                    </div>
+                    <div class="section">
+                        <h3>Thông tin người mua</h3>
+                        <p>Tên: ${order.user.fullName}</p>
+                        <p>Email: ${order.user.email}</p>
+                        <p>Địa chỉ: ${order.address.street}, ${order.address.ward}, ${order.address.district}, ${order.address.city}</p>
+                    </div>
+                    <div class="section">
+                        <h3>Chi tiết đơn hàng</h3>
+                        <p>Ngày đặt: ${formatVietnamDate(order.createdAt)}</p>
+                        <p>Trạng thái: ${order.status}</p>
+                        <p>Phương thức thanh toán: ${order.paymentMethod.name}</p>
+                    </div>
+                    <div class="section">
+                        <h3>Danh sách sản phẩm</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Biến thể</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${order.orderTools.map(item => `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>${[
+                item.category_name_1 ? `${item.category_name_1}: ${item.category_detail_name_1}` : '',
+                item.category_name_2 ? `${item.category_name_2}: ${item.category_detail_name_2}` : ''
+            ].filter(Boolean).join(', ')}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.price.toLocaleString()}đ</td>
+                                        <td>${(item.price * item.quantity).toLocaleString()}đ</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="total">
+                        <p>Phí vận chuyển: ${order.shippingCost.toLocaleString()}đ</p>
+                        <h3>Tổng tiền: ${(order.orderTools.reduce((sum, item) => sum + (item.price * item.quantity), 0) + order.shippingCost).toLocaleString()}đ</h3>
+                    </div>
+                </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
     };
 
     const renderOrderProducts = (order) => (
@@ -133,6 +210,13 @@ const OrderManagement = () => {
                             <div>
                                 <span className="text-gray-500">Mã đơn hàng: </span>
                                 <span className="font-medium">{order.orderId}</span>
+                                <Button
+                                    className="ml-2"
+                                    icon={<PrinterOutlined />}
+                                    onClick={() => handlePrintOrder(order)}
+                                >
+                                    In hóa đơn
+                                </Button>
                             </div>
                             <Badge
                                 color={getStatusColor(order.status)}
@@ -178,9 +262,17 @@ const OrderManagement = () => {
                         />
 
                         <div className="mt-4 flex justify-between items-center">
-                            <div className="text-right">
-                                <span className="text-gray-500">Phí vận chuyển: </span>
-                                <span className="font-medium">{order.shippingCost.toLocaleString()}đ</span>
+                            <div className="flex flex-col space-y-1">
+                                <div>
+                                    <span className="text-gray-500">Phí vận chuyển: </span>
+                                    <span className="font-medium">{order.shippingCost.toLocaleString()}đ</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500">Tổng giá trị đơn hàng: </span>
+                                    <span className="font-bold text-red-500">
+                                        {(order.orderTools.reduce((sum, item) => sum + (item.price * item.quantity), 0) + order.shippingCost).toLocaleString()}đ
+                                    </span>
+                                </div>
                             </div>
                             <Space>
                                 {order.status === 'PENDING' && (

@@ -38,13 +38,13 @@ const Profile = () => {
 
             {/* Content */}
             <Layout>
-                <Content className="bg-[#f5f5f5] my-10">
+                <Content className="bg-[#f5f5f5] my-5">
                     <div
                         style={{
-                            maxWidth: "1000px",
+                            maxWidth: "63.5rem",
                             margin: "0 auto",
                             background: "#fff",
-                            padding: "35px",
+                            padding: "2rem",
                             borderRadius: "8px",
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                         }}

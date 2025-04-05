@@ -212,7 +212,7 @@ const ProductInfo = ({ tool }) => {
             {/* Tỷ lệ đánh giá */}
             <div className="rating-section mb-4">
                 <Text className="me-2 underline">{tool?.averageRating}</Text>
-                <Rate className='text-[0.8rem] mx-[0px]' allowHalf defaultValue={tool?.averageRating} disabled />
+                <Rate className='text-[#d0011b] text-[0.8rem] mx-[0px]' allowHalf defaultValue={tool?.averageRating} disabled />
                 <span className="text-gray-400 mx-2 text-base">|</span>
                 <Text className="me-2 underline">{tool?.totalRating}</Text>
                 <Text className="text-gray-500">Đánh Giá</Text>

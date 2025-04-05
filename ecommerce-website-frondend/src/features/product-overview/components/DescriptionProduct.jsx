@@ -13,19 +13,9 @@ const DescriptionProduct = ({ description }) => {
             }}
         >
             {/* Tiêu đề */}
-            <Title
-                level={4}
-                style={{
-                    fontSize: "1.2rem",
-                    fontWeight: "500",
-                    color: "#333",
-                    border: "1px solid #eaeaea",
-                    padding: "0.9rem",
-                    backgroundColor: "#f9f9f9",
-                }}
-            >
+            <h4 className="text-2xl text-gray-800 mb-5">
                 Mô tả sản phẩm
-            </Title>
+            </h4>
 
             {/* Mô tả sản phẩm */}
             <div style={{

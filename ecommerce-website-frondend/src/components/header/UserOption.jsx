@@ -20,13 +20,13 @@ const UserOptions = ({ navigate, cartQuantity, menu, image_url, AVT_URL }) => {
                 </Badge>
             </Button>
 
-            <Dropdown menu={menu} placement="bottomLeft" trigger={['click', 'hover']}>
+            <Dropdown menu={menu} placement="bottomLeft" trigger={['click']}>
                 <Avatar
                     icon={<UserOutlined />}
                     size={45}
                     className="cursor-pointer hover:scale-110"
                     src={AVT_URL + image_url}
-                    onClick={() => navigate('/profile')}
+                // onClick={() => navigate('/profile')}
                 />
             </Dropdown>
         </div>

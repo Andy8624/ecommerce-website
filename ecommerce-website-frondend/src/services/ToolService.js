@@ -38,7 +38,7 @@ export const callGetToolByToolId = async (id) => {
 }
 
 export const callGetAllToolByUserId = async (id) => {
-  const path = `/api/v1/tools/user-tools/${id}?size=100&page=0&sort=createdAt,desc`;
+  const path = `/api/v1/tools/user-tools/${id}?size=2&page=0&sort=createdAt,desc`;
   const res = await axios.get(path);
   return res?.data?.result;
 }

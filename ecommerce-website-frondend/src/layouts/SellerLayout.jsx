@@ -27,7 +27,7 @@ const SellerLayout = () => {
                 <TopHeaderSeller
                     currentNamePage={currentNamePage}
                 />
-                <div className="p-5">
+                <div className="px-5 py-4">
                     <Outlet />
                 </div>
             </Layout>
