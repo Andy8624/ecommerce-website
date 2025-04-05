@@ -1,7 +1,3 @@
-import { Typography } from "antd";
-
-const { Text, Title } = Typography;
-
 const DescriptionProduct = ({ description }) => {
     return (
         <div

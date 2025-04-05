@@ -27,13 +27,23 @@ const getUserIP = async () => {
 
 // Hàm lấy User-Agent từ trình duyệt
 const getUserAgent = () => {
-    return typeof navigator !== "undefined" ? navigator.userAgent : "Unknown";
+    console.log(navigator.userAgentData);
+    console.log(navigator.userAgentData?.brands[0].brand);
+    const isMobile = navigator.userAgentData?.mobile ? "Mobile" : "Desktop";
+    const userAgent =
+        navigator.userAgentData?.brands[0]?.brand + "|" +
+        navigator.userAgentData?.brands[1]?.brand + "|" +
+        navigator.userAgentData?.brands[2]?.brand + "|" +
+        navigator.userAgentData?.platform + "|" + isMobile;
+    console.log(userAgent);
+    return typeof navigator !== "undefined" ? userAgent : "Unknown";
 };
 
 
 export const login = async (email, password) => {
     const ip = await getUserIP();
     const userAgent = getUserAgent();
+    console.log("userAgent", userAgent);
     const device_id = await getDeviceId();
 
     // Lưu vào cookies với thời gian hết hạn 1 năm
@@ -59,4 +69,10 @@ export const checkEmailExists = async (email) => {
 export const callLogout = async (data) => {
     const device_id = await getDeviceId();
     return axios.post(`/api/v1/auth/logout`, { ...data, device_id });
+}
+// /login-history/{userId}/{limit}
+export const callGetLoginHistory = async (userId, limit) => {
+    const path = `/api/v1/auth/login-history/${userId}/${limit}`;
+    const res = await axios.get(path);
+    return res?.data;
 }

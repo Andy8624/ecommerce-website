@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Layout } from "antd";
 import SidebarMenu from "../features/profile/components/SidebarMenu";
-import PrivacySettings from "../features/profile/components/PrivacySettings";
 import NotificationsSettings from "../features/profile/components/NotificationsSettings";
 import PasswordChange from "../features/profile/components/PasswordChange";
-import AddressManagement from "../features/profile/components/AddressManagement";
-import BankInfo from "../features/profile/components/BankInfo";
 import ProfileContent from "../features/profile/components/ProfileContent";
+import AccountManagement from "../features/profile/components/AccountManagement";
 
 const { Content } = Layout;
 
@@ -17,16 +15,12 @@ const Profile = () => {
         switch (selectedMenu) {
             case "profile":
                 return <ProfileContent />;
-            case "bank":
-                return <BankInfo />;
-            case "address":
-                return <AddressManagement />;
             case "password":
                 return <PasswordChange />;
             case "notifications":
                 return <NotificationsSettings />;
-            case "privacy":
-                return <PrivacySettings />;
+            case "settings":
+                return <AccountManagement />;
             default:
                 return <div>Chọn một mục từ menu bên trái</div>;
         }
@@ -38,10 +32,10 @@ const Profile = () => {
 
             {/* Content */}
             <Layout>
-                <Content className="bg-[#f5f5f5] my-5">
+                <Content className="bg-[#f5f5f5] my-3">
                     <div
                         style={{
-                            maxWidth: "63.5rem",
+                            maxWidth: "65rem",
                             margin: "0 auto",
                             background: "#fff",
                             padding: "2rem",

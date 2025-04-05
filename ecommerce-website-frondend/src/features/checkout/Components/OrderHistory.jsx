@@ -87,7 +87,7 @@ const OrderHistory = () => {
     }
 
     if (!orders?.length) {
-        return <Empty description="Bạn chưa có đơn hàng nào" />;
+        return <Empty className='py-[180px]' description="Bạn chưa có đơn hàng nào" />;
     }
 
     return (
@@ -107,7 +107,7 @@ const OrderHistory = () => {
 
                         <Descriptions bordered size="small" column={2} className="mb-4">
                             <Descriptions.Item label="Cửa hàng">
-                                {order.user.shopName}
+                                {order?.orderTools[0]?.tool?.user?.fullName}
                             </Descriptions.Item>
                             <Descriptions.Item label="Ngày đặt"
                                 className="w-[200px]">

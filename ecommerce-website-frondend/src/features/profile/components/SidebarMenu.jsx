@@ -4,10 +4,7 @@ import React from 'react';
 import {
     UserOutlined,
     LockOutlined,
-    BankOutlined,
-    HomeOutlined,
     BellOutlined,
-    SettingOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { AVT_URL } from "../../../utils/Config";
@@ -26,33 +23,24 @@ const menuItems = [
         label: "Đổi Mật Khẩu"
     },
     {
-        key: "address",
-        icon: <HomeOutlined style={{ fontSize: "20px" }} />,
-        label: "Địa Chỉ giao hàng"
+        key: "settings",
+        icon: <UserOutlined style={{ fontSize: "20px" }} />,
+        label: "Cài Đặt Tài Khoản"
     },
     {
         key: "notifications",
         icon: <BellOutlined style={{ fontSize: "20px" }} />,
         label: "Cài Đặt Thông Báo"
     },
-    {
-        key: "privacy",
-        icon: <SettingOutlined style={{ fontSize: "20px" }} />,
-        label: "Thiết Lập Riêng Tư"
-    },
-    {
-        key: "bank",
-        icon: <BankOutlined style={{ fontSize: "20px" }} />,
-        label: "Phương Thức Thanh Toán"
-    },
+
 ];
 
 const SidebarMenu = ({ selectedMenu, setSelectedMenu }) => {
     const user = useSelector(state => state?.account?.user);
     const { getUserById } = useGetUserById(user?.id);
-
+    console.log(getUserById)
     return (
-        <Sider width={300} style={{ background: "#fff", borderRight: "1px solid #ddd" }}>
+        <Sider width={280} style={{ background: "#fff", borderRight: "1px solid #ddd" }}>
             {/* Avatar và Tên người dùng */}
             <div style={{ textAlign: "center", padding: "20px", marginTop: "25px" }}>
                 <Avatar

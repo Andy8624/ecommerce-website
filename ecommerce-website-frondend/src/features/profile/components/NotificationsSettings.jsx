@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import { Typography, Switch, Card, List, Divider, Button, message } from "antd";
+import { Typography, Switch, Card, List, message } from "antd";
 import {
-    BellOutlined,
     MailOutlined,
     ShoppingOutlined,
-    QuestionCircleOutlined,
     CheckOutlined,
     TagOutlined,
 } from "@ant-design/icons";
-
 const { Title, Text, Paragraph } = Typography;
 
 const NotificationsSettings = () => {
@@ -98,34 +95,20 @@ const NotificationsSettings = () => {
             icon: <TagOutlined />,
         },
         {
-            key: "customerService",
-            title: "Hỗ trợ khách hàng",
-            description: "Thông báo về phản hồi yêu cầu hỗ trợ và cập nhật dịch vụ",
-            icon: <QuestionCircleOutlined />,
-        },
-        {
             key: "accountSecurity",
             title: "Bảo mật tài khoản",
             description:
                 "Thông báo về đăng nhập, thay đổi mật khẩu và cập nhật bảo mật",
             icon: <CheckOutlined />,
-        },
-        {
-            key: "productStock",
-            title: "Tình trạng hàng",
-            description:
-                "Thông báo khi sản phẩm trong danh sách yêu thích của bạn có hàng trở lại",
-            icon: <BellOutlined />,
-        },
+        }
     ];
 
     return (
-        <div loading={loading} className="shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-                <Title level={4} className="m-0">
-                    Cài đặt thông báo
-                </Title>
-            </div>
+        <div loading={loading} className="mx-auto mb-3">
+            {/* Header */}
+            <Title level={3}>
+                Cài đặt thông báo
+            </Title>
 
             <div className="">
                 {/* Main email notifications toggle */}
@@ -156,7 +139,7 @@ const NotificationsSettings = () => {
                     renderItem={(item) => (
                         <List.Item
                             key={item.key}
-                            className="p-4 hover:bg-gray-50 rounded-md transition-colors"
+                            className="hover:bg-gray-50 rounded-md transition-colors"
                         >
                             <div className="flex items-center justify-between w-full mx-4">
                                 <div className="flex items-start items-center justify-center">
@@ -188,17 +171,6 @@ const NotificationsSettings = () => {
                         </List.Item>
                     )}
                 />
-            </div>
-
-            <div className="flex justify-end mt-4">
-                <Button
-                    type="primary"
-                    onClick={saveSettings}
-                    loading={saveLoading}
-                    disabled={!notificationSettings.emailEnabled}
-                >
-                    Lưu cài đặt
-                </Button>
             </div>
         </div>
     );
