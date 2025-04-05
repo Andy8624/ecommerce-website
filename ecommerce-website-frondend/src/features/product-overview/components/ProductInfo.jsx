@@ -161,7 +161,7 @@ const ProductInfo = ({ tool }) => {
             return;
         }
 
-        if (quantity > detailStock) {
+        if (quantity > stockDetail) {
             toast.error("Số lượng sản phẩm không đủ");
             return;
         }
