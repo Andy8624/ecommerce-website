@@ -33,6 +33,9 @@ public class Order extends BaseEntity {
 
     String shopId;
 
+    @Builder.Default
+    Boolean rated = false;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;

@@ -45,14 +45,16 @@ public class FileController {
     public ResponseEntity<List<ResUploadFileDTO>> uploadMultipleFiles(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("folderName") String folderName,
-            @RequestParam("toolId") Long toolId
+            @RequestParam("toolId") Long toolId,
+            @RequestParam("getVectorized") Boolean getVectorized
     ) {
-//        log.info(files.toString());
+        log.info(files.toString());
+        log.info(getVectorized.toString());
         try {
             if (files.isEmpty()) {
                 return ResponseEntity.badRequest().body(null);
             }
-            List<ResUploadFileDTO> response = fileService.handleUploadMultipleFiles(files, folderName, toolId);
+            List<ResUploadFileDTO> response = fileService.handleUploadMultipleFiles(files, folderName, toolId, getVectorized);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
 //            log.error(String.valueOf(e));

@@ -27,7 +27,7 @@ export const uploadFile = async (file, folderName) => {
     }
 };
 
-export const uploadMultipleFiles = async (files, folderName, toolId) => {
+export const uploadMultipleFiles = async (files, folderName, toolId, getVectorized) => {
     try {
         const formData = new FormData();
 
@@ -41,6 +41,9 @@ export const uploadMultipleFiles = async (files, folderName, toolId) => {
 
         // 🛠️ Thêm toolId dưới dạng `append()
         formData.append("toolId", toolId.toString());
+
+        // 🛠️ Thêm toolId dưới dạng `append()
+        formData.append("getVectorized", getVectorized);
 
         // Gửi request với `multipart/form-data`
         const response = await axios.post("/api/v1/files/upload-multiple", formData);

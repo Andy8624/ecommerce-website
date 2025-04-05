@@ -1,8 +1,7 @@
-import { Typography, Rate, List, Avatar, Divider, Tabs } from "antd";
-import { UserOutlined, StarFilled, PictureOutlined } from "@ant-design/icons";
+import { Rate, Avatar } from "antd";
+import { UserOutlined, PictureOutlined } from "@ant-design/icons";
 import { useState } from "react";
 
-const { Title, Paragraph } = Typography;
 
 // Mock data for product reviews
 const mockReviews = [

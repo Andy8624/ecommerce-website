@@ -206,7 +206,8 @@ const ProductForm = () => {
             } else {
                 const toolId = res?.toolId;
                 // Từ Id của record Product vừa tạo -> tạo các ảnh sản phẩm vào table ImageTool
-                const response = await uploadMultipleFiles(dataToSend.images, "tools", toolId);
+                const response = await uploadMultipleFiles(dataToSend.images, "tools", toolId, true);
+                console.log("response", response)
                 if (response == null) {
                     toast.error("Có lỗi xảy ra khi tạo ảnh sản phẩm");
                     // xóa cứng sp (trong db) khi tạo ảnh k thành công
@@ -224,7 +225,7 @@ const ProductForm = () => {
 
 
     return (
-        <>
+        <div className="p-4 bg-white shadow-md rounded">
             {/* <Title level={2}>Thêm sản phẩm</Title> */}
             <Form form={form} onFinish={handleSubmit}>
                 <Steps current={currentStep} onChange={setCurrentStep} className="mt-5">
@@ -277,7 +278,7 @@ const ProductForm = () => {
                     )}
                 </div>
             </Form>
-        </>
+        </div>
     );
 };
 

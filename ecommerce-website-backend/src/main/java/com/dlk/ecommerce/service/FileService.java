@@ -106,7 +106,7 @@ public class FileService {
 
     // Upload nhiều file cùng một lúc
     public List<ResUploadFileDTO> handleUploadMultipleFiles(
-            List<MultipartFile> files, String folderName, Long toolId
+            List<MultipartFile> files, String folderName, Long toolId, Boolean getVectorized
     ) throws URISyntaxException, IOException, StorageException, IdInvalidException {
         List<ResUploadFileDTO> uploadedFiles = new ArrayList<>();
 
@@ -116,11 +116,14 @@ public class FileService {
         for (MultipartFile file : files) {
             checkValidFile(file);
             String fileName = store(file, folderName);
-
+            byte[] featureVector = null;
             // Gọi API Python để trích xuất đặc trưng
-            byte[] featureVector = extractFeatureFromPythonAPI(file);
+            if (getVectorized) {
+                featureVector = extractFeatureFromPythonAPI(file);
+                float[] convert = byteArrayToFloatArray(featureVector);
+            }
 
-            float[] convert = byteArrayToFloatArray(featureVector);
+
             uploadedFiles.add(new ResUploadFileDTO(fileName, Instant.now(), featureVector));
 
             Tool tool = toolService.getToolById(toolId);
