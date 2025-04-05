@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import logging
 
+
 class ContentBasedFiltering:
     def __init__(self, cf_data_url="http://host.docker.internal:8080/api/v1/recommendation/cbf-data"):
         self.cf_data_url = cf_data_url
