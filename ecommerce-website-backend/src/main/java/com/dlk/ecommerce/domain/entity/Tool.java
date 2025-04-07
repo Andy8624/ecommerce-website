@@ -91,6 +91,7 @@ public class Tool extends BaseEntity {
     List<ProductAttributes> attributes;
 
     @OneToMany(mappedBy = "tool", fetch = FetchType.LAZY)
+    @JsonIgnore
     List<ProductReview> productReviews;
 
     @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)

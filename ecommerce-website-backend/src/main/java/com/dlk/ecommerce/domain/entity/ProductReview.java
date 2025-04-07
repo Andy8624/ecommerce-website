@@ -1,5 +1,6 @@
 package com.dlk.ecommerce.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -35,9 +36,11 @@ public class ProductReview extends BaseEntity {
 
     // Bình luận của người dùng (có thể là TEXT, cho phép comment dài)
     @Column(columnDefinition = "TEXT")
-    String comment;
+    String buyerReview;
+
+    @Column(columnDefinition = "TEXT")
+    String shopAnswer;
 
     // Danh sách tên các ảnh được cách nhau bởi dấu phẩy (,). Ví dụ: "image1.jpg,image2.jpg"
     String imageUrls;
-
 }

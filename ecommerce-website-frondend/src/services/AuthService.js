@@ -35,7 +35,7 @@ const getUserAgent = () => {
         navigator.userAgentData?.brands[1]?.brand + "|" +
         navigator.userAgentData?.brands[2]?.brand + "|" +
         navigator.userAgentData?.platform + "|" + isMobile;
-    console.log(userAgent);
+    // console.log(userAgent);
     return typeof navigator !== "undefined" ? userAgent : "Unknown";
 };
 
@@ -43,7 +43,7 @@ const getUserAgent = () => {
 export const login = async (email, password) => {
     const ip = await getUserIP();
     const userAgent = getUserAgent();
-    console.log("userAgent", userAgent);
+    // console.log("userAgent", userAgent);
     const device_id = await getDeviceId();
 
     // Lưu vào cookies với thời gian hết hạn 1 năm

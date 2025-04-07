@@ -29,6 +29,7 @@ import BecomeSellerLayout from "../layouts/BecomeSellerLayout";
 import ProductForm from "../features/seller/components/ProductForm";
 import ChatPrivate from "../features/websocket-chat/components/ChatPrivate";
 import SearchProductPage from "../pages/SearchProductPage";
+import SimilarProductList from "../features/tools/components/SimilarProductList";
 const router = createBrowserRouter(
     [
         {
@@ -80,6 +81,14 @@ const router = createBrowserRouter(
                 {
                     path: "result-search-image",
                     element: <SearchProductPage />,
+                },
+                {
+                    path: "similar-products/:toolId",
+                    element:
+                        <>
+                            <SimilarProductList />
+                            <ScrollRestoration />
+                        </>
                 }
             ]
         },

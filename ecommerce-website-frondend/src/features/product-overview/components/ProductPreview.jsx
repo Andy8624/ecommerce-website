@@ -1,7 +1,7 @@
 import { Rate, Avatar } from "antd";
 import { UserOutlined, PictureOutlined } from "@ant-design/icons";
 import { useState } from "react";
-
+import { useProductReview } from "../hooks/useProductReview";
 
 // Mock data for product reviews
 const mockReviews = [
@@ -105,6 +105,9 @@ const formatRelativeTime = (dateString) => {
 const ProductPreview = () => {
     const [filterRating, setFilterRating] = useState(0); // 0 = all ratings
     const [showImageOnly, setShowImageOnly] = useState(false);
+
+    const { reviews } = useProductReview(91);
+    console.log(reviews);
 
     // Calculate average rating
     const averageRating = mockReviews.length > 0

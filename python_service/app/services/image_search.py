@@ -35,22 +35,6 @@ class ImageSearchService:
         # logging.debug("Vector {}", vector)
         return vector
 
-    # def _build_index(self):
-    #     """Tạo chỉ mục FAISS từ các ảnh trong thư mục sản phẩm"""
-    #     index = faiss.IndexFlatL2(768)
-    #     product_images_dir = "app/assets/product_images"
-
-    #     for filename in os.listdir(product_images_dir):
-    #         if filename.endswith((".jpg", ".png")):
-    #             image_path = os.path.join(product_images_dir, filename)
-    #             image = Image.open(image_path).convert("RGB")
-    #             image_vector = self._extract_features(image)
-    #             index.add(np.array([image_vector]))
-
-    #     logging.debug("FAISS index đã được xây dựng với tất cả ảnh sản phẩm.")
-    #     # logging.debug("Index {}", index)
-    #     return index
-
     async def search_similar_images(self, image_content: bytes):
         """Tìm tất cả ảnh có khoảng cách < 150 từ chỉ mục FAISS"""
         query_image = Image.open(BytesIO(image_content)).convert("RGB")

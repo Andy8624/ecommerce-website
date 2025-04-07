@@ -7,12 +7,19 @@ import CardContainer from "../components/CardContainer";
 import DescriptionProduct from "../features/product-overview/components/DescriptionProduct";
 import { useLocation } from "react-router-dom";
 import ProductPreview from "../features/product-overview/components/ProductPreview";
+import { useGetToolByToolId } from "../features/checkout/hooks/tools/useGetToolByToolId";
 
 const { Content } = Layout;
 
 const ProductOverviewPage = () => {
     const location = useLocation();
-    const tool = location.state;
+    const isSimilar = location?.state?.isSimilar;
+    const realTool = location?.state?.realTool;
+
+    const { getToolById } = useGetToolByToolId(realTool?.toolId);
+    const tool = isSimilar ? getToolById : realTool;
+
+
     // const shopData = {
     //     logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQS_T5NL66MkewmvfUvKiaauZ1TATYBTiYdg&s",
     //     name: "YOLO Stationery",

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from app.schemas.recommendation import RecommendationRequest, DetailResponse, Response
+from fastapi import APIRouter, HTTPException, Path, Query
+from app.schemas.recommendation import RecommendationRequest, DetailResponse, Response, CBF_SimilarProductsByToolIdResponse, CBF_Response
 from app.services.ubcf import UserBasedCollaborativeFiltering
 from app.services.cbf import ContentBasedFiltering
 import logging
@@ -34,10 +34,10 @@ async def get_cf_recommendations(request: RecommendationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/cbf", response_model=Response)
+@router.post("/cbf/user", response_model=Response)
 async def get_cbf_recommendations(request: RecommendationRequest):
     try:
-        recommendations = await cbf_service.get_recommendations(request.user_id, 7)
+        recommendations = await cbf_service.get_recommendations_byuser(request.user_id, 7)
         
         # Chuyển đổi danh sách sản phẩm thành RecommendationDetail model
         recommendation_details = [
@@ -57,3 +57,32 @@ async def get_cbf_recommendations(request: RecommendationRequest):
     except Exception as e:
         logging.error(f"Error in CBF recommendations: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while fetching CBF recommendations.")
+
+"""
+    Tìm các sản phẩm tương đồng với một sản phẩm dựa trên toolId
+"""
+@router.get("/cbf/product/{tool_id}", response_model=CBF_Response)
+async def get_similar_products(
+            tool_id: int = Path(..., title="The ID of the tool to find similar products for"), 
+            top_k: int = Query(5, description="Maximum number of similar products to return")
+        ):
+    try:
+        similar_products = await cbf_service.get_similar_products(str(tool_id), top_k)
+
+        recommendation_details = [
+            CBF_SimilarProductsByToolIdResponse(
+                toolId=rec['toolId'],
+                score=rec['score'],
+                name=rec.get('name'),
+                price=rec.get('price'),
+                imageUrl=rec.get('imageUrl')
+            )
+            for rec in similar_products
+        ]
+
+        return CBF_Response(
+            recommendations=recommendation_details
+        )
+    except Exception as e:
+        logging.error(f"Error in get_similar_products: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while fetching similar products.")

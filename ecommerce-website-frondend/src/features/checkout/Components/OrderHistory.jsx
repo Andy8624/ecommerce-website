@@ -7,7 +7,7 @@ import { ShoppingOutlined, StarOutlined, PlusOutlined, LoadingOutlined } from '@
 import { TOOL_URL } from '../../../utils/Config';
 import { useQueryClient } from '@tanstack/react-query';
 import { uploadMultipleFiles } from "../../../services/FileService";
-
+import { useCreateProductReview } from "../../seller/hooks/useCreateProductReview"
 const { TextArea } = Input;
 
 const formatVietnamDate = (dateString) => {
@@ -44,7 +44,7 @@ const getStatusColor = (status) => {
 const OrderHistory = () => {
     const userId = useSelector(state => state?.account?.user?.id);
     const { orders, isLoading } = useGetOrderByUserId(userId);
-    const { updateOrderStatus, updateOrderRatedStatus } = useUpdateOrderStatus();
+    const { updateOrderStatus } = useUpdateOrderStatus();
 
     // State for review modal
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -54,6 +54,8 @@ const OrderHistory = () => {
     const [fileList, setFileList] = useState({});
     const [uploadingImages, setUploadingImages] = useState({});
     const queryClient = useQueryClient();
+
+    const { createProductReview } = useCreateProductReview();
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
@@ -99,12 +101,12 @@ const OrderHistory = () => {
     };
 
     // Custom request function that skips actual upload during form editing
-    const customUploadRequest = ({ file, onSuccess }) => {
-        // Just mark as success without actual upload
-        setTimeout(() => {
-            onSuccess("ok");
-        }, 500);
-    };
+    // const customUploadRequest = ({ file, onSuccess }) => {
+    //     // Just mark as success without actual upload
+    //     setTimeout(() => {
+    //         onSuccess("ok");
+    //     }, 500);
+    // };
 
     // Function to handle the actual file upload when submitting
     const handleFileUpload = async (files, toolId) => {
@@ -161,14 +163,16 @@ const OrderHistory = () => {
                     toolId,
                     rating: rating.rating,
                     comment: rating.comment || "",
-                    imageUrls: uploadedImageUrls
+                    imageUrls: uploadedImageUrls,
+                    buyerId: userId,
                 };
 
                 // Here you would push an API call to save the review
                 // reviewPromises.push(saveProductReview(reviewData));
                 reviewPromises.push(
                     new Promise(resolve => {
-                        // Simulate API call
+                        createProductReview(reviewData)
+                        // API call
                         setTimeout(() => {
                             console.log("Saving review:", reviewData);
                             resolve(reviewData);
@@ -285,7 +289,7 @@ const OrderHistory = () => {
                                 listType="picture-card"
                                 fileList={fileList[item.orderToolId] || []}
                                 onChange={(info) => handleUploadChange(info, item.orderToolId)}
-                                customRequest={customUploadRequest}
+                                // customRequest={customUploadRequest}
                                 maxCount={5}
                                 multiple
                                 accept=".png,.jpg,.jpeg"

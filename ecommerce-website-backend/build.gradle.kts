@@ -3,6 +3,7 @@ plugins {
 	id("org.springframework.boot") version "3.3.4"
 	id("io.spring.dependency-management") version "1.1.6"
 	id("io.freefair.lombok") version "8.10"
+	kotlin("jvm")
 }
 
 group = "com.dlk"
@@ -45,6 +46,7 @@ dependencies {
 	// Phụ thuộc MapStruct
 	implementation("org.mapstruct:mapstruct:1.5.3.Final")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
+	implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<Test> {

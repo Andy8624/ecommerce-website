@@ -8,6 +8,7 @@ import com.dlk.ecommerce.domain.mapper.ToolMapper;
 import com.dlk.ecommerce.domain.request.product_attributes.ProductAttributesRequest;
 import com.dlk.ecommerce.domain.request.tool.ReqToolDTO;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
+import com.dlk.ecommerce.domain.response.recommendation.CBFResponse;
 import com.dlk.ecommerce.domain.response.tool.ResCreateToolDTO;
 import com.dlk.ecommerce.domain.response.tool.ResToolDTO;
 import com.dlk.ecommerce.domain.response.tool.ResUpdateToolDTO;
@@ -201,5 +202,9 @@ public class ToolService {
                 () -> new IllegalArgumentException("Tool with id: " + toolId + " not found")
         );
         return tool.getStockQuantity();
+    }
+
+    public List<CBFResponse> getCBFResponseList() {
+        return toolRepository.findCBFResponseData();
     }
 }

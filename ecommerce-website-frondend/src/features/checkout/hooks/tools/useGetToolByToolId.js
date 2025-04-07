@@ -1,15 +1,16 @@
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { callGetToolByToolId } from "../../../../services/ToolService";
 
-export function useGetToolByToolId() {
-    const { mutateAsync: getToolByToolId, isLoading: isLoadingTool, error } = useMutation({
-        mutationKey: ["tools"],
-        mutationFn: (toolId) => {
-            if (toolId) {
-                return callGetToolByToolId(toolId);
-            }
-        },
+export function useGetToolByToolId(toolId) {
+    const {
+        data: getToolById,
+        isLoading: isLoadingTool,
+        error
+    } = useQuery({
+        queryKey: ["tool", toolId],
+        queryFn: () => toolId ? callGetToolByToolId(toolId) : null,
+        enabled: !!toolId,
     });
 
-    return { getToolByToolId, isLoadingTool, error };
+    return { getToolById, isLoadingTool, error };
 }

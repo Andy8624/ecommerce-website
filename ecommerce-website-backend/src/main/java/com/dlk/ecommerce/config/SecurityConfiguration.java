@@ -50,7 +50,8 @@ public class SecurityConfiguration {
             "/api/v1/addresses/**",
             "/api/v1/ordertools/total-sold/**",
             "/api/v1/categories/**",
-            "/api/v1/variant-detail/**"
+            "/api/v1/variant-detail/**",
+            "/api/v1/product-reviews/**"
     };
 
     @Bean

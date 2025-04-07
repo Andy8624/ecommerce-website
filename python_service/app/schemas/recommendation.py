@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class RecommendationRequest(BaseModel):
     user_id: str
@@ -7,7 +7,19 @@ class RecommendationRequest(BaseModel):
 class DetailResponse(BaseModel):
     toolId: str
     score: float
+    name: Optional[str] = None
 
 class Response(BaseModel):
-    user_id: str
+    user_id: Optional[str] = None
     recommendations: List[DetailResponse]
+
+# --------- CBF RECOMMENDATIONS ---------
+class CBF_SimilarProductsByToolIdResponse(BaseModel):
+    toolId: str
+    score: float
+    name: Optional[str] = None
+    price: Optional[float] = None
+    imageUrl: Optional[str] = None
+
+class CBF_Response(BaseModel):
+    recommendations: List[CBF_SimilarProductsByToolIdResponse]
