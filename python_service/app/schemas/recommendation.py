@@ -4,14 +4,13 @@ from typing import List, Optional
 class RecommendationRequest(BaseModel):
     user_id: str
 
-class DetailResponse(BaseModel):
+class UBCE_DetailResponse(BaseModel):
     toolId: str
     score: float
-    name: Optional[str] = None
 
-class Response(BaseModel):
+class UBCF_Response(BaseModel):
     user_id: Optional[str] = None
-    recommendations: List[DetailResponse]
+    recommendations: List[UBCE_DetailResponse]
 
 # --------- CBF RECOMMENDATIONS ---------
 class CBF_SimilarProductsByToolIdResponse(BaseModel):

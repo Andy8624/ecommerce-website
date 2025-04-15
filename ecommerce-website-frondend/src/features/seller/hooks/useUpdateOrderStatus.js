@@ -5,7 +5,7 @@ export function useUpdateOrderStatus() {
     const queryClient = useQueryClient();
     const { mutate: updateOrderStatus, isLoading: isUpdating } = useMutation({
         mutationFn: ({ orderId, status }) => {
-            console.log(status);
+            // console.log(status);
             callUpdateOrderStatus(orderId, status)
         },
         onSuccess: () => {

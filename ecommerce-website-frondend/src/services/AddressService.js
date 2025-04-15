@@ -16,3 +16,9 @@ export const callCreateAddressUser = async (address) => {
     const res = await axios_customize.post(path, address);
     return res?.data?.result;
 }
+
+export const callDeleteAddressUser = async (id) => {
+    const path = `/api/v1/addresses/${id}`;
+    const res = await axios_customize.delete(path);
+    return res?.data;
+}

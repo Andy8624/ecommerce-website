@@ -75,7 +75,7 @@ const processOrderData = (orders) => {
 const filterDataByPeriod = (data, period) => {
   const today = new Date();
   today.setHours(23, 59, 59, 999); // End of day
-  console.log("today", today);
+
 
   let startDate;
 

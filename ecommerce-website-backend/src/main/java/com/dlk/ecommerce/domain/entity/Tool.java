@@ -101,7 +101,7 @@ public class Tool extends BaseEntity {
     @JoinColumn(name = "category_id") // Đảm bảo đúng với tên cột trong DB
     Category category;
 
-    // Thuộc tính lưu trữ điểm đánh giá trung bình của sản phẩm
-    Double averageRating = 0.0;
-    int totalRating = 0;
+//    // Thuộc tính lưu trữ điểm đánh giá trung bình của sản phẩm
+//    Double averageRating = 0.0;
+//    int totalRating = 0;
 }

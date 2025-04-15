@@ -5,7 +5,7 @@ const OrderProductList = ({ groupedCheckoutProducts }) => {
     return (
         <div>
             {Object.values(groupedCheckoutProducts)?.map(({ seller, products, totalSellerAmount, shippingCost }) => (
-                <div key={seller.userId} className="shadow-xl mt-1 border rounded-lg shadow-sm bg-white">
+                <div key={seller.userId} className="shadow-xl mt-3 border rounded-lg shadow-sm bg-white">
                     <p className="text-base px-5 py-3">
                         🛍️ <span className="cursor-pointer hover:text-gray-500 transition">
                             {seller?.fullName}

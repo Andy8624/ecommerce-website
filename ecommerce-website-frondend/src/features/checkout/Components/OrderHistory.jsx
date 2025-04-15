@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useGetOrderByUserId } from '../hooks/orders/useGetOrderByUserId';
 import { useUpdateOrderStatus } from '../../seller/hooks/useUpdateOrderStatus';
 import { Badge, Card, Collapse, List, Image, Descriptions, Spin, Empty, Button, Space, Modal, Rate, Input, Form, message, Upload } from 'antd';
@@ -8,6 +8,7 @@ import { TOOL_URL } from '../../../utils/Config';
 import { useQueryClient } from '@tanstack/react-query';
 import { uploadMultipleFiles } from "../../../services/FileService";
 import { useCreateProductReview } from "../../seller/hooks/useCreateProductReview"
+import { useNavigate } from 'react-router-dom';
 const { TextArea } = Input;
 
 const formatVietnamDate = (dateString) => {
@@ -45,6 +46,7 @@ const OrderHistory = () => {
     const userId = useSelector(state => state?.account?.user?.id);
     const { orders, isLoading } = useGetOrderByUserId(userId);
     const { updateOrderStatus } = useUpdateOrderStatus();
+    const navigate = useNavigate();
 
     // State for review modal
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -55,7 +57,15 @@ const OrderHistory = () => {
     const [uploadingImages, setUploadingImages] = useState({});
     const queryClient = useQueryClient();
 
-    const { createProductReview } = useCreateProductReview();
+    const { createProductReviewAsync } = useCreateProductReview();
+
+    const sortedOrders = useMemo(() => {
+        if (!orders) return [];
+
+        return [...orders].sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+    }, [orders]);
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
@@ -140,14 +150,23 @@ const OrderHistory = () => {
 
             // Collect all reviews
             const reviewPromises = [];
-            const orderId = selectedOrder.orderId;
 
             // Process each product review
             for (const [orderToolId, rating] of Object.entries(values.productRatings || {})) {
-                // Get the toolId from the order tool
-                const toolId = selectedOrder.orderTools.find(item =>
+                // Find the complete order tool item to get all details
+                const orderToolItem = selectedOrder.orderTools.find(item =>
                     item.orderToolId === orderToolId
-                )?.tool?.toolId;
+                );
+
+                // console.log("orderToolItem", orderToolItem);
+                const orderId = selectedOrder.orderId;
+
+                if (!orderToolItem) {
+                    console.error(`Order tool item not found for orderToolId: ${orderToolId}`);
+                    continue;
+                }
+
+                const toolId = orderToolItem.tool?.toolId;
 
                 if (!toolId) {
                     console.error(`Tool ID not found for orderToolId: ${orderToolId}`);
@@ -158,6 +177,7 @@ const OrderHistory = () => {
                 const productFiles = fileList[orderToolId] || [];
                 const uploadedImageUrls = await handleFileUpload(productFiles, toolId);
 
+                // Include category details from the order item
                 const reviewData = {
                     orderToolId,
                     toolId,
@@ -165,36 +185,29 @@ const OrderHistory = () => {
                     comment: rating.comment || "",
                     imageUrls: uploadedImageUrls,
                     buyerId: userId,
+                    // Add category details from the order
+                    category_name_1: orderToolItem.category_name_1 || null,
+                    category_detail_name_1: orderToolItem.category_detail_name_1 || null,
+                    category_name_2: orderToolItem.category_name_2 || null,
+                    category_detail_name_2: orderToolItem.category_detail_name_2 || null,
+                    quantity: orderToolItem.quantity,
+                    orderId
                 };
 
-                // Here you would push an API call to save the review
-                // reviewPromises.push(saveProductReview(reviewData));
-                reviewPromises.push(
-                    new Promise(resolve => {
-                        createProductReview(reviewData)
-                        // API call
-                        setTimeout(() => {
-                            console.log("Saving review:", reviewData);
-                            resolve(reviewData);
-                        }, 300);
-                    })
-                );
+                // Use the async mutation directly
+                reviewPromises.push(createProductReviewAsync(reviewData));
             }
 
             // Wait for all review submissions to complete
             await Promise.all(reviewPromises);
-
-            // Update the order's rated status
-            // await updateOrderRatedStatus(orderId, true);
-            // Simulate updating order rated status
-            console.log("Marking order as rated:", orderId);
-            await new Promise(resolve => setTimeout(resolve, 500));
 
             message.success("Đánh giá sản phẩm thành công!");
             setIsReviewModalOpen(false);
 
             // Refresh order list to show updated rated status
             queryClient.invalidateQueries(["orders"]);
+            // Also refresh product reviews if they're cached
+            queryClient.invalidateQueries(["productReviews"]);
         } catch (error) {
             console.error("Error submitting review:", error);
             message.error("Có lỗi xảy ra khi gửi đánh giá");
@@ -203,13 +216,24 @@ const OrderHistory = () => {
         }
     };
 
+    const navigateToProductDetail = (toolId, item) => {
+        navigate(`/tool/${toolId}`, {
+            state: {
+                realTool: item.tool
+            }
+        });
+    };
+
     const renderOrderProducts = (order) => (
         <List
             className="mt-4"
             dataSource={order.orderTools}
             renderItem={(item) => (
                 <List.Item>
-                    <div className="flex items-center w-full">
+                    <div
+                        className="flex items-center w-full"
+                        onClick={() => navigateToProductDetail(item.tool.toolId, item)}
+                    >
                         <Image
                             src={`${TOOL_URL}${item.tool.imageUrl}`}
                             alt={item.name}
@@ -337,7 +361,7 @@ const OrderHistory = () => {
         <div className="max-w-6xl mx-auto p-4 space-y-4">
             <h2 className="text-2xl font-bold mb-6">Lịch sử đơn hàng</h2>
             <List
-                dataSource={orders}
+                dataSource={sortedOrders}
                 renderItem={(order) => (
                     <Card key={order.orderId} className="mb-4 shadow-sm">
                         <div className="flex justify-between items-center mb-4">
@@ -398,6 +422,7 @@ const OrderHistory = () => {
                                         Đã nhận được hàng
                                     </Button>
                                 )}
+                                {console.log("order", order)}
                                 {order.status === 'COMPLETED' && !order.rated && (
                                     <Button
                                         type="primary"

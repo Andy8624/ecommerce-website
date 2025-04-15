@@ -6,8 +6,10 @@ import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.request.product_review.ProductReviewRequest;
 import com.dlk.ecommerce.repository.ProductReviewRepository;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class ProductReviewService {
     private final ProductReviewRepository productPreviewRepository;
     private final UserService userService;
     private final ToolService toolService;
+    private final OrderService orderService;
 
     public Void createProductReview(ProductReviewRequest request) throws IdInvalidException {
         Tool tool = toolService.getToolById(request.getToolId());
@@ -28,13 +31,19 @@ public class ProductReviewService {
                 .shopAnswer(null)
                 .imageUrls(request.getImageUrls())
                 .rating(request.getRating())
+                .category_name_1(request.getCategory_name_1())
+                .category_detail_name_1(request.getCategory_detail_name_1())
+                .category_name_2(request.getCategory_name_2())
+                .category_detail_name_2(request.getCategory_detail_name_2())
+                .quantity(request.getQuantity())
                 .build();
         productPreviewRepository.save(productReview);
+        orderService.checkRated(request.getOrderId());
         return null;
 
     }
 
-    public ProductReview getByBuyerIdAndToolId(String buyerId, Long toolId) {
+    public List<ProductReview> fetchProductReviewByBuyerAndTool(String buyerId, Long toolId) {
         return productPreviewRepository.findByTool_ToolIdAndUser_UserId(toolId, buyerId);
     }
 

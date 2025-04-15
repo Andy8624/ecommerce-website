@@ -207,4 +207,12 @@ public class ToolService {
     public List<CBFResponse> getCBFResponseList() {
         return toolRepository.findCBFResponseData();
     }
+
+//    public void updateAvgRating(long toolId, Integer rating) throws IdInvalidException {
+//        Tool dbTool = getToolById(toolId);
+//        dbTool.setAverageRating(
+//                (dbTool.getAverageRating() * dbTool.getTotalRating() + rating) / (dbTool.getTotalRating() + 1)
+//        );
+//        dbTool.setTotalRating(dbTool.getTotalRating() + 1);
+//    }
 }

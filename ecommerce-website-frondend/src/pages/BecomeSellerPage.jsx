@@ -11,9 +11,9 @@ export default function BecomeSellerPage() {
         <Content className="flex items-center justify-center">
             <CardContainer className="text-center">
                 <img
-                    src="/public/images/seller-logo.jpg"
+                    src="/assets/seller-logo/seller-logo.jpeg"
                     alt="Shopee Register"
-                    className="w-80 mx-auto mb-4"
+                    className="w-64 mx-auto mb-4"
                 />
                 <h2 className="text-xl font-semibold mb-2">Chào mừng đến với EduMall Seller!</h2>
                 <p className="text-gray-600 mb-4">

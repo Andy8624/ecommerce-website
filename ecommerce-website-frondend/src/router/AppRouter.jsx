@@ -50,7 +50,7 @@ const router = createBrowserRouter(
                     path: "cart",
                     element:
                         <>
-                            <Cart />,
+                            <Cart />
                             <ScrollRestoration />
                         </>
                 },
@@ -58,7 +58,7 @@ const router = createBrowserRouter(
                     path: "checkout",
                     element:
                         <>
-                            <CheckoutPage />,
+                            <CheckoutPage />
                             <ScrollRestoration />
                         </>
                 },

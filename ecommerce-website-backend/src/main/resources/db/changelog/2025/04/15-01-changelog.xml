@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1744675853233-1" author="duong-lap-khang">
+        <createTable tableName="addresses">
+            <column name="address_id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="pk_addresses"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="street" type="VARCHAR(255)"/>
+            <column name="ward" type="VARCHAR(255)"/>
+            <column name="district" type="VARCHAR(255)"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-2" author="duong-lap-khang">
+        <createTable tableName="attributes">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_attributes"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-3" author="duong-lap-khang">
+        <createTable tableName="cart_tools">
+            <column name="cart_tool_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_cart_tools"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="variant_detail_id1" type="VARCHAR(255)"/>
+            <column name="variant_detail_id2" type="VARCHAR(255)"/>
+            <column name="cart_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-4" author="duong-lap-khang">
+        <createTable tableName="carts">
+            <column name="cart_id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="pk_carts"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-5" author="duong-lap-khang">
+        <createTable tableName="categories">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_categories"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-6" author="duong-lap-khang">
+        <createTable tableName="category_details">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_category_details"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="category_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-7" author="duong-lap-khang">
+        <createTable tableName="image_tools">
+            <column name="image_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_image_tools"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="feature_vector" type="LONGBLOB"/>
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-8" author="duong-lap-khang">
+        <createTable tableName="messages">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_messages"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="sender_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="receiver_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_read" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-9" author="duong-lap-khang">
+        <createTable tableName="order_tools">
+            <column name="order_tool_id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="pk_order_tools"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="price" type="DECIMAL"/>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="variant_detail_id1" type="VARCHAR(255)"/>
+            <column name="product_variant_id_1" type="VARCHAR(255)"/>
+            <column name="category_detail_id_1" type="VARCHAR(255)"/>
+            <column name="category_name_1" type="VARCHAR(255)"/>
+            <column name="category_detail_name_1" type="VARCHAR(255)"/>
+            <column name="variant_detail_id2" type="VARCHAR(255)"/>
+            <column name="product_variant_id_2" type="VARCHAR(255)"/>
+            <column name="category_detail_id_2" type="VARCHAR(255)"/>
+            <column name="category_name_2" type="VARCHAR(255)"/>
+            <column name="category_detail_name_2" type="VARCHAR(255)"/>
+            <column name="order_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-10" author="duong-lap-khang">
+        <createTable tableName="orders">
+            <column name="order_id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="pk_orders"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="shipping_cost" type="DECIMAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shop_id" type="VARCHAR(255)"/>
+            <column name="rated" type="BOOLEAN"/>
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method_id" type="BIGINT"/>
+            <column name="address_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-11" author="duong-lap-khang">
+        <createTable tableName="payment_methods">
+            <column name="payment_method_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_payment_methods"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-12" author="duong-lap-khang">
+        <createTable tableName="permissions">
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_permissions"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="api_path" type="VARCHAR(255)"/>
+            <column name="method" type="VARCHAR(255)"/>
+            <column name="module" type="VARCHAR(255)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-13" author="duong-lap-khang">
+        <createTable tableName="product_review">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_product_review"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rating" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="buyer_review" type="TEXT"/>
+            <column name="shop_answer" type="TEXT"/>
+            <column name="image_urls" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-14" author="duong-lap-khang">
+        <createTable tableName="product_variants">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_product_variants"/>
+            </column>
+            <column name="price" type="DECIMAL"/>
+            <column name="stock" type="INT"/>
+            <column name="tool_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-15" author="duong-lap-khang">
+        <createTable tableName="role_permissions">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_role_permissions"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-16" author="duong-lap-khang">
+        <createTable tableName="roles">
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_roles"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-17" author="duong-lap-khang">
+        <createTable tableName="tool_types">
+            <column name="tool_type_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_tool_types"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-18" author="duong-lap-khang">
+        <createTable tableName="tools">
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_tools"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="MEDIUMTEXT"/>
+            <column name="stock_quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="VARCHAR(255)"/>
+            <column name="price" type="DECIMAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discounted_price" type="DECIMAL"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hidden" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tool_type_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="brand" type="VARCHAR(255)"/>
+            <column name="origin" type="VARCHAR(255)"/>
+            <column name="warranty" type="VARCHAR(255)"/>
+            <column name="length" type="DOUBLE"/>
+            <column name="width" type="DOUBLE"/>
+            <column name="height" type="DOUBLE"/>
+            <column name="weight" type="DOUBLE"/>
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="VARCHAR(255)"/>
+            <column name="average_rating" type="DOUBLE"/>
+            <column name="total_rating" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-19" author="duong-lap-khang">
+        <createTable tableName="user_product_interaction">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_product_interaction"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tool_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interaction_type" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-20" author="duong-lap-khang">
+        <createTable tableName="users">
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="full_name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="image_url" type="VARCHAR(255)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="birthdate" type="DATE"/>
+            <column name="shop_id" type="VARCHAR(255)"/>
+            <column name="shop_address_id" type="VARCHAR(255)"/>
+            <column name="business_type" type="VARCHAR(255)"/>
+            <column name="business_address" type="VARCHAR(255)"/>
+            <column name="billing_email" type="VARCHAR(255)"/>
+            <column name="tax_number" type="VARCHAR(255)"/>
+            <column name="shop_name" type="VARCHAR(255)"/>
+            <column name="shipping_method" type="json"/>
+            <column name="gender" type="VARCHAR(255)"/>
+            <column name="refresh_token" type="MEDIUMTEXT"/>
+            <column name="role_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-21" author="duong-lap-khang">
+        <createTable tableName="variant_details">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_variant_details"/>
+            </column>
+            <column name="product_variant_id" type="VARCHAR(255)"/>
+            <column name="category_detail_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1744675853233-22" author="duong-lap-khang">
+        <addUniqueConstraint columnNames="user_id, tool_id" constraintName="uc_95854f86a4b0d0183338dc173"
+                             tableName="product_review"/>
+    </changeSet>
+    <changeSet id="1744675853233-23" author="duong-lap-khang">
+        <addUniqueConstraint columnNames="user_id" constraintName="uc_carts_user" tableName="carts"/>
+    </changeSet>
+    <changeSet id="1744675853233-24" author="duong-lap-khang">
+        <addUniqueConstraint columnNames="shop_id" constraintName="uc_users_shopid" tableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-25" author="duong-lap-khang">
+        <addUniqueConstraint columnNames="shop_name" constraintName="uc_users_shopname" tableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-26" author="duong-lap-khang">
+        <createIndex indexName="idx_created_at" tableName="messages">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1744675853233-27" author="duong-lap-khang">
+        <createIndex indexName="idx_is_read" tableName="messages">
+            <column name="is_read"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1744675853233-29" author="duong-lap-khang">
+        <createIndex indexName="idx_sender_receiver" tableName="messages">
+            <column name="sender_id"/>
+            <column name="receiver_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1744675853233-30" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="addresses"
+                                 constraintName="FK_ADDRESSES_ON_USER" referencedColumnNames="user_id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-31" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="attributes"
+                                 constraintName="FK_ATTRIBUTES_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-32" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="carts" constraintName="FK_CARTS_ON_USER"
+                                 referencedColumnNames="user_id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-33" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="cart_id" baseTableName="cart_tools"
+                                 constraintName="FK_CART_TOOLS_ON_CART" referencedColumnNames="cart_id"
+                                 referencedTableName="carts"/>
+    </changeSet>
+    <changeSet id="1744675853233-34" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="cart_tools"
+                                 constraintName="FK_CART_TOOLS_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-35" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="category_details"
+                                 constraintName="FK_CATEGORY_DETAILS_ON_CATEGORY" referencedColumnNames="id"
+                                 referencedTableName="categories"/>
+    </changeSet>
+    <changeSet id="1744675853233-36" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="image_tools"
+                                 constraintName="FK_IMAGE_TOOLS_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-37" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="receiver_id" baseTableName="messages"
+                                 constraintName="FK_MESSAGES_ON_RECEIVER" referencedColumnNames="user_id"
+                                 referencedTableName="users"/>
+
+        <createIndex indexName="idx_receiver" tableName="messages">
+            <column name="receiver_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1744675853233-38" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="sender_id" baseTableName="messages"
+                                 constraintName="FK_MESSAGES_ON_SENDER" referencedColumnNames="user_id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-39" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="address_id" baseTableName="orders"
+                                 constraintName="FK_ORDERS_ON_ADDRESS" referencedColumnNames="address_id"
+                                 referencedTableName="addresses"/>
+    </changeSet>
+    <changeSet id="1744675853233-40" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="payment_method_id" baseTableName="orders"
+                                 constraintName="FK_ORDERS_ON_PAYMENT_METHOD" referencedColumnNames="payment_method_id"
+                                 referencedTableName="payment_methods"/>
+    </changeSet>
+    <changeSet id="1744675853233-41" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="orders" constraintName="FK_ORDERS_ON_USER"
+                                 referencedColumnNames="user_id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-42" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_tools"
+                                 constraintName="FK_ORDER_TOOLS_ON_ORDER" referencedColumnNames="order_id"
+                                 referencedTableName="orders"/>
+    </changeSet>
+    <changeSet id="1744675853233-43" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="order_tools"
+                                 constraintName="FK_ORDER_TOOLS_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-44" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="product_review"
+                                 constraintName="FK_PRODUCT_REVIEW_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-45" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="product_review"
+                                 constraintName="FK_PRODUCT_REVIEW_ON_USER" referencedColumnNames="user_id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-46" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="product_variants"
+                                 constraintName="FK_PRODUCT_VARIANTS_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-47" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="permission_id" baseTableName="role_permissions"
+                                 constraintName="FK_ROLE_PERMISSIONS_ON_PERMISSION"
+                                 referencedColumnNames="permission_id" referencedTableName="permissions"/>
+    </changeSet>
+    <changeSet id="1744675853233-48" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_permissions"
+                                 constraintName="FK_ROLE_PERMISSIONS_ON_ROLE" referencedColumnNames="role_id"
+                                 referencedTableName="roles"/>
+    </changeSet>
+    <changeSet id="1744675853233-49" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="tools"
+                                 constraintName="FK_TOOLS_ON_CATEGORY" referencedColumnNames="id"
+                                 referencedTableName="categories"/>
+    </changeSet>
+    <changeSet id="1744675853233-50" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_type_id" baseTableName="tools"
+                                 constraintName="FK_TOOLS_ON_TOOL_TYPE" referencedColumnNames="tool_type_id"
+                                 referencedTableName="tool_types"/>
+    </changeSet>
+    <changeSet id="1744675853233-51" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="tools" constraintName="FK_TOOLS_ON_USER"
+                                 referencedColumnNames="user_id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-52" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="users" constraintName="FK_USERS_ON_ROLE"
+                                 referencedColumnNames="role_id" referencedTableName="roles"/>
+    </changeSet>
+    <changeSet id="1744675853233-53" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="tool_id" baseTableName="user_product_interaction"
+                                 constraintName="FK_USER_PRODUCT_INTERACTION_ON_TOOL" referencedColumnNames="tool_id"
+                                 referencedTableName="tools"/>
+    </changeSet>
+    <changeSet id="1744675853233-54" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_product_interaction"
+                                 constraintName="FK_USER_PRODUCT_INTERACTION_ON_USER" referencedColumnNames="user_id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1744675853233-55" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="category_detail_id" baseTableName="variant_details"
+                                 constraintName="FK_VARIANT_DETAILS_ON_CATEGORY_DETAIL" referencedColumnNames="id"
+                                 referencedTableName="category_details"/>
+    </changeSet>
+    <changeSet id="1744675853233-56" author="duong-lap-khang">
+        <addForeignKeyConstraint baseColumnNames="product_variant_id" baseTableName="variant_details"
+                                 constraintName="FK_VARIANT_DETAILS_ON_PRODUCT_VARIANT" referencedColumnNames="id"
+                                 referencedTableName="product_variants"/>
+    </changeSet>
+
+</databaseChangeLog>

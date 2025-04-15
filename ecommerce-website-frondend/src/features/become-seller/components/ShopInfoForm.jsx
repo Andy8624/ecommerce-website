@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select, Popconfirm } from 'antd';
 import { useEffect, useState } from 'react';
 import { useCreateAddressUser } from '../../checkout/hooks/addresses/useCreateAddressUser';
 import ModalAddressForm from '../../checkout/Components/ModalAddressForm';
@@ -6,8 +6,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { callCheckPhoneExist, callCheckShopName } from '../../../services/UserService';
 import { useCreateShopInfo } from '../hooks/useCreateShopInfo';
 import { toast } from 'react-toastify';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useUpdateUserPatch } from '../hooks/useUpdateUserPatch';
+import { useDeleteAddressUser } from '../../checkout/hooks/addresses/useDeleteAddressUser';
 
 const { Option } = Select;
 
@@ -58,6 +59,9 @@ const ShopInfoForm = ({ next, userId, getUserById, addresses }) => {
     const { createShopInfo, isCreatingShop } = useCreateShopInfo();
     const { updateUser } = useUpdateUserPatch();
 
+    const { deleteAddressUser } = useDeleteAddressUser();
+
+
     // Handle form submission
     const handleSubmit = async (values) => {
         await createShopInfo(
@@ -107,6 +111,12 @@ const ShopInfoForm = ({ next, userId, getUserById, addresses }) => {
     const handleAddNewAddress = (newAddress) => {
         createAddressUser({ ...newAddress, user: { userId } });
         setIsModalVisible(false);
+    };
+
+    // Handle delete address
+    const handleDeleteAddress = (addressId, e) => {
+        e.stopPropagation(); // Prevent the dropdown from closing
+        deleteAddressUser(addressId);
     };
 
     const validatePhone = async (_, value) => {
@@ -262,7 +272,24 @@ const ShopInfoForm = ({ next, userId, getUserById, addresses }) => {
                     >
                         {addresses?.map(({ addressId, street, ward, district, city }) => (
                             <Option key={addressId} value={addressId}>
-                                {`${street}, ${ward}, ${district}, ${city}`}
+                                <div className="flex justify-between items-center">
+                                    <span>{`${street}, ${ward}, ${district}, ${city}`}</span>
+                                    <Popconfirm
+                                        title="Xóa địa chỉ này?"
+                                        description="Bạn chắc chắn muốn xóa địa chỉ này?"
+                                        onConfirm={(e) => handleDeleteAddress(addressId, e)}
+                                        okText="Xóa"
+                                        cancelText="Hủy"
+                                    >
+                                        <Button
+                                            type="text"
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            className="flex items-center justify-center"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </Popconfirm>
+                                </div>
                             </Option>
                         ))}
                     </Select>

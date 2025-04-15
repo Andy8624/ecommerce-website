@@ -44,6 +44,15 @@ public class CFDataController {
                 new InteractionDTO("U301", 106L, "VIEW", Instant.parse("2023-08-24T08:00:00Z"), Instant.parse("2023-08-24T08:00:00Z")),
                 new InteractionDTO("U301", 106L, "ADD_CART", Instant.parse("2023-08-24T08:05:00Z"), Instant.parse("2023-08-24T08:05:00Z")),
                 new InteractionDTO("U301", 106L, "REMOVE_CART", Instant.parse("2023-08-24T08:10:00Z"), Instant.parse("2023-08-24T08:10:00Z")),
+                new InteractionDTO("U301", 106L, "VIEW", Instant.parse("2023-08-24T08:00:00Z"), Instant.parse("2023-08-24T08:00:00Z")),
+                new InteractionDTO("U301", 106L, "VIEW", Instant.parse("2023-08-24T08:00:00Z"), Instant.parse("2023-08-24T08:00:00Z")),
+                new InteractionDTO("U301", 106L, "VIEW", Instant.parse("2023-08-24T08:00:00Z"), Instant.parse("2023-08-24T08:00:00Z")),
+                new InteractionDTO("U301", 106L, "VIEW", Instant.parse("2023-08-24T08:00:00Z"), Instant.parse("2023-08-24T08:00:00Z")),
+                new InteractionDTO("U789", 106L, "VIEW", Instant.parse("2023-08-17T10:15:00Z"), Instant.parse("2023-08-17T10:15:00Z")),
+                new InteractionDTO("U789", 106L, "VIEW", Instant.parse("2023-08-17T10:15:00Z"), Instant.parse("2023-08-17T10:15:00Z")),
+                new InteractionDTO("U789", 106L, "VIEW", Instant.parse("2023-08-17T10:15:00Z"), Instant.parse("2023-08-17T10:15:00Z")),
+                new InteractionDTO("U789", 106L, "VIEW", Instant.parse("2023-08-17T10:15:00Z"), Instant.parse("2023-08-17T10:15:00Z")),
+                new InteractionDTO("U789", 106L, "VIEW", Instant.parse("2023-08-17T10:15:00Z"), Instant.parse("2023-08-17T10:15:00Z")),
 
                 // Chuỗi tương tác với RATING và COMMENT
                 new InteractionDTO("U302", 107L, "VIEW", Instant.parse("2023-08-24T09:00:00Z"), Instant.parse("2023-08-24T09:00:00Z")),
@@ -77,11 +86,19 @@ public class CFDataController {
         // Danh sách các đánh giá (reviews)
         List<ReviewDTO> reviews = Arrays.asList(
                 // Dữ liệu cũ giữ nguyên...
-                new ReviewDTO("U456", 101L, 4, "Sản phẩm tốt, chất lượng ổn", Instant.parse("2023-08-16T14:25:00Z"), Instant.parse("2023-08-16T14:25:00Z")),
-                new ReviewDTO("U789", 103L, 5, "Rất hài lòng", Instant.parse("2023-08-17T09:30:00Z"), Instant.parse("2023-08-17T09:30:00Z")),
+                new ReviewDTO("U456", 101L, 1, "Như cức, đừng mua", Instant.parse("2023-08-16T14:25:00Z"), Instant.parse("2023-08-16T14:25:00Z")),
+                new ReviewDTO("U789", 103L, 1, "Sản phẩm tệ vãi không giống mô tả", Instant.parse("2023-08-17T09:30:00Z"), Instant.parse("2023-08-17T09:30:00Z")),
                 new ReviewDTO("U101", 105L, 3, "Chất lượng trung bình", Instant.parse("2023-08-18T12:10:00Z"), Instant.parse("2023-08-18T12:10:00Z")),
                 new ReviewDTO("U123", 102L, 4, "Cũng được, nhưng có thể tốt hơn", Instant.parse("2023-08-15T10:10:00Z"), Instant.parse("2023-08-15T10:10:00Z")),
-                new ReviewDTO("U456", 104L, 5, "Sản phẩm tuyệt vời", Instant.parse("2023-08-16T15:15:00Z"), Instant.parse("2023-08-16T15:15:00Z")),
+                new ReviewDTO("U456", 104L, 1, "Như cức", Instant.parse("2023-08-16T15:15:00Z"), Instant.parse("2023-08-16T15:15:00Z")),
+                new ReviewDTO("U789", 104L, 1, "Như cức", Instant.parse("2023-08-16T15:15:00Z"), Instant.parse("2023-08-16T15:15:00Z")),
+                new ReviewDTO("U101", 104L, 1, "Như cức", Instant.parse("2023-08-16T15:15:00Z"), Instant.parse("2023-08-16T15:15:00Z")),
+
+                new ReviewDTO("U101", 105L, 1, "Như cức", Instant.parse("2023-08-16T15:15:00Z"), Instant.parse("2023-08-16T15:15:00Z")),
+                new ReviewDTO("U789", 105L, 1, "Như cức", Instant.parse("2023-08-16T15:15:00Z"), Instant.parse("2023-08-16T15:15:00Z")),
+
+
+
                 new ReviewDTO("U789", 105L, 4, "Chất lượng tốt", Instant.parse("2023-08-17T10:45:00Z"), Instant.parse("2023-08-17T10:45:00Z")),
                 new ReviewDTO("U101", 102L, 2, "Không hài lòng với chất lượng", Instant.parse("2023-08-18T12:20:00Z"), Instant.parse("2023-08-18T12:20:00Z")),
                 new ReviewDTO("U123", 103L, 5, "Rất hài lòng", Instant.parse("2023-08-15T10:20:00Z"), Instant.parse("2023-08-15T10:20:00Z")),

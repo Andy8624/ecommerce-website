@@ -68,6 +68,8 @@ public class User extends BaseEntity {
     String billingEmail = null;
     String taxNumber = null;
 
+    Boolean online;
+
     @Column(unique = true)
     String shopName = null;
 

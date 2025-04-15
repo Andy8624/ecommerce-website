@@ -1,11 +1,13 @@
-import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Input, Radio, Select, Button } from 'antd';
+import { InfoCircleFilled, DeleteOutlined } from '@ant-design/icons';
+import { Form, Input, Radio, Select, Button, Popconfirm } from 'antd';
 import { useEffect, useState } from 'react';
 import ModalAddressForm from '../../checkout/Components/ModalAddressForm';
 import { useCreateAddressUser } from '../../checkout/hooks/addresses/useCreateAddressUser';
 import { toast } from 'react-toastify';
 import { useUpdateTaxAndIdentityInfo } from '../hooks/useTaxAndIdentityInfo';
 import { useUpdateUserRoleByUserId } from '../../auth/hooks/useUpdateUserRoleByUserId';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDeleteAddressUser } from '../../checkout/hooks/addresses/useDeleteAddressUser';
 
 const { Option } = Select;
 
@@ -17,7 +19,8 @@ const TaxAndIdentityInfo = ({ next, prev, addresses, userId, getUserById }) => {
 
     const { updateTaxAndIdentityInfo } = useUpdateTaxAndIdentityInfo();
     const { createAddressUser } = useCreateAddressUser();
-
+    const queryClient = useQueryClient();
+    const { deleteAddressUser, isDeleting } = useDeleteAddressUser();
 
     useEffect(() => {
         if (getUserById && addresses?.length > 0) {
@@ -57,6 +60,20 @@ const TaxAndIdentityInfo = ({ next, prev, addresses, userId, getUserById }) => {
         setIsModalVisible(false);
     };
 
+    const handleDeleteAddress = (addressId, e) => {
+        e.stopPropagation();
+        deleteAddressUser(addressId, {
+            onSuccess: () => {
+                queryClient.invalidateQueries(["addresses", userId]);
+                toast.success('Địa chỉ đã được xóa thành công!');
+            },
+            onError: (error) => {
+                console.error('Error deleting address:', error);
+                toast.error('Không thể xóa địa chỉ. Vui lòng thử lại!');
+            }
+        });
+    };
+
     const { updateUserRole } = useUpdateUserRoleByUserId();
     const handleSave = async () => {
         try {
@@ -86,8 +103,6 @@ const TaxAndIdentityInfo = ({ next, prev, addresses, userId, getUserById }) => {
             next();
         }
     };
-
-
 
     return (
         <Form
@@ -132,7 +147,25 @@ const TaxAndIdentityInfo = ({ next, prev, addresses, userId, getUserById }) => {
                 >
                     {addresses?.map((address) => (
                         <Option key={address.addressId} value={address.addressId}>
-                            {`${address.street}, ${address.ward}, ${address.district}, ${address.city}`}
+                            <div className="flex justify-between items-center">
+                                <span>{`${address.street}, ${address.ward}, ${address.district}, ${address.city}`}</span>
+                                <Popconfirm
+                                    title="Xóa địa chỉ này?"
+                                    description="Bạn chắc chắn muốn xóa địa chỉ này?"
+                                    onConfirm={(e) => handleDeleteAddress(address.addressId, e)}
+                                    okText="Xóa"
+                                    cancelText="Hủy"
+                                >
+                                    <Button
+                                        type="text"
+                                        danger
+                                        icon={<DeleteOutlined />}
+                                        className="flex items-center justify-center"
+                                        onClick={(e) => e.stopPropagation()}
+                                        disabled={disabled || isDeleting}
+                                    />
+                                </Popconfirm>
+                            </div>
                         </Option>
                     ))}
                 </Select>

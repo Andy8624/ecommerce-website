@@ -21,9 +21,7 @@ const CheckoutPage = () => {
     const checkoutProduct = location.state?.checkoutProduct;
 
     const {
-        cartItems, setCartItems,
-        selectedItems, setSelectedItems,
-        cartQuantity, setCartQuantity
+        selectedItems
     } = useCartContext();
 
     const [isBuyNow, setIsBuyNow] = useState(false);
@@ -48,6 +46,7 @@ const CheckoutPage = () => {
     // Lấy danh sách phương thức thanh toán
     const { paymentMethods: paymentMethodDB } = useGetAllPaymentMethod();
     const [paymentMethod, setPaymentMethod] = useState(paymentMethodDB);
+    console.log("paymentMethod", paymentMethod);
     useEffect(() => {
         setPaymentMethod(paymentMethodDB);
     }, [paymentMethodDB]);
@@ -227,7 +226,7 @@ const CheckoutPage = () => {
 
     return (
         <Layout className="min-h-screen bg-gradient-to-r from-indigo-100 to-purple-200 flex items-center justify-center">
-            <Content className="w-[90%] p-4 ">
+            <Content className="w-[80%] p-4 ">
                 <h2 className="text-center font-bold text-2xl mb-3 p-3 bg-white shadow-lg rounded-lg text-[var(--primary-color)]">
                     Thanh toán
                 </h2>

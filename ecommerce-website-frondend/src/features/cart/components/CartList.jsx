@@ -1,4 +1,4 @@
-import { List } from 'antd';
+import { List, Checkbox } from 'antd';
 import CartItem from './CartItem';
 import { Link } from 'react-router-dom';
 
@@ -8,6 +8,8 @@ const CartList = ({
     onRemove,
     onUpdateQuantity,
     onToggleSelect,
+    onToggleSelectAll,
+    onToggleSelectShop
 }) => {
     // Nhóm sản phẩm theo ownerUser.userId
     const groupedItems = cartItems.reduce((acc, item) => {
@@ -30,16 +32,27 @@ const CartList = ({
         return acc;
     }, {});
 
-
     // Chuyển thành mảng và sắp xếp nhóm theo latestCreatedAt (mới nhất lên đầu)
     const sortedGroups = Object.values(groupedItems)
         .map((group) => ({
             ...group,
             items: group.items.sort(
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt) // 🔥 Sắp xếp sản phẩm theo createdAt
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
             ),
         }))
-        .sort((a, b) => b.latestCreatedAt - a.latestCreatedAt); // 🔥 Sắp xếp nhóm theo sản phẩm mới nhất (createdAt)
+        .sort((a, b) => b.latestCreatedAt - a.latestCreatedAt);
+
+    // Check if all items are selected (with proper null check)
+    const areAllItemsSelected = cartItems.length > 0 && selectedItems && cartItems.every(item =>
+        selectedItems.includes(item.id)
+    );
+
+    // Check if all items of a specific shop are selected (with proper null check)
+    const isShopSelected = (shopItems) => {
+        return shopItems.length > 0 && selectedItems && shopItems.every(item =>
+            selectedItems.includes(item.id)
+        );
+    };
 
     if (sortedGroups.length === 0) {
         return (
@@ -55,16 +68,35 @@ const CartList = ({
 
     return (
         <div>
+            {/* Select All Checkbox at the top */}
+            <div className="p-4 rounded-lg shadow-md border border-gray-300 bg-white mb-4">
+                <Checkbox
+                    checked={areAllItemsSelected}
+                    onChange={() => onToggleSelectAll(!areAllItemsSelected)}
+                    className="font-semibold"
+                >
+                    Chọn Tất Cả ({cartItems.length} sản phẩm)
+                </Checkbox>
+            </div>
+
             {sortedGroups.map((group, index) => (
                 <div
                     key={group.user.userId}
-                    className={`p-4 rounded-lg shadow-md border border-gray-300 bg-white ${index > 0 ? 'mt-1' : ''
-                        }`}
+                    className={`p-4 rounded-lg shadow-md border border-gray-300 bg-white ${index > 0 ? 'mt-4' : ''}`}
                 >
-                    {/* Tiêu đề nhóm theo seller */}
-                    <h2 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-                        🛍️ {group.user.fullName}
-                    </h2>
+                    {/* Tiêu đề nhóm theo seller với checkbox chọn tất cả của shop */}
+                    <div className="flex items-center justify-between mb-4 border-b pb-2">
+                        <div className="flex items-center">
+                            <Checkbox
+                                checked={isShopSelected(group.items)}
+                                onChange={() => onToggleSelectShop(group.user.userId, !isShopSelected(group.items))}
+                                className="mr-2"
+                            />
+                            <h2 className="text-lg font-bold text-gray-800 m-0">
+                                🛍️ {group.user.shopName}
+                            </h2>
+                        </div>
+                    </div>
                     <List
                         dataSource={group.items}
                         renderItem={(item) => (
@@ -74,7 +106,8 @@ const CartList = ({
                                 onRemove={onRemove}
                                 onUpdateQuantity={onUpdateQuantity}
                                 onToggleSelect={onToggleSelect}
-                                selectedItems={selectedItems}
+                                // isSelected={selectedItems?.includes(item.id) || false}
+                                selectedItems={selectedItems || []}
                             />
                         )}
                         locale={{

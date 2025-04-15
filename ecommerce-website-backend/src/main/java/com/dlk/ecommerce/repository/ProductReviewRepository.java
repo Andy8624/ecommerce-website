@@ -11,5 +11,5 @@ public interface ProductReviewRepository extends
         JpaSpecificationExecutor<ProductReview> {
     List<ProductReview> findByTool_ToolId(Long toolId);
 
-    ProductReview findByTool_ToolIdAndUser_UserId(long tool_toolId, String user_userId);
+    List<ProductReview> findByTool_ToolIdAndUser_UserId(long tool_toolId, String user_userId);
 }

@@ -266,4 +266,12 @@ public class OrderService {
         orderRepository.save(order);
         return null;
     }
+
+    public void checkRated(String orderId) throws IdInvalidException {
+        Order orderDb = getOrderById(orderId);
+        if (!orderDb.getRated()) {
+            orderDb.setRated(true);
+        }
+        orderRepository.save(orderDb);
+    }
 }

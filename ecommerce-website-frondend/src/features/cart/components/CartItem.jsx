@@ -20,7 +20,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
         staleTime: 60 * 10 * 1000, // 10p
     })
 
-    const { isLoading: isGetStock, data: stock } = useQuery({
+    const { data: stock } = useQuery({
         queryKey: ['stock', item?.toolId],
         queryFn: () => callGetStockByToolId(item?.toolId),
         enabled: !!item?.toolId,

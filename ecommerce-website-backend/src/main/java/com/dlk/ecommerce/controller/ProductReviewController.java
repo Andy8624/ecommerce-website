@@ -5,6 +5,7 @@ import com.dlk.ecommerce.domain.request.product_review.ProductReviewRequest;
 import com.dlk.ecommerce.service.ProductReviewService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +28,14 @@ public class ProductReviewController {
     // Lay productreview tu buyerId va toolId
     @GetMapping("/{buyerId}/{toolId}")
     @ApiMessage("Get product review of buyer")
-    public ResponseEntity<ProductReview> getByBuyerIdAndToolId(@PathVariable String buyerId, @PathVariable Long toolId) {
-        return ResponseEntity.status(HttpStatus.OK).body(productReviewService.getByBuyerIdAndToolId(buyerId, toolId));
+    public ResponseEntity<List<ProductReview>> getByBuyerIdAndToolId(@PathVariable String buyerId,
+                                                                  @PathVariable Long toolId) {
+        return ResponseEntity.status(HttpStatus.OK).body(productReviewService.fetchProductReviewByBuyerAndTool(buyerId, toolId));
     }
 
-//    @GetMapping("/tools/{toolId}")
-//    @ApiMessage("Get all review of product")
-//    public ResponseEntity<List<ProductReviewResponse>> getAllProductReviewByProductId(@PathVariable Long toolId) {
-//        return ResponseEntity.status(HttpStatus.OK).body(productReviewService.getAllByProductId(toolId));
-//    }
+    @GetMapping("/tools/{toolId}")
+    @ApiMessage("Get all review of product")
+    public ResponseEntity<List<ProductReview>> getAllProductReviewByProductId(@PathVariable Long toolId) {
+        return ResponseEntity.status(HttpStatus.OK).body(productReviewService.getAllByProductId(toolId));
+    }
 }

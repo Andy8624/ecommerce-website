@@ -12,8 +12,16 @@ const CartComponent = () => {
     const {
         cartItems, setCartItems,
         cartQuantity, setCartQuantity,
-        selectedItems, setSelectedItems
+        selectedItems = [], setSelectedItems  // Provide default empty array
     } = useCartContext();
+
+    // Initialize selectedItems if it's undefined in the context
+    useEffect(() => {
+        if (!selectedItems) {
+            setSelectedItems([]);
+        }
+    }, [selectedItems, setSelectedItems]);
+
     const [updatedCartItems, setUpdatedCartItems] = useState(cartItems);
 
     const { updateCartItem } = useUpdateCartItem();
@@ -35,11 +43,43 @@ const CartComponent = () => {
         setCartQuantity(cartQuantity - 1);
     };
 
-
+    // Individual item selection
     const toggleSelectItem = (id) => {
         setSelectedItems(prev =>
-            prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
+            prev?.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
         );
+    };
+
+    // Toggle all items selection
+    const toggleSelectAll = (selectAll) => {
+        if (selectAll) {
+            // Select all items
+            setSelectedItems(updatedCartItems.map(item => item.id));
+        } else {
+            // Deselect all items
+            setSelectedItems([]);
+        }
+    };
+
+    // Toggle all items from a specific shop
+    const toggleSelectShop = (shopId, selectAll) => {
+        const shopItemIds = updatedCartItems
+            .filter(item => item.ownerUser.userId === shopId)
+            .map(item => item.id);
+
+        if (selectAll) {
+            // Add all shop items that aren't already selected
+            const newSelectedItems = [...selectedItems];
+            shopItemIds.forEach(id => {
+                if (!newSelectedItems?.includes(id)) {
+                    newSelectedItems.push(id);
+                }
+            });
+            setSelectedItems(newSelectedItems);
+        } else {
+            // Remove all shop items
+            setSelectedItems(selectedItems.filter(id => !shopItemIds?.includes(id)));
+        }
     };
 
     // Fetch giá chi tiết của từng sản phẩm trong giỏ hàng
@@ -72,7 +112,7 @@ const CartComponent = () => {
     }, [updatedCartItems, selectedItems]);
 
     const selectCartItemsDetail = useMemo(() => {
-        return updatedCartItems.filter(item => selectedItems.includes(item.id));
+        return updatedCartItems.filter(item => selectedItems?.includes(item.id));
     }, [updatedCartItems, selectedItems]);
 
     const handleCheckout = () => {
@@ -88,11 +128,12 @@ const CartComponent = () => {
                 <hr />
                 <CartList
                     cartItems={updatedCartItems}
-                    setCartItems={setCartItems}
                     selectedItems={selectedItems}
                     onRemove={removeItem}
                     onUpdateQuantity={updateQuantity}
                     onToggleSelect={toggleSelectItem}
+                    onToggleSelectAll={toggleSelectAll}
+                    onToggleSelectShop={toggleSelectShop}
                 />
                 {cartQuantity > 0 && (
                     <CartSummary

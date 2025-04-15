@@ -13,12 +13,13 @@ const { Content } = Layout;
 
 const ProductOverviewPage = () => {
     const location = useLocation();
-    const isSimilar = location?.state?.isSimilar;
+    // const isSimilar = location?.state?.isSimilar;
     const realTool = location?.state?.realTool;
 
     const { getToolById } = useGetToolByToolId(realTool?.toolId);
-    const tool = isSimilar ? getToolById : realTool;
-
+    // const tool = isSimilar ? getToolById : realTool;
+    const tool = getToolById;
+    console.log("tool", tool);
 
     // const shopData = {
     //     logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQS_T5NL66MkewmvfUvKiaauZ1TATYBTiYdg&s",
@@ -34,7 +35,7 @@ const ProductOverviewPage = () => {
 
     const productDetailsData = {
         category: tool?.toolType?.name,
-        stock: tool?.stockQuantity,
+        stock: tool     ?.stockQuantity,
         brand: tool?.brand,
         warranty: tool?.warranty,
         origin: tool?.origin,
