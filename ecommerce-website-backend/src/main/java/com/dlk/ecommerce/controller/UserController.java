@@ -130,4 +130,22 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getShippingMethod(@PathVariable String userId) throws IdInvalidException {
         return ResponseEntity.ok(userService.getShippingMethodService(userId));
     }
+
+    @GetMapping("/total-products/{userId}")
+    @ApiMessage("Get total products")
+    public ResponseEntity<Long> getTotalProducts(@PathVariable String userId) throws IdInvalidException {
+        return ResponseEntity.ok(userService.getTotalProducts(userId));
+    }
+
+    @GetMapping("/total-sold-products/{userId}")
+    @ApiMessage("Get total sold products")
+    public ResponseEntity<Long> getTotalSoldProducts(@PathVariable String userId) throws IdInvalidException {
+        return ResponseEntity.ok(userService.getTotalSoldProducts(userId));
+    }
+
+    @GetMapping("/total-rated-products/{userId}")
+    @ApiMessage("Get total rated products")
+    public ResponseEntity<Long> getTotalRatedProducts(@PathVariable String userId) throws IdInvalidException {
+        return ResponseEntity.ok(userService.getTotalRatedProducts(userId));
+    }
 }

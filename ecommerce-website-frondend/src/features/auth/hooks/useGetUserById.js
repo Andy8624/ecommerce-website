@@ -4,7 +4,7 @@ import { callGetUserByUserId } from "../../../services/UserService";
 
 export function useGetUserById(userId) {
     const { isLoading, data: getUserById, error } = useQuery({
-        queryKey: ["users"],
+        queryKey: ["users", userId],
         queryFn: () => callGetUserByUserId(userId),
         enabled: !!userId,
     });

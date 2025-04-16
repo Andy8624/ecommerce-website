@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -235,5 +236,35 @@ public class UserService {
     public Map<String, Object> getShippingMethodService(String userId) throws IdInvalidException {
         User user = fetchUserById(userId);
         return user.getShippingMethodAsMap();
+    }
+
+    public List<User> findConnectedUsers() {
+        return userRepository.findAllByOnlineTrue();
+    }
+
+    public void disconnectUser(String userId) {
+        User dbUser = userRepository.findByUserId(userId).orElse(null);
+        if (dbUser != null) {
+            dbUser.setOnline(false);
+            userRepository.save(dbUser);
+        }
+    }
+
+    public Long getTotalProducts(String userId) throws IdInvalidException {
+        User dbUser = fetchUserById(userId);
+        if (dbUser != null) {
+            return userRepository.countToolsByUserId(userId);
+        }
+        return 0L;
+    }
+
+    public Long getTotalSoldProducts(String userId) {
+        Long soldCount = userRepository.countSoldProductsByUserId(userId);
+        return soldCount != null ? soldCount : 0L;
+    }
+
+    public Long getTotalRatedProducts(String userId) {
+        Long ratingCount = userRepository.countProductReviewsByShopId(userId);
+        return ratingCount != null ? ratingCount : 0L;
     }
 }

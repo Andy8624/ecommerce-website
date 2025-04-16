@@ -53,3 +53,21 @@ export const callUpdateTaxAndIdentityInfo = async (data, userId) => {
     // console.log("res ", res?.data);
     return res?.data;
 }
+
+export const callCountToolByUserId = async (userId) => {
+    const path = `/api/v1/users/total-products/${userId}`;
+    const res = await axios.get(path);
+    return res?.data;
+}
+
+export const callCountSoldToolByUserId = async (userId) => {
+    const path = `/api/v1/users/total-sold-products/${userId}`;
+    const res = await axios.get(path);
+    return res?.data;
+}
+
+export const callGetTotalRatedOfProductByShopId = async (userId) => {
+    const path = `/api/v1/users/total-rated-products/${userId}`;
+    const res = await axios.get(path);
+    return res?.data;
+}

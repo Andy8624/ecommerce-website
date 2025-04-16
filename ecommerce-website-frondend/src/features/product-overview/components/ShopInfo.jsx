@@ -1,8 +1,50 @@
-import { Button, Row, Col, Typography } from "antd";
+import { Button, Row, Col, Typography, message } from "antd";
+import { useChat } from "../../../contexts/ChatContext";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 
 const ShopInfo = ({ shop }) => {
+    const { loadMessages, setActiveContact } = useChat();
+    const currentUser = useSelector(state => state.account?.user);
+    const navigate = useNavigate();
+
+    // Hàm xử lý khi click vào nút Chat Ngay
+    const handleChatNow = () => {
+        // Kiểm tra nếu người dùng chưa đăng nhập
+        if (!currentUser) {
+            message.warning("Vui lòng đăng nhập để sử dụng tính năng chat");
+            navigate("/auth/login");
+            return;
+        }
+
+        // Đảm bảo có thông tin shop
+        if (!shop || !shop.userId) {
+            message.error("Không thể kết nối với shop này");
+            return;
+        }
+
+        // Tạo hoặc lấy thông tin liên hệ với shop
+        const shopContact = {
+            id: shop.userId,
+            fullName: shop.name,
+            imageUrl: shop.logo,
+            userId: shop.userId,
+            // Thêm các thông tin cần thiết khác
+        };
+
+        // Mở chat với shop này
+        setActiveContact(shopContact);
+
+        // Nếu bạn muốn mở drawer chat từ ChatButton
+        const chatEvent = new CustomEvent('openChatDrawer', { detail: shopContact });
+        window.dispatchEvent(chatEvent);
+
+        // Hoặc chuyển hướng đến trang chat (tuỳ cách thiết kế hệ thống)
+        // navigate("/chat", { state: { contact: shopContact } });
+    };
+
     return (
         <Row
             gutter={[16, 16]}
@@ -56,6 +98,7 @@ const ShopInfo = ({ shop }) => {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                     <Button
                         type="primary"
+                        onClick={handleChatNow}
                         style={{
                             backgroundColor: "#FF6F61",
                             borderColor: "#FF6F61",
@@ -72,6 +115,7 @@ const ShopInfo = ({ shop }) => {
                             borderRadius: "6px",
                             width: "100px",
                         }}
+                        onClick={() => { message.info("Chức năng đang phát triển") }}
                     >
                         Xem Shop
                     </Button>
@@ -104,7 +148,7 @@ const ShopInfo = ({ shop }) => {
                         <Text strong>Sản Phẩm:</Text> <Text>{shop.products}</Text>
                     </Col>
                     <Col span={8}>
-                        <Text strong>Người Theo Dõi:</Text> <Text>{shop.followers}</Text>
+                        <Text strong>Sản phẩm đã bán:</Text> <Text>{shop.soldProducts}</Text>
                     </Col>
                     <Col span={8}>
                         <Text strong>Thời Gian Phản Hồi:</Text> <Text>{shop.responseTime}</Text>
