@@ -13,6 +13,6 @@ public class KafkaController {
     @GetMapping("/send")
     public String sendMessage(@RequestParam String message) {
         kafkaProducerService.sendMessage(message);
-        return "Message sent: " + message;
+        return "ChatMessage sent: " + message;
     }
 }

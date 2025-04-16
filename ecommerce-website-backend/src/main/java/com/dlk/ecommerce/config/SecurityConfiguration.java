@@ -43,7 +43,7 @@ public class SecurityConfiguration {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/v1/recommendation/**",
-            "/ws/**",
+            "/api/v1/ws/**",
             "/api/v1/messages/**",
             "/api/v1/image-tools/**",
             "/api/v1/ghn/**",
@@ -51,7 +51,8 @@ public class SecurityConfiguration {
             "/api/v1/ordertools/total-sold/**",
             "/api/v1/categories/**",
             "/api/v1/variant-detail/**",
-            "/api/v1/product-reviews/**"
+            "/api/v1/product-reviews/**",
+            "/api/v1/messages/**"
     };
 
     @Bean
