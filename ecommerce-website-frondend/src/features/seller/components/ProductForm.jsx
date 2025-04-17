@@ -1,6 +1,7 @@
 import { Steps, Form, Button, Divider } from "antd";
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom"; // Import useNavigate để thực hiện chuyển hướng
+import { toast } from "react-toastify";
 
 const { Step } = Steps;
 
@@ -11,7 +12,6 @@ import DeliveryInfo from "./DeliveryInfo";
 import { useCreateTool } from "../hooks/useCreateTool";
 import { deleteFile, uploadFile, uploadMultipleFiles } from "../../../services/FileService";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { callHardDeleteProduct } from "../../../services/ToolService";
 
 
@@ -32,6 +32,9 @@ const ProductForm = () => {
 
     const [prices, setPrices] = useState([]);
     const [stocks, setStocks] = useState([]);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate(); // Khai báo hook để sử dụng chuyển hướng
 
     const { createNewTool } = useCreateTool();
 
@@ -83,8 +86,9 @@ const ProductForm = () => {
     });
 
     const handleSubmit = async (values) => {
+        setIsLoading(true); // Bắt đầu loading
         const finalData = { ...formData, ...values };
-        console.log("Submitted Data without images:", finalData);
+        // console.log("Submitted Data without images:", finalData);
 
         // Tạo object lồng cho các thuộc tính động (từ DetailedInfo)
         const dynamicAttributes = {};
@@ -196,29 +200,44 @@ const ProductForm = () => {
                     categoryDetail: dataToSend.product.salesInfo.variants,
                 },
             }
-            console.log(productData)
+            // console.log(productData)
 
             const res = await createNewTool(productData);
             if (res == null) {
                 toast.error("Có lỗi xảy ra khi tạo sản phẩm");
                 // xóa ảnh bìa (trong thư mục) khi tạo sp k thành công
                 deleteFile(uploadedFileName, "tools");
+                return; // Dừng xử lý ở đây nếu có lỗi
             } else {
                 const toolId = res?.toolId;
                 // Từ Id của record Product vừa tạo -> tạo các ảnh sản phẩm vào table ImageTool
                 const response = await uploadMultipleFiles(dataToSend.images, "tools", toolId, true);
-                console.log("response", response)
+                // console.log("response", response)
                 if (response == null) {
                     toast.error("Có lỗi xảy ra khi tạo ảnh sản phẩm");
                     // xóa cứng sp (trong db) khi tạo ảnh k thành công
                     callHardDeleteProduct(toolId);
+                    return; // Dừng xử lý ở đây nếu có lỗi
                 } else {
                     toast.success("Tạo ảnh sản phẩm thành công");
                 }
             }
             localStorage.removeItem("attributes");
+            // Reset form nếu cần
+            form.resetFields();
+            setProductImages([]);
+            setCoverImage([]);
+            setCategories([]);
+            setAttributes([]);
+            setPrices([]);
+            setStocks([]);
+            // Chuyển hướng về trang trước đó hoặc trang danh sách sản phẩm
+            navigate(-1);
         } catch (error) {
             console.error('Có lỗi xảy ra khi lưu dữ liệu:', error);
+            toast.error("Có lỗi xảy ra: " + (error.message || "Không thể thêm sản phẩm"));
+        } finally {
+            setIsLoading(false); // Kết thúc loading trong mọi trường hợp
         }
     };
 
@@ -262,18 +281,39 @@ const ProductForm = () => {
 
                 <div className="step-actions mt-4">
                     {currentStep > 0 && (
-                        <Button onClick={handlePrevious} className="mr-4">
+                        <Button
+                            onClick={handlePrevious}
+                            className="mr-4"
+                            disabled={isLoading} // Vô hiệu hóa khi đang loading
+                        >
                             Quay lại
                         </Button>
                     )}
                     {currentStep < 3 && (
-                        <Button type="primary" onClick={handleNext}>
+                        <Button
+                            type="primary"
+                            onClick={handleNext}
+                            disabled={isLoading} // Vô hiệu hóa khi đang loading
+                        >
                             Tiếp theo
                         </Button>
                     )}
                     {currentStep === 3 && (
-                        <Button type="primary" htmlType="submit">
-                            Submit
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={isLoading}
+                        >
+                            Hoàn tất
+                        </Button>
+                    )}
+                    {currentStep === 3 && (
+                        <Button
+                            onClick={() => navigate(-1)}
+                            className="ml-2"
+                            disabled={isLoading}
+                        >
+                            Hủy
                         </Button>
                     )}
                 </div>

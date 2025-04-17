@@ -14,7 +14,7 @@ const DescriptionProduct = ({ description }) => {
             </h4>
 
             {/* Mô tả sản phẩm */}
-            <div style={{
+            <div className="whitespace-pre-wrap" style={{
                 fontSize: "1rem", padding: "0.9rem",
                 lineHeight: "1.8", color: "#555"
             }}>

@@ -255,9 +255,9 @@ const ChatButton = () => {
         <>
             {/* Nút chat trên header */}
             <Badge count={totalUnread} offset={[0, 4]}>
-                <div className="flex items-center justify-center w-10 h-10 bg-cyan-50 rounded-full transition-transform duration-300 hover:scale-105">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full hover:scale-105">
                     <MessageOutlined
-                        className="text-black text-xl cursor-pointer hover:scale-110"
+                        className="text-black text-xl cursor-pointer hover:scale-105"
                         onClick={handleOpenChatDrawer}
                     />
                 </div>

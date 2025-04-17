@@ -62,22 +62,42 @@ class WebSocketService {
         }
     }
 
-    // Kết nối WebSocket
+    // Thay đổi phương thức connect
     connect(currentUser) {
         if (!currentUser?.id || this.connected) return;
 
         this.currentUser = currentUser;
 
-        const socket = new SockJS("http://localhost:8080/ws");
-        const client = over(socket);
+        // Sử dụng URL tương đối hoặc dựa vào biến môi trường
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsHost = window.location.hostname;
+        const wsPort = "8080";
+        const wsPath = "/ws";
 
-        // Tắt debug log
-        client.debug = null;
+        const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}${wsPath}`;
+        console.log("Connecting to WebSocket at:", wsUrl);
 
-        // Lưu client vào biến instance để có thể truy cập trong _onConnect
-        this.stompClient = client;  // Thêm dòng này để lưu client vào this.stompClient ngay tại đây
+        try {
+            // Sử dụng đường dẫn tương đối
+            const socket = new SockJS("/ws");
 
-        client.connect({}, this._onConnect.bind(this), this._onError.bind(this));
+            // Hoặc sử dụng đường dẫn tương đối với baseURL
+            // const baseURL = window.location.protocol + '//' + window.location.host;
+            // const socket = new SockJS(`${baseURL}/ws`);
+
+            const client = over(socket);
+
+            // Tắt debug log
+            client.debug = null;
+
+            // Lưu client vào biến instance để có thể truy cập trong _onConnect
+            this.stompClient = client;
+
+            client.connect({}, this._onConnect.bind(this), this._onError.bind(this));
+        } catch (error) {
+            console.error("WebSocket connection error:", error);
+            this.errorHandlers.forEach(handler => handler(error));
+        }
 
         return () => this.disconnect();
     }

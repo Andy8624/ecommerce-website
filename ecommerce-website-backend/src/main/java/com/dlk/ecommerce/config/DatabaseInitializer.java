@@ -303,13 +303,82 @@ public class DatabaseInitializer implements CommandLineRunner {
         if (countToolTypes == 0) {
             // Khởi tạo ToolType
             List<ToolType> toolTypes = new ArrayList<>();
-            ToolType type1 = ToolType.builder().name("Bút cánh diều").build();
-            ToolType type2 = ToolType.builder().name("Giấy").build();
-            ToolType type3 = ToolType.builder().name("Mực").build();
+
+            // Bút
+            ToolType type1 = ToolType.builder().name("Bút bi").build();
+            ToolType type2 = ToolType.builder().name("Bút chì").build();
+            ToolType type3 = ToolType.builder().name("Bút máy").build();
+            ToolType type4 = ToolType.builder().name("Bút dạ quang").build();
+            ToolType type5 = ToolType.builder().name("Bút xóa").build();
+            ToolType type30 = ToolType.builder().name("Bút màu").build();
 
             toolTypes.add(type1);
             toolTypes.add(type2);
             toolTypes.add(type3);
+            toolTypes.add(type4);
+            toolTypes.add(type5);
+            toolTypes.add(type30);
+
+            // Giấy
+            ToolType type6 = ToolType.builder().name("Giấy in").build();
+            ToolType type7 = ToolType.builder().name("Giấy note").build();
+            ToolType type8 = ToolType.builder().name("Giấy nhớ").build();
+            ToolType type9 = ToolType.builder().name("Phong bì").build();
+            ToolType type10 = ToolType.builder().name("Giấy decal").build();
+
+            toolTypes.add(type6);
+            toolTypes.add(type7);
+            toolTypes.add(type8);
+            toolTypes.add(type9);
+            toolTypes.add(type10);
+
+            // Dụng cụ học tập/văn phòng
+            ToolType type11 = ToolType.builder().name("Thước kẻ").build();
+            ToolType type12 = ToolType.builder().name("Compa").build();
+            ToolType type13 = ToolType.builder().name("Kéo").build();
+            ToolType type14 = ToolType.builder().name("Dao rọc giấy").build();
+            ToolType type15 = ToolType.builder().name("Bấm kim").build();
+            ToolType type16 = ToolType.builder().name("Ghim bấm").build();
+            ToolType type17 = ToolType.builder().name("Kẹp giấy").build();
+            ToolType type18 = ToolType.builder().name("Băng dính").build();
+            ToolType type19 = ToolType.builder().name("Keo dán").build();
+            ToolType type20 = ToolType.builder().name("Máy tính").build();
+
+            toolTypes.add(type11);
+            toolTypes.add(type12);
+            toolTypes.add(type13);
+            toolTypes.add(type14);
+            toolTypes.add(type15);
+            toolTypes.add(type16);
+            toolTypes.add(type17);
+            toolTypes.add(type18);
+            toolTypes.add(type19);
+            toolTypes.add(type20);
+
+            // File/Bìa đựng
+            ToolType type21 = ToolType.builder().name("File hồ sơ").build();
+            ToolType type22 = ToolType.builder().name("Bìa còng").build();
+            ToolType type23 = ToolType.builder().name("Bìa lá").build();
+            ToolType type24 = ToolType.builder().name("Túi đựng tài liệu").build();
+
+            toolTypes.add(type21);
+            toolTypes.add(type22);
+            toolTypes.add(type23);
+            toolTypes.add(type24);
+
+            // Các loại khác
+            ToolType type25 = ToolType.builder().name("Sổ tay").build();
+            ToolType type26 = ToolType.builder().name("Lịch để bàn").build();
+            ToolType type27 = ToolType.builder().name("Bảng trắng").build();
+            ToolType type28 = ToolType.builder().name("Phấn").build();
+            ToolType type29 = ToolType.builder().name("Khác").build();
+
+            toolTypes.add(type25);
+            toolTypes.add(type26);
+            toolTypes.add(type27);
+            toolTypes.add(type28);
+            toolTypes.add(type29);
+
             toolTypeRepository.saveAll(toolTypes);
         }
 

@@ -7,12 +7,12 @@ const UserOptions = ({ navigate, cartQuantity, menu, image_url, AVT_URL }) => {
     return (
         <div className='flex items-center space-x-5'>
             {/* Nút chat */}
-            <Button
+            <button
                 type="text"
-                className="relative flex items-center justify-center p-0"
+                className="relative flex items-center justify-center p-0 bg-cyan-50 rounded-full"
             >
                 <ChatButton />
-            </Button>
+            </button>
 
             {/* Giỏ hàng */}
             <Button
@@ -23,10 +23,10 @@ const UserOptions = ({ navigate, cartQuantity, menu, image_url, AVT_URL }) => {
                 <Badge
                     count={cartQuantity}
                     offset={[0, 4]}
-                    className="text-white text-xs font-bold rounded-full hover:scale-105"
+                    className="text-white text-xs font-bold rounded-full"
                 >
-                    <div className="flex items-center justify-center w-10 h-10 bg-cyan-50 rounded-full transition-transform duration-300 hover:scale-105">
-                        <ShoppingCartOutlined className="text-black text-xl" />
+                    <div className="flex items-center justify-center w-10 h-10 bg-cyan-50 rounded-full ">
+                        <ShoppingCartOutlined className="text-black text-xl hover:scale-125" />
                     </div>
                 </Badge>
             </Button>

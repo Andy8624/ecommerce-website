@@ -1,6 +1,6 @@
 import { Avatar, Badge, Dropdown } from 'antd';
 import { Header } from 'antd/es/layout/layout';
-import { BellOutlined, MessageOutlined, UserOutlined } from "@ant-design/icons";
+import { BellOutlined, UserOutlined } from "@ant-design/icons";
 import { AVT_URL } from "../../utils/Config";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +8,7 @@ import { useGetUserById } from '../../hooks/useGetUserById';
 import { toast } from 'react-toastify';
 import { setLogoutUser } from '../../redux/slices/accountSlice';
 import { callLogout } from '../../services/AuthService';
+import ChatButton from '../../features/chat/components/ChatButton';
 
 const TopHeaderSeller = ({ currentNamePage }) => {
     const userId = useSelector(state => state.account?.user?.id);
@@ -49,17 +50,14 @@ const TopHeaderSeller = ({ currentNamePage }) => {
             <div className="flex items-center gap-4">
                 {/* Badge thông báo */}
                 <Badge count={1} offset={[-5, 5]} className="text-xs font-medium">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full transition-transform duration-300 hover:scale-105">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full hover:scale-105">
                         <BellOutlined className="text-2xl text-gray-600 cursor-pointer" />
                     </div>
                 </Badge>
 
-                {/* Badge tin nhắn */}
-                <Badge count={1} offset={[-5, 5]} className="text-xs font-medium">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full transition-transform duration-300 hover:scale-105">
-                        <MessageOutlined className="text-2xl text-gray-600 cursor-pointer" />
-                    </div>
-                </Badge>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full hover:scale-105">
+                    <ChatButton />
+                </div>
 
                 {/* Khung chứa Avatar & Email với Dropdown */}
                 <Dropdown menu={menu} trigger={['click']} placement="bottomRight">

@@ -221,37 +221,6 @@ const ShopInfoForm = ({ next, userId, getUserById, addresses }) => {
 
             <div className="flex items-center gap-2 mb-3">
                 <Form.Item
-                    label="Tên Shop"
-                    name="shopName"
-                    rules={[{ validator: validateShopName }]}
-                    required
-                    className="flex-1 m-0"
-                >
-                    <Input
-                        placeholder="Nhập tên Shop"
-                        maxLength={30}
-                        disabled={disabledShopName}
-                    />
-                </Form.Item>
-                {disabledShopName && (
-                    <Button
-                        type="text"
-                        icon={<EditOutlined />}
-                        className="flex items-center justify-center mt-8"
-                        onClick={updateShopName}
-                    />
-                )}
-                {isUpdateShopName && (
-                    <Button loading="" className="flex items-center justify-center mt-8"
-                        onClick={handleUpdateShopName}
-                    >
-                        Lưu
-                    </Button>
-                )}
-            </div>
-
-            <div className="flex items-center gap-2 mb-3">
-                <Form.Item
                     label="Địa chỉ Shop"
                     name="shopAddressId"
                     rules={[{ required: true, message: 'Vui lòng chọn địa chỉ cửa hàng!' }]}
@@ -305,6 +274,38 @@ const ShopInfoForm = ({ next, userId, getUserById, addresses }) => {
                 {isUpdateAddress && (
                     <Button loading="" className="flex items-center justify-center mt-8"
                         onClick={handleUpdateAddress}
+                    >
+                        Lưu
+                    </Button>
+                )}
+            </div>
+
+
+            <div className="flex items-center gap-2 mb-3">
+                <Form.Item
+                    label="Tên Shop"
+                    name="shopName"
+                    rules={[{ validator: validateShopName }]}
+                    required
+                    className="flex-1 m-0"
+                >
+                    <Input
+                        placeholder="Nhập tên Shop"
+                        maxLength={30}
+                        disabled={disabledShopName}
+                    />
+                </Form.Item>
+                {disabledShopName && (
+                    <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        className="flex items-center justify-center mt-8"
+                        onClick={updateShopName}
+                    />
+                )}
+                {isUpdateShopName && (
+                    <Button loading="" className="flex items-center justify-center mt-8"
+                        onClick={handleUpdateShopName}
                     >
                         Lưu
                     </Button>

@@ -54,16 +54,39 @@ export const login = async (email, password) => {
 }
 
 export const register = async (email, password, fullName) => {
-    const ip = await getUserIP();
-    const userAgent = getUserAgent();
-    const device_id = await getDeviceId();
+    try {
+        // Tạo đối tượng dữ liệu đăng ký phù hợp với controller backend
+        const data = {
+            fullName,
+            email,
+            password,
+            // Thêm các thông tin bổ sung
+            imageUrl: null, // Mặc định không có ảnh đại diện
+        };
 
-    // Lưu vào cookies với thời gian hết hạn 1 năm
-    Cookies.set("device_id", device_id, { expires: 365, path: "/", secure: true });
+        // Gọi API đăng ký
+        const response = await axios.post(`/api/v1/auth/register`, data);
 
-    const data = { email, password, fullName, ip, userAgent, deviceId: device_id };
-    return axios.post(`/api/v1/auth/register`, data);
-}
+        // Trả về kết quả với cấu trúc thống nhất
+        return {
+            success: true,
+            data: response.data,
+            message: "Đăng ký tài khoản thành công"
+        };
+    } catch (error) {
+        console.error("Registration error:", error);
+
+        // Xử lý lỗi và trả về thông báo lỗi phù hợp
+        const errorMessage = error.response?.data?.message ||
+            "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại sau.";
+
+        return {
+            success: false,
+            message: errorMessage,
+            error: error.response?.data || error.message
+        };
+    }
+};
 
 export const resetPassword = async (email) => {
     const ip = await getUserIP();

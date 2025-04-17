@@ -3,12 +3,34 @@ import {
     UserOutlined,
     MailOutlined,
     LockOutlined,
-    FacebookFilled,
-    GoogleOutlined,
-    LinkedinFilled
+    InfoCircleOutlined
 } from '@ant-design/icons';
 
 const RegisterForm = ({ onFinish, isSubmitting }) => {
+    // Hàm kiểm tra mật khẩu mạnh
+    const validatePassword = (_, value) => {
+        if (!value) {
+            return Promise.reject(new Error('Vui lòng nhập mật khẩu!'));
+        }
+
+        if (value.length < 6) {
+            return Promise.reject(new Error('Mật khẩu phải có ít nhất 6 ký tự!'));
+        }
+
+        // Kiểm tra mật khẩu có ít nhất 1 chữ hoa, 1 chữ thường và 1 số
+        const hasUpperCase = /[A-Z]/.test(value);
+        const hasLowerCase = /[a-z]/.test(value);
+        const hasNumbers = /\d/.test(value);
+
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+            return Promise.reject(
+                new Error('Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số!')
+            );
+        }
+
+        return Promise.resolve();
+    };
+
     return (
         <Form
             name="register"
@@ -21,6 +43,7 @@ const RegisterForm = ({ onFinish, isSubmitting }) => {
                 name="fullName"
                 className="w-full mb-2"
                 rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+                tooltip="Tên của bạn sẽ hiển thị trong tài khoản"
             >
                 <Input
                     prefix={<UserOutlined className="site-form-item-icon mr-2" />}
@@ -36,6 +59,7 @@ const RegisterForm = ({ onFinish, isSubmitting }) => {
                     { required: true, message: 'Vui lòng nhập email!' },
                     { type: 'email', message: 'Email không hợp lệ!' }
                 ]}
+                tooltip="Email này sẽ được sử dụng để đăng nhập và nhận thông báo"
             >
                 <Input
                     prefix={<MailOutlined className="site-form-item-icon mr-2" />}
@@ -47,10 +71,11 @@ const RegisterForm = ({ onFinish, isSubmitting }) => {
             <Form.Item
                 name="password"
                 className="w-full mb-2"
-                rules={[
-                    { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                    { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
-                ]}
+                rules={[{ validator: validatePassword }]}
+                tooltip={{
+                    title: 'Mật khẩu phải có ít nhất 6 ký tự, 1 chữ hoa, 1 chữ thường và 1 số',
+                    icon: <InfoCircleOutlined />
+                }}
             >
                 <Input.Password
                     prefix={<LockOutlined className="site-form-item-icon mr-2" />}

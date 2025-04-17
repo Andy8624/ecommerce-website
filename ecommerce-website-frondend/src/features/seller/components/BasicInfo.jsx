@@ -1,7 +1,8 @@
-import { Form, Input, Select, Upload, Image } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { Form, Input, Select, Upload, Image, Spin } from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { useState, useEffect } from "react";
 import { useGetAllToolType } from "../hooks/useGetAllToolType";
+import debounce from 'lodash/debounce';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -14,6 +15,8 @@ const getBase64 = (file) =>
 const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages, validCoverImage, validProductImage }) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
+    const [searchValue, setSearchValue] = useState("");
+    const [filteredToolTypes, setFilteredToolTypes] = useState([]);
 
     const handlePreview = async (file) => {
         if (!file.url && !file.preview) {
@@ -26,7 +29,33 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
     const handleProductImageChange = ({ fileList }) => setProductImages(fileList);
     const handleCoverImageChange = ({ fileList }) => setCoverImage(fileList.slice(-1)); // Chỉ giữ lại 1 ảnh bìa
 
-    const { toolTypes, isLoadingToolTypes } = useGetAllToolType()
+    const { toolTypes, isLoadingToolTypes } = useGetAllToolType();
+
+    // Cập nhật danh sách đã lọc mỗi khi dữ liệu hoặc tìm kiếm thay đổi
+    useEffect(() => {
+        if (toolTypes) {
+            if (!searchValue.trim()) {
+                setFilteredToolTypes(toolTypes);
+            } else {
+                const lowercasedSearch = searchValue.toLowerCase();
+                const filtered = toolTypes.filter(item =>
+                    item.name.toLowerCase().includes(lowercasedSearch)
+                );
+                setFilteredToolTypes(filtered);
+            }
+        }
+    }, [toolTypes, searchValue]);
+
+    // Debounce hàm tìm kiếm để tránh gọi quá nhiều lần
+    const handleSearch = debounce((value) => {
+        setSearchValue(value);
+    }, 300);
+
+    // Filter option trong Select để tìm kiếm tên sản phẩm
+    const filterOption = (input, option) => {
+        return (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+    };
+
     return (
         <div>
             <h2 className="text-xl font-semibold mb-3">Thông tin cơ bản</h2>
@@ -35,16 +64,23 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
             </Form.Item>
 
             <Form.Item
-                label="Loại sản phẩm" name="toolTypeId"
+                label="Loại sản phẩm"
+                name="toolTypeId"
                 rules={[{ required: true, message: "Vui lòng chọn loại sản phẩm" }]}
             >
                 <Select
-                    placeholder="Chọn loại sản phẩm"
-                    options={toolTypes?.map(item => ({
+                    placeholder="Tìm kiếm hoặc chọn loại sản phẩm"
+                    options={filteredToolTypes?.map(item => ({
                         label: item.name,
                         value: item.toolTypeId
                     }))}
                     loading={isLoadingToolTypes}
+                    showSearch
+                    filterOption={filterOption}
+                    onSearch={handleSearch}
+                    notFoundContent={isLoadingToolTypes ? <Spin size="small" /> : "Không tìm thấy loại sản phẩm"}
+                    suffixIcon={<SearchOutlined />}
+                    className="w-full"
                 />
             </Form.Item>
 
@@ -70,7 +106,8 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
             <div className="text-error">{validProductImage || "Bạn cần thêm ít nhất một ảnh sản phẩm"}</div>
 
             <Form.Item
-                label={`Ảnh bìa (${coverImage.length}/1)`} required
+                label={`Ảnh bìa (${coverImage.length}/1)`}
+                required
             >
                 <Upload
                     listType="picture-card"
@@ -97,7 +134,7 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
                     />
                 )
             }
-        </div >
+        </div>
     );
 };
 

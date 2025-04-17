@@ -98,6 +98,7 @@ const AuthPage = () => {
 
             if (emailCheck?.data) {
                 toast.error('Email đã tồn tại, vui lòng sử dụng email khác!');
+                setIsSubmitting(false);
                 return;
             }
 
