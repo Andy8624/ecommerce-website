@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories("com.dlk.ecommerce.repository")
 @EntityScan("com.dlk.ecommerce.domain")
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
-//@SpringBootApplication
+// @SpringBootApplication
 public class EcommerceApplication {
 
 	public static void main(String[] args) {

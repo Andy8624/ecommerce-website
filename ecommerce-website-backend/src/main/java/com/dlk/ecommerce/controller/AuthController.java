@@ -22,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
@@ -63,9 +65,9 @@ public class AuthController {
     @GetMapping("/refresh")
     @ApiMessage("Refresh token")
     public ResponseEntity<ResLoginDTO> refreshToken(
-            @CookieValue(name = "refresh_token", defaultValue = "khangdeptrai") String refresh_token
-    ) throws IdInvalidException {
-//        log.info("refresh_token: " + refresh_token);
+            @CookieValue(name = "refresh_token", defaultValue = "khangdeptrai") String refresh_token)
+            throws IdInvalidException {
+        // log.info("refresh_token: " + refresh_token);
         ResAuthDTO resAuthDTO = authService.generateNewTokens(refresh_token);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resAuthDTO.getResponseCookie().toString())
@@ -82,5 +84,21 @@ public class AuthController {
     @ApiMessage("Get login history")
     public ResponseEntity<?> getLoginHistory(@PathVariable String userId, @PathVariable int limit) {
         return ResponseEntity.ok(authRedisService.getRecentLogins(userId, limit));
+    }
+
+    @PostMapping("/reset-password")
+    @ApiMessage("Reset password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            if (email == null) {
+                return ResponseEntity.badRequest().body("Email is required");
+            }
+            authService.resetPassword(email);
+            return ResponseEntity.ok("Reset password email sent");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error sending reset password email: " + e.getMessage());
+        }
     }
 }

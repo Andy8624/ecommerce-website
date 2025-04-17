@@ -33,6 +33,7 @@ public class SecurityConfiguration {
             "/api/v1/auth/login",
             "/api/v1/auth/account",
             "/api/v1/auth/refresh",
+            "/api/v1/auth/reset-password",
             "/api/v1/auth/check-email/**",
             "/api/v1/tools/**",
             "/api/v1/carts/**",
@@ -52,7 +53,8 @@ public class SecurityConfiguration {
             "/api/v1/categories/**",
             "/api/v1/variant-detail/**",
             "/api/v1/product-reviews/**",
-            "/api/v1/messages/**"
+            "/api/v1/messages/**",
+            "/api/v1/kafka/**",
     };
 
     @Bean

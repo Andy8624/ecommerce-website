@@ -3,6 +3,7 @@ package com.dlk.ecommerce.service;
 import com.dlk.ecommerce.domain.entity.Permission;
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.request.auth.ReqLoginDTO;
+import com.dlk.ecommerce.domain.request.mail.MailDTO;
 import com.dlk.ecommerce.domain.request.user.ReqCreateUser;
 import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.auth.ResAuthDTO;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseCookie;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -34,6 +36,7 @@ public class AuthService {
     private final SecurityUtil securityUtil;
     private final RolePermissionService rolePermissionService;
     private final AuthRedisService authRedisService;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${dlk.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
@@ -231,6 +234,17 @@ public class AuthService {
     public Boolean checkEmail(String email) {
         User userDb = userService.findUserByEmail(email);
         return userDb != null;
+    }
+
+    public void resetPassword(String email) {
+        MailDTO dto = new MailDTO();
+        String username = email.substring(0, email.indexOf("@"));
+        dto.setTo(email);
+        dto.setToName(username);
+        dto.setSubject("Welcome to our platform");
+        dto.setContent("Welcome " +  username + " to our platform");
+
+        kafkaTemplate.send("reset-password", dto);
     }
 }
 

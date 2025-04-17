@@ -24,12 +24,37 @@ spring:
     bootstrap-servers: localhost:9094
     consumer:
       group-id: ecommerce-group
-      auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: com.dlk.ecommerce.domain.request.mail
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: -1
+      retries: 1
+      properties:
+        # Prevent duplicate send
+        [ enable.idempotence ]: true
+        [ max.in.flight.requests.per.connection ]: 5
+
+  # Email Server Configuration
+  mail:
+    default-encoding: utf-8
+    host: smtp.gmail.com
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    port: ${MAIL_PORT}
+    protocol: smtp
+    test-connection: false
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   data:
     redis:
@@ -48,3 +73,4 @@ dlk:
 ghn:
   api-url: ${GHN_API_URL}
   token: ${GHN_TOKEN}
+

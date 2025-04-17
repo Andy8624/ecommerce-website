@@ -89,16 +89,30 @@ export const register = async (email, password, fullName) => {
 };
 
 export const resetPassword = async (email) => {
-    const ip = await getUserIP();
-    const userAgent = getUserAgent();
-    const device_id = await getDeviceId();
+    try {
+        // Gửi email trong đối tượng JSON với key là "email"
+        const response = await axios.post('/api/v1/auth/reset-password', {
+            email: email
+        });
 
-    // Lưu vào cookies với thời gian hết hạn 1 năm
-    Cookies.set("device_id", device_id, { expires: 365, path: "/", secure: true });
+        return {
+            success: true,
+            message: "Email khôi phục mật khẩu đã được gửi",
+            data: response.data
+        };
+    } catch (error) {
+        console.error("Reset password error:", error);
 
-    const data = { email, ip, userAgent, deviceId: device_id };
-    return axios.post(`/api/v1/auth/reset-password`, data);
-}
+        const errorMessage = error.response?.data ||
+            "Không thể gửi email khôi phục mật khẩu. Vui lòng thử lại sau.";
+
+        return {
+            success: false,
+            message: errorMessage,
+            error: error.response?.data || error.message
+        };
+    }
+};
 
 
 export const getAccount = async () => {
