@@ -1,94 +1,116 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import websocketService from '../services/websocket-service';
-import ChatService from '../services/ChatService';
+import { over } from 'stompjs';
+import SockJS from 'sockjs-client';
+import * as ChatService from '../services/ChatService';
+import { API_BASE_URL } from '../utils/Config';
 
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
-    const [messages, setMessages] = useState([]);
+    const currentUser = useSelector(state => state.account?.user);
+    const [stompClient, setStompClient] = useState(null);
+    const [connected, setConnected] = useState(false);
     const [contacts, setContacts] = useState([]);
     const [activeContact, setActiveContact] = useState(null);
+    const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [connected, setConnected] = useState(false);
     const [unreadMessages, setUnreadMessages] = useState({});
 
-    // Lấy thông tin người dùng hiện tại từ Redux store
-    const currentUser = useSelector(state => state.account?.user);
-
-    // Kết nối WebSocket khi người dùng đăng nhập
+    // Kết nối WebSocket khi component được mount
     useEffect(() => {
-        if (!currentUser?.id) {
-            return;
-        }
+        if (!currentUser?.id) return;
 
-        // Kết nối WebSocket
-        websocketService
-            .onConnect(() => {
-                setConnected(true);
-                console.log('WebSocket connected successfully');
-                loadContacts();
-            })
-            .onError((error) => {
-                console.error('WebSocket connection error:', error);
-                toast.error('Không thể kết nối đến máy chủ chat.');
-            })
-            .onMessage((notification) => {
-                handleNewMessage(notification);
-            })
-            .connect(currentUser.id)
-            .catch(error => {
-                console.error('Failed to connect to WebSocket:', error);
-            });
+        const socket = new SockJS(`${API_BASE_URL}/ws`);
+        const client = over(socket);
+        client.debug = null; // Tắt debug log
 
-        // Ngắt kết nối khi unmount
+        client.connect({}, () => {
+            setStompClient(client);
+            setConnected(true);
+
+            // Đăng ký nhận tin nhắn cá nhân
+            client.subscribe(`/user/${currentUser.id}/queue/messages`, onMessageReceived);
+
+            // Đăng ký người dùng khi kết nối thành công
+            client.send("/app/user.addUser", {},
+                JSON.stringify({
+                    nickName: currentUser.id,
+                    fullName: currentUser.fullName || currentUser.name,
+                    status: 'ONLINE'
+                })
+            );
+
+            // Lấy danh sách người dùng đang online
+            loadContacts();
+        }, onError);
+
         return () => {
-            websocketService.disconnect();
-            setConnected(false);
+            if (client) {
+                // Thông báo người dùng đã offline khi rời khỏi trang
+                client.send("/app/user.disconnectUser", {},
+                    JSON.stringify({
+                        nickName: currentUser.id,
+                        fullName: currentUser.fullName || currentUser.name,
+                        status: 'OFFLINE'
+                    })
+                );
+                client.disconnect();
+                setConnected(false);
+            }
         };
     }, [currentUser]);
 
-    // Tải danh sách liên hệ
+    const onError = (error) => {
+        console.error('WebSocket connection error:', error);
+        setConnected(false);
+    };
+
+    // Xử lý khi nhận được tin nhắn mới
+    const onMessageReceived = (payload) => {
+        try {
+            const message = JSON.parse(payload.body);
+            console.log('Message received:', message);
+
+            // Cập nhật danh sách liên hệ
+            loadContacts();
+
+            // Nếu đang chat với người gửi, thêm tin nhắn vào danh sách
+            if (activeContact?.id === message.senderId) {
+                setMessages(prev => [...prev, message]);
+            } else {
+                // Tăng số lượng tin nhắn chưa đọc
+                setUnreadMessages(prev => ({
+                    ...prev,
+                    [message.senderId]: (prev[message.senderId] || 0) + 1
+                }));
+
+                // Hiển thị thông báo
+                toast.info(`Tin nhắn mới từ ${message.senderName || 'người dùng'}`);
+            }
+        } catch (error) {
+            console.error('Error processing message:', error);
+        }
+    };
+
+    // Lấy danh sách liên hệ
     const loadContacts = async () => {
         if (!currentUser?.id) return;
 
         try {
             setLoading(true);
-            const fetchedContacts = await ChatService.getContacts(currentUser.id);
-            setContacts(fetchedContacts);
+            const data = await ChatService.getContacts(currentUser.id);
+            setContacts(data || []);
+            setLoading(false);
         } catch (error) {
             console.error('Error loading contacts:', error);
-            toast.error('Không thể tải danh sách liên hệ.');
-        } finally {
+            toast.error("Không thể tải danh sách liên hệ.");
             setLoading(false);
         }
     };
 
-    // Xử lý khi nhận tin nhắn mới
-    const handleNewMessage = (notification) => {
-        // Nếu đang chat với người gửi, thêm tin nhắn vào danh sách
-        if (activeContact?.id === notification.senderId) {
-            setMessages(prevMessages => [...prevMessages, {
-                id: notification.id,
-                senderId: notification.senderId,
-                recipientId: notification.recipientId,
-                content: notification.content,
-                timestamp: new Date()
-            }]);
-        } else {
-            // Cập nhật số lượng tin nhắn chưa đọc
-            setUnreadMessages(prev => ({
-                ...prev,
-                [notification.senderId]: (prev[notification.senderId] || 0) + 1
-            }));
-
-            // Hiển thị thông báo
-            toast.info(`Tin nhắn mới từ ${notification.senderName || 'người dùng'}`);
-        }
-    };
-
-    // Tải tin nhắn khi chọn một liên hệ
+    // Lấy lịch sử tin nhắn với người dùng đã chọn
     const loadMessages = async (contact) => {
         if (!currentUser?.id || !contact?.id) return;
 
@@ -96,72 +118,70 @@ export const ChatProvider = ({ children }) => {
             setLoading(true);
             setActiveContact(contact);
 
-            const fetchedMessages = await ChatService.getChatMessages(
-                currentUser.id,
-                contact.id
-            );
+            const data = await ChatService.getChatMessages(currentUser.id, contact.id);
+            setMessages(data || []);
 
-            setMessages(fetchedMessages || []);
+            // Đánh dấu đã đọc tin nhắn
+            setUnreadMessages(prev => ({
+                ...prev,
+                [contact.id]: 0
+            }));
 
-            // Đánh dấu tin nhắn đã đọc
-            if (unreadMessages[contact.id]) {
-                setUnreadMessages(prev => ({
-                    ...prev,
-                    [contact.id]: 0
-                }));
-            }
+            setLoading(false);
         } catch (error) {
             console.error('Error loading messages:', error);
-            toast.error('Không thể tải tin nhắn.');
-        } finally {
+            toast.error("Không thể tải tin nhắn.");
             setLoading(false);
         }
     };
 
-    // Gửi tin nhắn mới
+    // Gửi tin nhắn
     const sendMessage = async (content) => {
-        if (!currentUser?.id || !activeContact?.id || !content.trim() || !connected) {
+        if (!currentUser?.id || !activeContact?.id || !content.trim() || !stompClient || !connected) {
             return;
         }
 
-        const message = ChatService.createChatMessage(
+        const messageObj = ChatService.createChatMessage(
             currentUser.id,
             activeContact.id,
             content.trim()
         );
 
         try {
-            // Thêm tin nhắn vào UI trước (optimistic update)
-            setMessages(prev => [...prev, message]);
+            // Thêm tin nhắn vào danh sách (optimistic update)
+            const tempMessage = {
+                ...messageObj,
+                id: `temp-${Date.now()}`
+            };
+            setMessages(prev => [...prev, tempMessage]);
 
             // Gửi tin nhắn qua WebSocket
-            await websocketService.sendMessage(message);
+            stompClient.send("/app/chat", {}, JSON.stringify(messageObj));
         } catch (error) {
             console.error('Error sending message:', error);
-            toast.error('Không thể gửi tin nhắn.');
-            // Có thể xóa tin nhắn khỏi UI nếu gửi không thành công
+            toast.error("Không thể gửi tin nhắn.");
         }
     };
 
-    // Tổng số tin nhắn chưa đọc
+    // Tính tổng số tin nhắn chưa đọc
     const totalUnread = Object.values(unreadMessages).reduce((sum, count) => sum + count, 0);
 
-    const contextValue = {
-        messages,
-        contacts,
-        activeContact,
-        loading,
-        connected,
-        unreadMessages,
-        totalUnread,
-        loadContacts,
-        loadMessages,
-        sendMessage,
-        setActiveContact
-    };
-
     return (
-        <ChatContext.Provider value={contextValue}>
+        <ChatContext.Provider
+            value={{
+                messages,
+                contacts,
+                activeContact,
+                loading,
+                connected,
+                unreadMessages,
+                totalUnread,
+                loadContacts,
+                loadMessages,
+                sendMessage,
+                setActiveContact
+            }}
+        >
             {children}
         </ChatContext.Provider>
     );

@@ -1,232 +1,336 @@
-import { useState, useRef, useEffect } from 'react';
-import { Button, Badge, Drawer, List, Input, Avatar, Empty, Spin } from 'antd';
-import { MessageOutlined, SendOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
-import { useChat } from '../../../contexts/ChatContext';
-import { API_BASE_URL } from '../../../utils/Config';
+import { useState, useEffect, useMemo } from 'react';
+import { Badge, Drawer, Empty, Spin, Input } from 'antd';
+import { MessageOutlined, SearchOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
+import useChat from '../hooks/useChat';
+import UserItem from './UserItem';
+import ChatWindow from './ChatWindow';
+
+const MAX_CHAT_WINDOWS = 3; // Số lượng cửa sổ chat tối đa hiển thị cùng lúc
 
 const ChatButton = () => {
+    const currentUser = useSelector(state => state.account?.user);
     const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('');
-    const messageRef = useRef(null);
-    const navigate = useNavigate();
 
+    // Quản lý các cửa sổ chat đang mở
+    const [openedChats, setOpenedChats] = useState([]);
+
+    // Thêm state cho tìm kiếm
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Sử dụng hook useChat để quản lý trạng thái chat
     const {
-        messages,
-        contacts,
-        activeContact,
+        connected,
         loading,
-        totalUnread,
-        sendMessage: sendChatMessage,
-        loadMessages,
-        setActiveContact
-    } = useChat();
+        users,
+        allUserMessages,
+        unreadMessages,
+        selectUser,
+        sendDirectMessage,
+        markAsRead
+    } = useChat(currentUser);
 
-    // Scroll to bottom of messages
-    useEffect(() => {
-        if (messageRef.current) {
-            messageRef.current.scrollTop = messageRef.current.scrollHeight;
-        }
-    }, [messages]);
+    // Thiết lập một state riêng để theo dõi số lượng tin nhắn chưa đọc
+    const [localUnreadMessages, setLocalUnreadMessages] = useState({});
 
+    // Đồng bộ state localUnreadMessages với unreadMessages từ useChat
     useEffect(() => {
-        // Hàm xử lý sự kiện mở chat drawer
+        setLocalUnreadMessages(unreadMessages);
+    }, [unreadMessages]);
+
+    // Tính tổng số tin nhắn chưa đọc từ localUnreadMessages
+    const totalUnread = Object.values(localUnreadMessages).reduce((total, count) => total + count, 0);
+
+    // Lọc danh sách người dùng: hiển thị tất cả người dùng đã từng chat trong quá khứ
+    // và phù hợp với từ khóa tìm kiếm
+    const filteredUsers = useMemo(() => {
+        return users.filter(user => {
+            // Kiểm tra người dùng có phù hợp với từ khóa tìm kiếm
+            const matchesSearch = !searchTerm ||
+                (user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    user.shopName?.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            // Trả về tất cả người dùng phù hợp với từ khóa tìm kiếm
+            // không cần kiểm tra allUserMessages[user.userId]?.length > 0
+            return matchesSearch;
+        }).sort((a, b) => {
+            // Ưu tiên các user có tin nhắn chưa đọc
+            const unreadA = localUnreadMessages[a.userId] || 0;
+            const unreadB = localUnreadMessages[b.userId] || 0;
+
+            if (unreadA !== unreadB) {
+                return unreadB - unreadA; // Sắp xếp theo số tin nhắn chưa đọc giảm dần
+            }
+
+            // Ưu tiên user có tin nhắn so với user chưa có tin nhắn
+            const hasMessagesA = allUserMessages[a.userId]?.length > 0 ? 1 : 0;
+            const hasMessagesB = allUserMessages[b.userId]?.length > 0 ? 1 : 0;
+
+            if (hasMessagesA !== hasMessagesB) {
+                return hasMessagesB - hasMessagesA; // Ưu tiên user có tin nhắn
+            }
+
+            // Nếu cùng trạng thái, sắp xếp theo thời gian tin nhắn mới nhất
+            const msgsA = allUserMessages[a.userId] || [];
+            const msgsB = allUserMessages[b.userId] || [];
+
+            const latestMsgTimeA = msgsA.length > 0 ? new Date(msgsA[msgsA.length - 1].timestamp || 0).getTime() : 0;
+            const latestMsgTimeB = msgsB.length > 0 ? new Date(msgsB[msgsB.length - 1].timestamp || 0).getTime() : 0;
+
+            if (latestMsgTimeA !== latestMsgTimeB) {
+                return latestMsgTimeB - latestMsgTimeA; // Sắp xếp theo thời gian giảm dần
+            }
+
+            // Nếu không có tin nhắn, sắp xếp theo tên
+            return (a.shopName || a.fullName || '').localeCompare(b.shopName || b.fullName || '');
+        });
+    }, [users, allUserMessages, localUnreadMessages, searchTerm]);
+
+    // Xử lý sự kiện mở chat từ bên ngoài
+    useEffect(() => {
         const handleOpenChatDrawer = (event) => {
-            const contact = event.detail;
-            if (contact) {
-                setOpen(true);
-                loadMessages(contact);
+            const userId = event.detail;
+            if (userId) {
+                const user = users.find(u => u.userId === userId);
+                if (user) {
+                    openChat(user);
+                }
             }
         };
 
-        // Đăng ký lắng nghe sự kiện
         window.addEventListener('openChatDrawer', handleOpenChatDrawer);
 
-        // Xóa lắng nghe khi component unmount
         return () => {
             window.removeEventListener('openChatDrawer', handleOpenChatDrawer);
         };
-    }, [loadMessages]);
+    }, [users]);
 
+    // Theo dõi thay đổi kích thước màn hình
     useEffect(() => {
-        console.log("Contacts:", contacts);
-        console.log("Active Contact:", activeContact);
-        console.log("Messages:", messages);
-    }, [contacts, activeContact, messages]);
+        const handleResize = () => {
+            // Force re-render để tính toán lại vị trí cửa sổ chat
+            setOpenedChats(prev => [...prev]);
+        };
 
-    const handleSendMessage = () => {
-        if (message.trim() && activeContact) {
-            sendChatMessage(message);
-            setMessage('');
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Mở cửa sổ chat riêng cho một người dùng
+    const openChat = (user) => {
+        // Kiểm tra user có tồn tại không
+        if (!user || !user.userId) return;
+
+        // Kiểm tra xem người dùng đã có cửa sổ chat mở chưa
+        if (!openedChats.some(chatUser => chatUser.userId === user.userId)) {
+            // Nếu đã đạt giới hạn số cửa sổ chat, loại bỏ cửa sổ cũ nhất
+            if (openedChats.length >= MAX_CHAT_WINDOWS) {
+                setOpenedChats(prev => [...prev.slice(1), user]);
+            } else {
+                setOpenedChats(prev => [...prev, user]);
+            }
+        } else {
+            // Nếu đã mở, đưa lên đầu danh sách (vị trí gần nhất)
+            setOpenedChats(prev => {
+                const filteredChats = prev.filter(chatUser => chatUser.userId !== user.userId);
+                return [...filteredChats, user];
+            });
         }
-    };
 
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
-
-    const showFullChat = () => {
-        navigate('/chat');
+        // Đóng drawer danh sách
         setOpen(false);
+
+        // Load tin nhắn của người dùng
+        selectUser(user);
+    };
+
+    // Đóng một cửa sổ chat
+    const closeChat = (userId) => {
+        setOpenedChats(prev => prev.filter(user => user.userId !== userId));
+    };
+
+    // Xử lý khi đóng drawer
+    const handleClose = () => {
+        setOpen(false);
+        setSearchTerm('');
+    };
+
+    // Chuyển sang trang chat đầy đủ
+    // const showFullChat = () => {
+    //     navigate('/chat');
+    //     setOpen(false);
+    // };
+
+    // Chuẩn bị dữ liệu tin nhắn cho một cuộc trò chuyện cụ thể
+    const getMessagesForChat = (userId) => {
+        return allUserMessages[userId] || [];
+    };
+
+    // Tính toán vị trí của các cửa sổ chat
+    const calculateChatWindowPositions = () => {
+        const windowWidth = window.innerWidth;
+        const chatWindowWidth = 280; // Chiều rộng cố định của cửa sổ chat
+        const spacing = 5; // Giảm khoảng cách xuống 5px
+        const buttonWidth = 70; // Chiều rộng khoảng của button chat
+
+        const positions = [];
+
+        // Tính toán tổng chiều rộng cần thiết cho tất cả cửa sổ
+        const totalNeededWidth = openedChats.length * chatWindowWidth +
+            (openedChats.length - 1) * spacing +
+            buttonWidth + spacing;
+
+        // Số lượng cửa sổ tối đa có thể hiển thị dựa trên chiều rộng màn hình
+        let maxVisibleWindows;
+
+        if (totalNeededWidth > windowWidth) {
+            maxVisibleWindows = Math.floor(
+                (windowWidth - buttonWidth - spacing) / (chatWindowWidth + spacing)
+            );
+            maxVisibleWindows = Math.max(1, Math.min(maxVisibleWindows, MAX_CHAT_WINDOWS));
+        } else {
+            maxVisibleWindows = Math.min(openedChats.length, MAX_CHAT_WINDOWS);
+        }
+
+        // Vị trí bắt đầu từ phải qua trái
+        for (let i = 0; i < maxVisibleWindows; i++) {
+            positions.push({
+                right: i * (chatWindowWidth + spacing) + spacing,
+                zIndex: 40 - i
+            });
+        }
+
+        return positions;
+    };
+
+    // Lấy danh sách cửa sổ chat hiển thị
+    const visibleChats = () => {
+        const positions = calculateChatWindowPositions();
+        return openedChats.slice(-positions.length);
+    };
+
+    // Cập nhật hàm markAsRead để cập nhật cả state local
+    const handleMarkAsRead = (userId) => {
+        // Gọi hàm markAsRead từ useChat hook
+        markAsRead(userId);
+
+        // Cập nhật state local ngay lập tức
+        setLocalUnreadMessages(prev => ({
+            ...prev,
+            [userId]: 0
+        }));
     };
 
     return (
         <>
-            <div className="fixed bottom-8 right-8 z-50">
-                <Badge count={totalUnread} size="large" offset={[-5, 5]}>
-                    <Button
-                        type="primary"
-                        shape="circle"
-                        icon={<MessageOutlined style={{ fontSize: '24px' }} />}
-                        size="large"
+            {/* Nút chat trên header */}
+            <Badge count={totalUnread} offset={[0, 4]}>
+                <div className="flex items-center justify-center w-10 h-10 bg-cyan-50 rounded-full transition-transform duration-300 hover:scale-105">
+                    <MessageOutlined
+                        className="text-black text-xl cursor-pointer hover:scale-110"
                         onClick={() => setOpen(true)}
-                        className="shadow-lg bg-blue-500 hover:bg-blue-600 flex items-center justify-center"
-                        style={{ width: 56, height: 56 }}
                     />
-                </Badge>
-            </div>
+                </div>
+            </Badge>
 
+            {/* Drawer danh sách chat */}
             <Drawer
                 title={
-                    activeContact ? (
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center" onClick={() => setActiveContact(null)}>
-                                <>
-                                    <Button
-                                        type="text"
-                                        icon={<CloseOutlined />}
-                                        size="small"
-                                        className="mr-2"
-                                    />
-                                    <Avatar
-                                        src={`${API_BASE_URL}${activeContact.imageUrl}`}
-                                        className="mr-2"
-                                        icon={<UserOutlined />}
-                                    />
-                                    <span className="font-medium">{activeContact.fullName || 'User'}</span>
-                                </>
-                            </div>
-                            <Button type="link" onClick={showFullChat}>
-                                Xem đầy đủ
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-between">
-                            <span className="font-medium">Tin nhắn</span>
-                            <Button type="link" onClick={showFullChat}>
-                                Xem tất cả
-                            </Button>
-                        </div>
-                    )
+                    <div className="flex items-center justify-between">
+                        <span className="font-medium">Tin nhắn</span>
+                        {/* <Button type="link" onClick={showFullChat}>
+                            Xem tất cả
+                        </Button> */}
+                    </div>
                 }
                 placement="right"
-                onClose={() => {
-                    setOpen(false);
-                    setActiveContact(null);
-                }}
+                onClose={handleClose}
                 open={open}
-                width={380}
-                bodyStyle={{ padding: 0, height: '100%' }}
-                headerStyle={{ padding: '12px 16px' }}
+                width={350}
+                styles={{
+                    body: { padding: 0, height: '100%' },
+                    header: { padding: '12px 16px' }
+                }}
             >
-                {!activeContact ? (
-                    <List
-                        loading={loading}
-                        dataSource={contacts}
-                        renderItem={(contact) => (
-                            <List.Item
-                                className="cursor-pointer hover:bg-gray-50 px-4"
-                                onClick={() => loadMessages(contact)}
-                            >
-                                <List.Item.Meta
-                                    avatar={
-                                        <Avatar
-                                            src={contact.imageUrl ? `${API_BASE_URL}${contact.imageUrl}` : null}
-                                            icon={<UserOutlined />}
-                                        />
-                                    }
-                                    title={<span className="font-medium">{contact.fullName || 'User'}</span>}
-                                    description={
-                                        <span className="text-gray-500 text-sm line-clamp-1">
-                                            {contact.lastMessage || 'Bắt đầu cuộc trò chuyện'}
-                                        </span>
-                                    }
-                                />
-                            </List.Item>
-                        )}
-                        className="overflow-auto"
-                        style={{ height: 'calc(100vh - 55px)' }}
-                        locale={{ emptyText: <Empty description="Không có liên hệ" /> }}
+                {/* Thanh tìm kiếm */}
+                <div className="px-4 py-2 border-b">
+                    <Input
+                        placeholder="Tìm kiếm tin nhắn"
+                        prefix={<SearchOutlined className="text-gray-400" />}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        allowClear
                     />
-                ) : (
-                    <div className="flex flex-col h-full">
-                        <div
-                            ref={messageRef}
-                            className="flex-1 p-4 overflow-y-auto"
-                            style={{ height: 'calc(100vh - 120px)' }}
-                        >
-                            {loading ? (
-                                <div className="flex justify-center items-center h-full">
-                                    <Spin tip="Đang tải tin nhắn..." />
-                                </div>
-                            ) : messages.length > 0 ? (
-                                messages.map((msg) => (
-                                    <div
-                                        key={msg.id || `temp-${Date.now()}-${Math.random()}`}
-                                        className={`mb-4 max-w-[80%] ${msg.senderId === activeContact.id ? '' : 'ml-auto'
-                                            }`}
-                                    >
-                                        <div
-                                            className={`p-3 rounded-lg ${msg.senderId === activeContact.id
-                                                ? 'bg-gray-100'
-                                                : 'bg-blue-500 text-white'
-                                                }`}
-                                        >
-                                            {msg.content}
-                                        </div>
-                                        <div
-                                            className={`text-xs mt-1 text-gray-500 ${msg.senderId === activeContact.id ? '' : 'text-right'
-                                                }`}
-                                        >
-                                            {formatDistanceToNow(new Date(msg.timestamp), {
-                                                locale: vi,
-                                                addSuffix: true,
-                                            })}
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="flex h-full items-center justify-center">
-                                    <Empty description="Hãy bắt đầu cuộc trò chuyện" />
-                                </div>
-                            )}
+                </div>
+
+                {/* Danh sách người dùng */}
+                <div className="h-full overflow-auto" style={{ height: 'calc(100vh - 110px)' }}>
+                    {loading ? (
+                        <div className="flex items-center justify-center h-full">
+                            <Spin tip="Đang tải..." />
                         </div>
-                        <div className="p-3 border-t">
-                            <div className="flex">
-                                <Input
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    placeholder="Nhập tin nhắn..."
-                                    className="mr-2 rounded-full px-4 border-gray-300"
-                                    suffix={
-                                        <SendOutlined
-                                            onClick={handleSendMessage}
-                                            className={`cursor-pointer ${message.trim() ? 'text-blue-500' : 'text-gray-300'
-                                                }`}
-                                        />
-                                    }
-                                />
-                            </div>
+                    ) : filteredUsers.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full">
+                            <Empty
+                                description={
+                                    searchTerm
+                                        ? "Không tìm thấy kết quả"
+                                        : "Bạn chưa có tin nhắn nào"
+                                }
+                            />
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div className="divide-y divide-gray-100">
+                            {filteredUsers.map((user) => {
+                                const userMessages = allUserMessages[user.userId] || [];
+                                const latestMessage = userMessages.length > 0 ?
+                                    userMessages[userMessages.length - 1] : null;
+
+                                return (
+                                    <UserItem
+                                        key={user.userId}
+                                        user={user}
+                                        selected={false}
+                                        unreadCount={localUnreadMessages[user.userId] || 0}
+                                        latestMessage={latestMessage}
+                                        currentUserId={currentUser?.id}
+                                        onClick={() => openChat(user)}
+                                        loading={false}
+                                    />
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </Drawer>
+
+            {/* Các cửa sổ chat riêng */}
+            {visibleChats().map((user, index) => {
+                const positions = calculateChatWindowPositions();
+
+                return (
+                    <div
+                        key={user.userId}
+                        style={{
+                            position: 'fixed',
+                            bottom: 0,
+                            right: `${positions[index].right}px`,
+                            zIndex: positions[index].zIndex
+                        }}
+                    >
+                        <ChatWindow
+                            user={user}
+                            onClose={closeChat}
+                            messages={getMessagesForChat(user.userId)}
+                            currentUser={currentUser}
+                            unreadCount={localUnreadMessages[user.userId] || 0}
+                            sendMessage={(content) => sendDirectMessage(content, user.userId)}
+                            connected={connected}
+                            markAsRead={handleMarkAsRead}
+                        />
+                    </div>
+                );
+            })}
         </>
     );
 };

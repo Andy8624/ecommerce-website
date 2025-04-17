@@ -6,6 +6,7 @@ import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.repository.ChatMessageRepository;
 import com.dlk.ecommerce.repository.ChatRoomRepository;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,9 @@ public class ChatMessageService {
     private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
 
+    // Lưu tin nhắn vô DB
     public ChatMessage save(ChatMessage chatMessage) {
+        // Tạo chatID nếu chưa có
         String chatId = chatRoomService.getChatRoomID(
                 chatMessage.getSenderId(),
                 chatMessage.getRecipientId(),
@@ -31,16 +34,10 @@ public class ChatMessageService {
         return chatMessage;
     }
 
-    public List<ChatMessage> findChatMessages(
-            String senderId, String recipientId
-    ) {
-        var chatId = chatRoomService.getChatRoomID(
-                senderId,
-                recipientId,
-                false
-        );
+    // Lấy danh sách tin nhắn giữa 2 người
+    public List<ChatMessage> findChatMessages(String senderId, String recipientId) {
+        var chatId = chatRoomService.getChatRoomID(senderId, recipientId,false);
         return chatId.map(chatMessageRepository::findByChatId).orElse(new ArrayList<>());
-
     }
 
     public List<Map<String, Object>> findUserContacts(String userId) throws IdInvalidException {

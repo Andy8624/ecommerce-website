@@ -12,6 +12,7 @@ import java.util.Optional;
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
 
+    // Lấy chatId nếu chưa có thì tạo mới
     public Optional<String> getChatRoomID(
             String senderId,
             String recipientId,
@@ -28,6 +29,7 @@ public class ChatRoomService {
                 });
     }
 
+    // Tạo 2 record chatroom cho 1 cặp user (cùng chatId)
     private String createChatId(String senderId, String recipientId) {
         String chatId = String.format("%s_%s", senderId, recipientId);
 

@@ -1,12 +1,23 @@
 import { Avatar, Badge, Button, Dropdown } from "antd";
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import ChatButton from "../../features/chat/components/ChatButton";
 
 const UserOptions = ({ navigate, cartQuantity, menu, image_url, AVT_URL }) => {
+
     return (
-        <div className='flex items-center'>
+        <div className='flex items-center space-x-5'>
+            {/* Nút chat */}
             <Button
                 type="text"
-                className="relative flex items-center justify-center p-0 mr-5"
+                className="relative flex items-center justify-center p-0"
+            >
+                <ChatButton />
+            </Button>
+
+            {/* Giỏ hàng */}
+            <Button
+                type="text"
+                className="relative flex items-center justify-center p-0"
                 onClick={() => navigate("/cart")}
             >
                 <Badge
@@ -20,13 +31,13 @@ const UserOptions = ({ navigate, cartQuantity, menu, image_url, AVT_URL }) => {
                 </Badge>
             </Button>
 
+            {/* Menu người dùng */}
             <Dropdown menu={menu} placement="bottomLeft" trigger={['click']}>
                 <Avatar
                     icon={<UserOutlined />}
                     size={45}
                     className="cursor-pointer hover:scale-110"
                     src={AVT_URL + image_url}
-                // onClick={() => navigate('/profile')}
                 />
             </Dropdown>
         </div>
