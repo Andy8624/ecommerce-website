@@ -27,15 +27,15 @@ const ProductOverviewPage = () => {
     const tool = getToolById;
     const shopId = tool?.user?.userId;
     const { getUserById } = useGetUserById(shopId);
-    console.log("getUserById", getUserById);
-    console.log("created_at", getUserById?.createdAt);
+    // console.log("getUserById", getUserById);
+    // console.log("created_at", getUserById?.createdAt);
 
     const { totalTool } = useTotalTool(shopId);
 
     const { totalSoldTool } = useTotalSoldTool(shopId);
 
     const { totalRated } = useGetTotalRatedOfProductByShopId(shopId);
-    console.log("totalRated", totalRated);
+    // console.log("totalRated", totalRated);
 
     const formatJoinedTime = (createdAtStr) => {
         if (!createdAtStr) return "Chưa xác định";
@@ -64,7 +64,7 @@ const ProductOverviewPage = () => {
     };
 
     // Kiểm tra dữ liệu shop trước khi truyền vào ShopInfo
-    console.log("getUserById", getUserById);
+    // console.log("getUserById", getUserById);
 
     const shopData = {
         userId: shopId,

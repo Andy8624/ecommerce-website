@@ -7,7 +7,6 @@ import { useDispatch } from "react-redux";
 import { setLogoutUser } from "../redux/slices/accountSlice";
 import { toast } from "react-toastify";
 import { callLogout } from "../services/AuthService";
-import { ChatProvider } from "../contexts/ChatContext.jsx";
 
 const BuyerLayout = () => {
     const navigate = useNavigate();
@@ -24,20 +23,18 @@ const BuyerLayout = () => {
 
     return (
         <CartProvider>
-            <ChatProvider>
-                <Layout>
-                    {/* Thanh menu trên cùng */}
-                    <TopHeader onLogout={handleLogout} />
+            <Layout>
+                {/* Thanh menu trên cùng */}
+                <TopHeader onLogout={handleLogout} />
 
-                    {/* Header chính */}
-                    <HeaderComponent onLogout={handleLogout} />
+                {/* Header chính */}
+                <HeaderComponent onLogout={handleLogout} />
 
-                    {/* Nội dung chính */}
-                    <div className="pt-[110px]">
-                        <Outlet />
-                    </div>
-                </Layout>
-            </ChatProvider>
+                {/* Nội dung chính */}
+                <div className="pt-[110px]">
+                    <Outlet />
+                </div>
+            </Layout>
         </CartProvider>
     );
 };
