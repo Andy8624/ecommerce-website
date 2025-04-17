@@ -10,4 +10,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
     Optional<ChatRoom> findBySenderIdAndRecipientId(String senderId, String recipientId);
 
     List<ChatRoom> findAllBySenderId(String userId);
-}
+
+    List<ChatRoom> findAllBySenderIdOrderByRecipientId(String userId);
+
+    List<ChatRoom> findAllBySenderIdOrRecipientId(String senderId, String recipientId);}

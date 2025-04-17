@@ -93,4 +93,27 @@ public class ChatMessageService {
 
         return result;
     }
+
+    public List<String> findUserContactIds(String userId) {
+        // Tìm tất cả các phòng chat mà người dùng này tham gia (là người gửi hoặc người nhận)
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllBySenderIdOrRecipientId(userId, userId);
+
+        // Tạo danh sách kết quả
+        Set<String> contactIds = new HashSet<>();
+
+        // Xử lý từng phòng chat
+        for (ChatRoom room : chatRooms) {
+            // Nếu người dùng là người gửi, thêm người nhận vào danh sách liên hệ
+            if (room.getSenderId().equals(userId) && !room.getRecipientId().equals(userId)) {
+                contactIds.add(room.getRecipientId());
+            }
+
+            // Nếu người dùng là người nhận, thêm người gửi vào danh sách liên hệ
+            if (room.getRecipientId().equals(userId) && !room.getSenderId().equals(userId)) {
+                contactIds.add(room.getSenderId());
+            }
+        }
+
+        return new ArrayList<>(contactIds);
+    }
 }

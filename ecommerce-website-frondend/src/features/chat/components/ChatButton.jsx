@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Badge, Drawer, Empty, Spin, Input } from 'antd';
 import { MessageOutlined, SearchOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
@@ -27,7 +27,8 @@ const ChatButton = () => {
         unreadMessages,
         selectUser,
         sendDirectMessage,
-        markAsRead
+        markAsRead,
+        loadAllMessages, // Đảm bảo hook useChat có hàm loadAllMessages
     } = useChat(currentUser);
 
     // Thiết lập một state riêng để theo dõi số lượng tin nhắn chưa đọc
@@ -41,18 +42,60 @@ const ChatButton = () => {
     // Tính tổng số tin nhắn chưa đọc từ localUnreadMessages
     const totalUnread = Object.values(localUnreadMessages).reduce((total, count) => total + count, 0);
 
-    // Lọc danh sách người dùng: hiển thị tất cả người dùng đã từng chat trong quá khứ
+    // QUAN TRỌNG: Khai báo hàm openChat sử dụng useCallback trước khi sử dụng trong useEffect
+    // Cải tiến hàm openChat để kiểm tra trùng lặp tốt hơn
+    const openChat = useCallback((user) => {
+        // Kiểm tra user có tồn tại không
+        if (!user || !user.userId) return;
+
+        // Đảm bảo user có đầy đủ thông tin cần thiết
+        const chatUser = {
+            userId: user.userId,
+            fullName: user.fullName || user.shopName || 'Người dùng',
+            shopName: user.shopName || user.fullName,
+            imageUrl: user.imageUrl || user.avatar || null,
+            ...user // Giữ lại các thuộc tính khác
+        };
+
+        // Kiểm tra xem người dùng đã có cửa sổ chat mở chưa
+        if (!openedChats.some(chat => chat.userId === user.userId)) {
+            // Nếu đã đạt giới hạn số cửa sổ chat, loại bỏ cửa sổ cũ nhất
+            if (openedChats.length >= MAX_CHAT_WINDOWS) {
+                setOpenedChats(prev => [...prev.slice(1), chatUser]);
+            } else {
+                setOpenedChats(prev => [...prev, chatUser]);
+            }
+        } else {
+            // Nếu đã mở, đưa lên đầu danh sách (vị trí gần nhất)
+            setOpenedChats(prev => {
+                const filteredChats = prev.filter(item => item.userId !== user.userId);
+                return [...filteredChats, chatUser];
+            });
+        }
+
+        // Đóng drawer danh sách
+        setOpen(false);
+
+        // Load tin nhắn của người dùng - chỉ cần gọi một lần
+        selectUser(chatUser);
+
+        return chatUser; // Trả về user để các hàm gọi có thể biết chat đã được mở
+    }, [openedChats, selectUser]);
+
+    // Lọc danh sách người dùng: chỉ hiển thị người dùng có lịch sử tin nhắn
     // và phù hợp với từ khóa tìm kiếm
     const filteredUsers = useMemo(() => {
         return users.filter(user => {
+            // Chỉ lấy user đã có tin nhắn
+            const hasMessages = allUserMessages[user.userId]?.length > 0;
+
             // Kiểm tra người dùng có phù hợp với từ khóa tìm kiếm
             const matchesSearch = !searchTerm ||
                 (user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     user.shopName?.toLowerCase().includes(searchTerm.toLowerCase()));
 
-            // Trả về tất cả người dùng phù hợp với từ khóa tìm kiếm
-            // không cần kiểm tra allUserMessages[user.userId]?.length > 0
-            return matchesSearch;
+            // Chỉ hiển thị người dùng có lịch sử tin nhắn
+            return hasMessages && matchesSearch;
         }).sort((a, b) => {
             // Ưu tiên các user có tin nhắn chưa đọc
             const unreadA = localUnreadMessages[a.userId] || 0;
@@ -62,14 +105,6 @@ const ChatButton = () => {
                 return unreadB - unreadA; // Sắp xếp theo số tin nhắn chưa đọc giảm dần
             }
 
-            // Ưu tiên user có tin nhắn so với user chưa có tin nhắn
-            const hasMessagesA = allUserMessages[a.userId]?.length > 0 ? 1 : 0;
-            const hasMessagesB = allUserMessages[b.userId]?.length > 0 ? 1 : 0;
-
-            if (hasMessagesA !== hasMessagesB) {
-                return hasMessagesB - hasMessagesA; // Ưu tiên user có tin nhắn
-            }
-
             // Nếu cùng trạng thái, sắp xếp theo thời gian tin nhắn mới nhất
             const msgsA = allUserMessages[a.userId] || [];
             const msgsB = allUserMessages[b.userId] || [];
@@ -77,16 +112,11 @@ const ChatButton = () => {
             const latestMsgTimeA = msgsA.length > 0 ? new Date(msgsA[msgsA.length - 1].timestamp || 0).getTime() : 0;
             const latestMsgTimeB = msgsB.length > 0 ? new Date(msgsB[msgsB.length - 1].timestamp || 0).getTime() : 0;
 
-            if (latestMsgTimeA !== latestMsgTimeB) {
-                return latestMsgTimeB - latestMsgTimeA; // Sắp xếp theo thời gian giảm dần
-            }
-
-            // Nếu không có tin nhắn, sắp xếp theo tên
-            return (a.shopName || a.fullName || '').localeCompare(b.shopName || b.fullName || '');
+            return latestMsgTimeB - latestMsgTimeA; // Sắp xếp theo thời gian giảm dần
         });
     }, [users, allUserMessages, localUnreadMessages, searchTerm]);
 
-    // Xử lý sự kiện mở chat từ bên ngoài
+    // Sửa useEffect cho sự kiện openChatDrawer
     useEffect(() => {
         const handleOpenChatDrawer = (event) => {
             const userId = event.detail;
@@ -103,7 +133,34 @@ const ChatButton = () => {
         return () => {
             window.removeEventListener('openChatDrawer', handleOpenChatDrawer);
         };
-    }, [users]);
+    }, [users, openChat]);
+
+    // Sửa useEffect cho sự kiện openChatWindow
+    useEffect(() => {
+        const handleOpenChatWindow = (event) => {
+            const user = event.detail;
+            if (user && user.userId) {
+                // Tìm user trong danh sách và mở chat window
+                // Nếu không tìm thấy, sẽ dùng thông tin từ sự kiện để tạo mới
+                const existingUser = users.find(u => u.userId === user.userId);
+                const chatUser = existingUser || user;
+
+                // Nếu chat window đã mở (qua sự kiện khác), không mở thêm
+                if (openedChats.some(chat => chat.userId === user.userId)) {
+                    return;
+                }
+
+                // Mở chat window với user này
+                openChat(chatUser);
+            }
+        };
+
+        window.addEventListener('openChatWindow', handleOpenChatWindow);
+
+        return () => {
+            window.removeEventListener('openChatWindow', handleOpenChatWindow);
+        };
+    }, [users, openChat, openedChats]);
 
     // Theo dõi thay đổi kích thước màn hình
     useEffect(() => {
@@ -116,32 +173,11 @@ const ChatButton = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Mở cửa sổ chat riêng cho một người dùng
-    const openChat = (user) => {
-        // Kiểm tra user có tồn tại không
-        if (!user || !user.userId) return;
-
-        // Kiểm tra xem người dùng đã có cửa sổ chat mở chưa
-        if (!openedChats.some(chatUser => chatUser.userId === user.userId)) {
-            // Nếu đã đạt giới hạn số cửa sổ chat, loại bỏ cửa sổ cũ nhất
-            if (openedChats.length >= MAX_CHAT_WINDOWS) {
-                setOpenedChats(prev => [...prev.slice(1), user]);
-            } else {
-                setOpenedChats(prev => [...prev, user]);
-            }
-        } else {
-            // Nếu đã mở, đưa lên đầu danh sách (vị trí gần nhất)
-            setOpenedChats(prev => {
-                const filteredChats = prev.filter(chatUser => chatUser.userId !== user.userId);
-                return [...filteredChats, user];
-            });
-        }
-
-        // Đóng drawer danh sách
-        setOpen(false);
-
-        // Load tin nhắn của người dùng
-        selectUser(user);
+    // Xử lý khi click vào nút chat để mở drawer
+    const handleOpenChatDrawer = () => {
+        // Load tất cả tin nhắn khi mở drawer
+        loadAllMessages();
+        setOpen(true);
     };
 
     // Đóng một cửa sổ chat
@@ -154,12 +190,6 @@ const ChatButton = () => {
         setOpen(false);
         setSearchTerm('');
     };
-
-    // Chuyển sang trang chat đầy đủ
-    // const showFullChat = () => {
-    //     navigate('/chat');
-    //     setOpen(false);
-    // };
 
     // Chuẩn bị dữ liệu tin nhắn cho một cuộc trò chuyện cụ thể
     const getMessagesForChat = (userId) => {
@@ -228,7 +258,7 @@ const ChatButton = () => {
                 <div className="flex items-center justify-center w-10 h-10 bg-cyan-50 rounded-full transition-transform duration-300 hover:scale-105">
                     <MessageOutlined
                         className="text-black text-xl cursor-pointer hover:scale-110"
-                        onClick={() => setOpen(true)}
+                        onClick={handleOpenChatDrawer}
                     />
                 </div>
             </Badge>
@@ -236,11 +266,8 @@ const ChatButton = () => {
             {/* Drawer danh sách chat */}
             <Drawer
                 title={
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center">
                         <span className="font-medium">Tin nhắn</span>
-                        {/* <Button type="link" onClick={showFullChat}>
-                            Xem tất cả
-                        </Button> */}
                     </div>
                 }
                 placement="right"

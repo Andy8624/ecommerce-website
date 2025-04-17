@@ -61,4 +61,10 @@ public class ChatController {
     public ResponseEntity<List<Map<String, Object>>> getUserContacts(@PathVariable String userId) throws IdInvalidException {
         return ResponseEntity.ok(chatMessageService.findUserContacts(userId));
     }
+
+    // Lấy danh sách userId mà người dùng đã chat
+    @GetMapping("/contacts/userIds/{userId}")
+    public ResponseEntity<List<String>> getUserContactIds(@PathVariable String userId) throws IdInvalidException {
+        return ResponseEntity.ok(chatMessageService.findUserContactIds(userId));
+    }
 }

@@ -84,6 +84,39 @@ export const useChat = (currentUser) => {
         setLoading(false);
     }, []);
 
+    // Cập nhật hàm loadAllMessages trong useChat.js
+    const loadAllMessages = useCallback(async () => {
+        if (!currentUser || !webSocketService.isAuthenticated()) return;
+
+        setLoading(true);
+        try {
+            // Gọi service để tải tất cả tin nhắn
+            const result = await webSocketService.fetchAllMessages();
+
+            if (result.success) {
+                const allMessages = result.data;
+
+                // Cập nhật state
+                const newAllUserMessages = {};
+                const newUnreadMessages = {};
+
+                // Duyệt qua mỗi contact
+                Object.keys(allMessages).forEach(userId => {
+                    const conversation = allMessages[userId];
+                    newAllUserMessages[userId] = conversation.messages || [];
+                    newUnreadMessages[userId] = conversation.unreadCount || 0;
+                });
+
+                setAllUserMessages(newAllUserMessages);
+                setUnreadMessages(newUnreadMessages);
+            }
+        } catch (error) {
+            console.error('Error loading all messages:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [currentUser, webSocketService]);
+
     // Chọn người dùng để chat
     const selectUser = useCallback((user) => {
         setSelectedUser(user);
@@ -263,7 +296,8 @@ export const useChat = (currentUser) => {
         sendDirectMessage,  // Thêm hàm mới
         markAsRead, // Thêm hàm mới vào
         loadUsers,
-        loadMessages
+        loadMessages,
+        loadAllMessages // Thêm hàm này vào return
     };
 };
 

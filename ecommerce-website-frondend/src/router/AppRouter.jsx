@@ -29,7 +29,6 @@ import BecomeSellerLayout from "../layouts/BecomeSellerLayout";
 import ProductForm from "../features/seller/components/ProductForm";
 import SearchProductPage from "../pages/SearchProductPage";
 import SimilarProductList from "../features/tools/components/SimilarProductList";
-import ChatPrivate from "../features/chat/components/ChatPrivate";
 const router = createBrowserRouter(
     [
         {
@@ -180,11 +179,6 @@ const router = createBrowserRouter(
                 }
             ]
         },
-        {
-            path: "/chat",
-            element: <ChatPrivate />,
-        }
-
     ],
     { future: { v7_relativeSplatPath: true } }
 )

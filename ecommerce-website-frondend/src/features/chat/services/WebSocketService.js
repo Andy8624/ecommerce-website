@@ -282,6 +282,56 @@ class WebSocketService {
         }
     }
 
+    // Thêm vào WebSocketService.js
+    async fetchAllMessages() {
+        if (!this.currentUser?.id) {
+            return { success: false, message: 'Not authenticated' };
+        }
+
+        try {
+            // Lấy danh sách ID người dùng đã chat
+            const contactsResponse = await axios.get(`/api/v1/messages/contacts/userIds/${this.currentUser.id}`);
+            const contactIds = contactsResponse?.data || [];
+
+            if (!contactIds.length) {
+                return { success: true, data: [] };
+            }
+
+            // Tạo object chứa tin nhắn của từng người dùng
+            const allMessages = {};
+
+            // Lặp qua từng liên hệ để lấy tin nhắn
+            for (const contactId of contactIds) {
+                const response = await axios.get(`/api/v1/messages/${this.currentUser.id}/${contactId}`);
+
+                const chatHistory = Array.isArray(response?.data) ? response.data : [];
+                const sortedChatHistory = [...chatHistory].sort((a, b) => {
+                    return new Date(a.timestamp) - new Date(b.timestamp);
+                });
+
+                // Đếm số tin nhắn chưa đọc
+                const unreadCount = chatHistory.filter(msg =>
+                    msg.senderId === contactId && msg.status === 'DELIVERED'
+                ).length;
+
+                allMessages[contactId] = {
+                    messages: sortedChatHistory,
+                    unreadCount: unreadCount
+                };
+            }
+
+            return { success: true, data: allMessages };
+        } catch (error) {
+            console.error('Error fetching all messages:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
+    // Phương thức để kiểm tra xác thực
+    isAuthenticated() {
+        return !!this.currentUser?.id && this.connected;
+    }
+
     // Kiểm tra xem tin nhắn đã tồn tại trong danh sách chưa
     isMessageExist(messages, newMessage) {
         return messages.some(msg =>

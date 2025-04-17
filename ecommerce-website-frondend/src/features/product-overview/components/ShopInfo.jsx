@@ -1,12 +1,10 @@
 import { Button, Row, Col, Typography, message } from "antd";
-import { useChat } from "../../../contexts/ChatContext";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 
 const ShopInfo = ({ shop }) => {
-    const { loadMessages, setActiveContact } = useChat();
     const currentUser = useSelector(state => state.account?.user);
     const navigate = useNavigate();
 
@@ -25,24 +23,20 @@ const ShopInfo = ({ shop }) => {
             return;
         }
 
-        // Tạo hoặc lấy thông tin liên hệ với shop
+        // Tạo contact object từ thông tin shop
         const shopContact = {
-            id: shop.userId,
+            userId: shop.userId,
             fullName: shop.name,
             imageUrl: shop.logo,
-            userId: shop.userId,
+            shopName: shop.name,
             // Thêm các thông tin cần thiết khác
         };
 
-        // Mở chat với shop này
-        setActiveContact(shopContact);
-
-        // Nếu bạn muốn mở drawer chat từ ChatButton
-        const chatEvent = new CustomEvent('openChatDrawer', { detail: shopContact });
-        window.dispatchEvent(chatEvent);
-
-        // Hoặc chuyển hướng đến trang chat (tuỳ cách thiết kế hệ thống)
-        // navigate("/chat", { state: { contact: shopContact } });
+        // CHỈ kích hoạt một sự kiện thay vì cả hai
+        const openChatWindowEvent = new CustomEvent('openChatWindow', {
+            detail: shopContact
+        });
+        window.dispatchEvent(openChatWindowEvent);
     };
 
     return (
