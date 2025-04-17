@@ -53,13 +53,36 @@ export const login = async (email, password) => {
     return axios.post(`/api/v1/auth/login`, data);
 }
 
+export const register = async (email, password, fullName) => {
+    const ip = await getUserIP();
+    const userAgent = getUserAgent();
+    const device_id = await getDeviceId();
+
+    // Lưu vào cookies với thời gian hết hạn 1 năm
+    Cookies.set("device_id", device_id, { expires: 365, path: "/", secure: true });
+
+    const data = { email, password, fullName, ip, userAgent, deviceId: device_id };
+    return axios.post(`/api/v1/auth/register`, data);
+}
+
+export const resetPassword = async (email) => {
+    const ip = await getUserIP();
+    const userAgent = getUserAgent();
+    const device_id = await getDeviceId();
+
+    // Lưu vào cookies với thời gian hết hạn 1 năm
+    Cookies.set("device_id", device_id, { expires: 365, path: "/", secure: true });
+
+    const data = { email, ip, userAgent, deviceId: device_id };
+    return axios.post(`/api/v1/auth/reset-password`, data);
+}
+
 
 export const getAccount = async () => {
     const path = `/api/v1/auth/account`;
     const res = await axios.get(path);
     // console.log(res);
     return res;
-
 }
 
 export const checkEmailExists = async (email) => {

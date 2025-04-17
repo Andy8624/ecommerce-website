@@ -1,137 +1,96 @@
-import { Button, Form, Input, Typography, Space } from 'antd';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Form, Input, Button } from 'antd';
+import {
+    UserOutlined,
+    MailOutlined,
+    LockOutlined,
+    FacebookFilled,
+    GoogleOutlined,
+    LinkedinFilled
+} from '@ant-design/icons';
 
-const { Title } = Typography;
-
-const onFinish = (values) => {
-    console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-};
-
-const RegisterForm = () => {
-    const navigate = useNavigate();
-
-    const handleLoginRedirect = () => {
-        navigate('/auth/login');
-    };
-
+const RegisterForm = ({ onFinish, isSubmitting }) => {
     return (
-        <>
-            <Title level={2} className="text-center mb-4">
-                Đăng Ký
-            </Title>
-            <Form
-                name="register"
-                labelCol={{
-                    span: 24,
-                }}
-                wrapperCol={{
-                    span: 24,
-                }}
-                style={{
-                    maxWidth: 800,
-                }}
-                initialValues={{
-                    remember: true,
-                }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
+        <Form
+            name="register"
+            onFinish={onFinish}
+            className="auth-form mt-[50px]"
+            layout="vertical"
+        >
+            <h1 className='font-bold text-2xl mb-2'>Đăng ký</h1>
+            <Form.Item
+                name="fullName"
+                className="w-full mb-2"
+                rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
             >
-                <Form.Item
-                    label="Email"
-                    name="email"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Vui lòng nhập email!',
+                <Input
+                    prefix={<UserOutlined className="site-form-item-icon mr-2" />}
+                    placeholder="Họ tên"
+                    className="h-10 rounded-md input-with-centered-prefix"
+                />
+            </Form.Item>
+
+            <Form.Item
+                name="email"
+                className="w-full mb-2"
+                rules={[
+                    { required: true, message: 'Vui lòng nhập email!' },
+                    { type: 'email', message: 'Email không hợp lệ!' }
+                ]}
+            >
+                <Input
+                    prefix={<MailOutlined className="site-form-item-icon mr-2" />}
+                    placeholder="Email"
+                    className="h-10 rounded-md input-with-centered-prefix"
+                />
+            </Form.Item>
+
+            <Form.Item
+                name="password"
+                className="w-full mb-2"
+                rules={[
+                    { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                    { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                ]}
+            >
+                <Input.Password
+                    prefix={<LockOutlined className="site-form-item-icon mr-2" />}
+                    placeholder="Mật khẩu"
+                    className="h-10 rounded-md input-with-centered-prefix"
+                />
+            </Form.Item>
+
+            <Form.Item
+                name="confirmPassword"
+                className="w-full mb-2"
+                dependencies={['password']}
+                rules={[
+                    { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+                    ({ getFieldValue }) => ({
+                        validator(_, value) {
+                            if (!value || getFieldValue('password') === value) {
+                                return Promise.resolve();
+                            }
+                            return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
                         },
-                        {
-                            type: 'email',
-                            message: 'Email không hợp lệ!',
-                        },
-                    ]}
-                >
-                    <Input autoFocus />
-                </Form.Item>
+                    }),
+                ]}
+            >
+                <Input.Password
+                    prefix={<LockOutlined className="site-form-item-icon mr-2" />}
+                    placeholder="Xác nhận mật khẩu"
+                    className="h-10 rounded-md input-with-centered-prefix"
+                />
+            </Form.Item>
 
-                <Form.Item
-                    label="Tên đầy đủ"
-                    name="fullName"  // Trường cho tên đầy đủ
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Vui lòng nhập tên đầy đủ!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item label="Mật khẩu" wrapperCol={{ span: 24 }}>
-                    <Space.Compact>
-                        <Form.Item
-                            name="password"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Vui lòng nhập mật khẩu!',
-                                },
-                            ]}
-                            style={{ width: 'calc(50% - 8px)', display: 'inline-block' }} // Mật khẩu 50% chiều rộng
-                        >
-                            <Input.Password placeholder="Mật khẩu" />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="confirmPassword"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Vui lòng nhập lại mật khẩu!',
-                                },
-                                ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                        if (!value || getFieldValue('password') === value) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error('Mật khẩu không khớp!'));
-                                    },
-                                }),
-                            ]}
-                            style={{ width: 'calc(50% - 8px)', display: 'inline-block', marginLeft: '8px' }} // Nhập lại mật khẩu 50% chiều rộng
-                        >
-                            <Input.Password placeholder="Nhập lại mật khẩu" />
-                        </Form.Item>
-                    </Space.Compact>
-                </Form.Item>
-
-                <Form.Item
-                    wrapperCol={{
-                        offset: 0,
-                        span: 24,
-                    }}
-                >
-                    <Button type="primary" htmlType="submit" className="w-full">
-                        Đăng Ký
-                    </Button>
-                </Form.Item>
-
-                <Form.Item
-                    wrapperCol={{
-                        offset: 0,
-                        span: 24,
-                    }}
-                >
-                    <Button type="link" onClick={handleLoginRedirect} className="w-full text-center">
-                        Đã có tài khoản? Đăng nhập ngay!
-                    </Button>
-                </Form.Item>
-            </Form>
-        </>
+            <Button
+                type="primary"
+                htmlType="submit"
+                loading={isSubmitting}
+                className="auth-button w-full h-10 mt-2"
+            >
+                Đăng ký
+            </Button>
+        </Form>
     );
 };
 

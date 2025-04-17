@@ -1,13 +1,10 @@
-import { createBrowserRouter, RouterProvider, ScrollRestoration } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, ScrollRestoration } from "react-router-dom";
 import BuyerLayout from "../layouts/BuyerLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import SellerLayout from "../layouts/SellerLayout";
 import NotFound from "../pages/NotFound";
 import Home from "../pages/Home";
 import Auth from "../pages/Auth";
-import LoginForm from "../features/auth/components/LoginForm";
-import RegisterForm from "../features/auth/components/RegisterForm";
-import ForgotPasswordForm from "../features/auth/components/ForgotPasswordForm";
 import ProductOverviewPage from "../pages/ProductOverviewPage";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
@@ -29,6 +26,8 @@ import BecomeSellerLayout from "../layouts/BecomeSellerLayout";
 import ProductForm from "../features/seller/components/ProductForm";
 import SearchProductPage from "../pages/SearchProductPage";
 import SimilarProductList from "../features/tools/components/SimilarProductList";
+import AuthPage from '../features/auth/pages/AuthPage';
+
 const router = createBrowserRouter(
     [
         {
@@ -146,22 +145,12 @@ const router = createBrowserRouter(
         {
             path: "/auth",
             element: <Auth />,
-            errorElement: <NotFound />,
             children: [
-                {
-                    index: true,
-                    path: "login",
-                    element: <LoginForm />,
-                },
-                {
-                    path: "register",
-                    element: <RegisterForm />,
-                },
-                {
-                    path: "forgot-password",
-                    element: <ForgotPasswordForm />,
-                }
-            ]
+                { path: "login", element: <AuthPage /> },
+                { path: "register", element: <AuthPage /> },
+                { path: "forgot-password", element: <AuthPage /> },
+                { path: "", element: <Navigate to="/auth/login" replace /> },
+            ],
         },
         {
             path: "/become-seller",
