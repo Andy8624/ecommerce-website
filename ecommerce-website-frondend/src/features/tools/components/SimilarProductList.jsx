@@ -1,21 +1,47 @@
 import { useEffect, useState } from "react";
-import { Spin, Pagination, Empty, Alert } from "antd";
+import { Spin, Pagination, Empty, Alert, Card, Typography, Divider, Tag } from "antd";
 import ToolItem from "./ToolItem";
 import { useParams } from "react-router-dom";
 import { useCBFProduct } from "../hooks/useCBFProduct";
 import SectionTitle from "../../../components/SectionTitle";
-import { getToolsByToolIds } from "../../../services/ToolService";
+import { getToolsByToolIds, callGetToolByToolId } from "../../../services/ToolService";
 import { useQueryClient } from "@tanstack/react-query";
-import { use } from "react";
+import { TOOL_URL } from "../../../utils/Config";
+
+const { Title, Text } = Typography;
 
 const SimilarProductList = ({ pageSize = 18 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const { toolId } = useParams();
-    const { cbf_tools, isLoading, error } = useCBFProduct(toolId, 18);
+    const { cbf_tools, isLoading: isLoadingCBF, error: cbfError } = useCBFProduct(toolId, 18);
     const [sortedProducts, setSortedProducts] = useState([]);
-    const useQuery = useQueryClient();
+    const [currentTool, setCurrentTool] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const queryClient = useQueryClient();
+
     useEffect(() => {
-        useQuery.invalidateQueries(["cbf_product"]);
+        queryClient.invalidateQueries(["cbf_product"]);
+    }, [toolId, queryClient]);
+
+    // Lấy thông tin current tool từ toolId trong params
+    useEffect(() => {
+        const fetchCurrentTool = async () => {
+            if (!toolId) return;
+
+            try {
+                const toolData = await callGetToolByToolId(toolId);
+                if (toolData) {
+                    setCurrentTool(toolData);
+                }
+            } catch (err) {
+                console.error("Error fetching current tool:", err);
+                setError(err);
+            }
+        };
+
+        fetchCurrentTool();
     }, [toolId]);
 
     useEffect(() => {
@@ -27,7 +53,6 @@ const SimilarProductList = ({ pageSize = 18 }) => {
 
                     // Lay danh sach san pham tu database
                     let result = await getToolsByToolIds(toolIds);
-                    console.log("goi lai api tool result", result);
 
                     // Lay ds diem so san pham (diem cang cao cang tuong dong)
                     const scoreMap = cbf_tools.reduce((acc, item) => {
@@ -46,14 +71,19 @@ const SimilarProductList = ({ pageSize = 18 }) => {
                     setSortedProducts(sorted);
                 }
             } catch (err) {
-                console.error(err);
+                console.error("Error fetching similar products:", err);
+                setError(err);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchProducts();
-    }, [cbf_tools]); // Add toolId to dependency array
+        if (cbf_tools) {
+            fetchProducts();
+        }
+    }, [cbf_tools]);
 
-    if (isLoading) {
+    if (isLoading || isLoadingCBF) {
         return (
             <div className="text-center py-6">
                 <Spin tip="Đang tải dữ liệu sản phẩm..." size="large">
@@ -63,39 +93,87 @@ const SimilarProductList = ({ pageSize = 18 }) => {
         );
     }
 
-    if (error) {
+    if (error || cbfError) {
         return <Alert
             message="Lỗi tải dữ liệu"
-            description={error.message}
+            description={(error || cbfError)?.message}
             type="error" showIcon
         />;
     }
 
     const products = sortedProducts || [];
-    if (products?.length === 0) {
+    if (products?.length === 0 && !currentTool) {
         return <Empty description="Không có sản phẩm nào" />;
     }
 
+    // Lấy các sản phẩm còn lại (không bao gồm currentTool)
+    const remainingProducts = currentTool
+        ? products.filter(p => p.toolId !== currentTool.toolId)
+        : products;
+
     return (
         <div className="p-8">
+            {/* Hiển thị sản phẩm hiện tại */}
+            {currentTool && (
+                <div className="mb-8">
+                    <SectionTitle>
+                        Sản phẩm đang tìm kiếm
+                    </SectionTitle>
+                    <Card className="bg-blue-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex flex-col sm:flex-row items-center">
+                            <div className="sm:w-1/4 mb-4 sm:mb-0 flex justify-center">
+                                <img
+                                    src={`${TOOL_URL}${currentTool.imageUrl}`}
+                                    alt={currentTool.name}
+                                    className="h-40 object-contain"
+                                />
+                            </div>
+                            <div className="sm:w-3/4 sm:pl-6">
+                                <Title level={4} className="text-blue-700">{currentTool.name}</Title>
+                                <div className="flex items-center mb-2">
+                                    <Text className="text-xl font-bold text-red-600">
+                                        {currentTool.price?.toLocaleString('vi-VN')} đ
+                                    </Text>
+                                </div>
+                                <div className="flex items-center mb-3">
+                                    {currentTool.stockQuantity > 0 ? (
+                                        <Tag color="green">Còn hàng</Tag>
+                                    ) : (
+                                        <Tag color="red">Hết hàng</Tag>
+                                    )}
+                                </div>
+                                <p className="text-gray-700 line-clamp-2">
+                                    {currentTool.description}
+                                </p>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            )}
+
+            <Divider className="my-6" />
+
             <SectionTitle>Các sản phẩm tương tự</SectionTitle>
-            {/* Danh sách sản phẩm */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {products?.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((tool) => (
+
+            {/* Danh sách sản phẩm còn lại */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 mt-4">
+                {remainingProducts?.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((tool) => (
                     <ToolItem key={tool?.toolId} similarProduct={tool} />
                 ))}
             </div>
 
             {/* Phân trang */}
-            <div className="mt-6 flex justify-center">
-                <Pagination
-                    current={currentPage}
-                    total={products?.length}
-                    pageSize={pageSize}
-                    onChange={setCurrentPage}
-                    showSizeChanger={false}
-                />
-            </div>
+            {remainingProducts.length > pageSize && (
+                <div className="mt-6 flex justify-center">
+                    <Pagination
+                        current={currentPage}
+                        total={remainingProducts?.length}
+                        pageSize={pageSize}
+                        onChange={setCurrentPage}
+                        showSizeChanger={false}
+                    />
+                </div>
+            )}
         </div>
     );
 };

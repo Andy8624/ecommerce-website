@@ -1,7 +1,7 @@
 import { Row, Col, Typography } from "antd";
 import { Fragment } from "react";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const ProductDetails = ({ details, moreDetails }) => {
     return (

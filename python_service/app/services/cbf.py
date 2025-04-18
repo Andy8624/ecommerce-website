@@ -5,11 +5,14 @@ import numpy as np
 import logging
 from transformers import BertTokenizer, BertModel
 import torch
-
+        
+# Khởi tạo LLMGemini để chuẩn hóa và mở rộng query
+from app.services.llm_gemini import LLMGemini
+gemini = LLMGemini()
 class ContentBasedFiltering:
     def __init__(self,
                     cf_data_url="http://host.docker.internal:8080/api/v1/recommendation/cbf-data",
-                    bert_model_name='bert-base-uncased'
+                    bert_model_name='keepitreal/vietnamese-sbert'
                 ):
         # --- Khởi tạo ---
         self.cf_data_url = cf_data_url  # URL của API lấy dữ liệu sản phẩm
@@ -31,7 +34,9 @@ class ContentBasedFiltering:
 
             # Tạo chuỗi mô tả kết hợp từ các thuộc tính của sản phẩm
             descriptions = [
-                f"Tên sản phẩm: {product['name']}. Mô tả sản phẩm:{product['description']}. Thương hiệu: {product['brand']}. Loại sản phẩm: {product['toolType']}"
+                # f"Tên sản phẩm: {product['name']}. Mô tả sản phẩm:{product['description']}. Thương hiệu: {product['brand']}. Loại sản phẩm: {product['toolType']}"
+                f"Tên sản phẩm: {product['name']}. Thương hiệu: {product['brand']}. Loại sản phẩm: {product['toolType']}"
+                # f"Tên sản phẩm: {product['name']}. Loại sản phẩm: {product['toolType']}"
                 for product in self.product_data_cache
             ]
             self.product_embeddings_cache = self.get_bert_embeddings(descriptions)  # Tạo embeddings BERT
@@ -100,7 +105,7 @@ class ContentBasedFiltering:
         similarity_scores = cosine_similarity(target_embedding, self.product_embeddings_cache)[0]
 
         # Sắp xếp các sản phẩm theo độ tương đồng giảm dần và lấy top_k sản phẩm tương tự (bỏ qua chính nó)
-        similar_indices = np.argsort(similarity_scores)[::-1][1:top_k + 1]
+        similar_indices = np.argsort(similarity_scores)[::-1][0:top_k + 1]
 
         similar_products = []
         for index in similar_indices:
@@ -113,61 +118,176 @@ class ContentBasedFiltering:
             })
 
         return similar_products
-
-    async def get_recommendations_byuser(self, user_id: str, top_k=3):
+    
+    async def semantic_search(self, query: str, top_k=5):
         """
-        Trả về danh sách sản phẩm gợi ý cho một user_id dựa trên lịch sử tương tác (ví dụ: đã xem).
+        Thực hiện tìm kiếm ngữ nghĩa dựa trên query của người dùng (chỉ chuẩn hóa, không mở rộng)
         """
-        if not await self._load_cbf_data_and_embeddings():
-            return []
-
-        # Giả định đây là danh sách toolId của các sản phẩm mà user đã tương tác gần đây
-        interacted_products_id = [120, 231, 252, 111, 101]
-        # Lọc ra thông tin chi tiết của các sản phẩm đã tương tác
-        interacted_products = [
-            product for product in self.product_data_cache if str(product['toolId']) in interacted_products_id
-        ]
-
-        if not interacted_products:
-            logging.info(f"Không tìm thấy sản phẩm đã tương tác cho user {user_id}")
-            return []
-
-        # Lấy embeddings của các sản phẩm đã tương tác
-        interacted_embeddings = [
-            self.product_embeddings_cache[self.product_data_cache.index(product)]
-            for product in interacted_products
-        ]
-
-        # Tính toán độ tương đồng trung bình giữa embedding của từng sản phẩm đã tương tác
-        # với embeddings của tất cả các sản phẩm khác
-        aggregated_similarity = np.zeros(len(self.product_data_cache))
-        for interacted_embedding in interacted_embeddings:
-            similarity_scores = cosine_similarity(interacted_embedding.reshape(1, -1), self.product_embeddings_cache)[0]
-            aggregated_similarity += similarity_scores
-
-        # Tính trung bình độ tương đồng nếu có sản phẩm đã tương tác
-        if interacted_embeddings:
-            aggregated_similarity /= len(interacted_embeddings)
-
-        # Sắp xếp các sản phẩm theo độ tương đồng trung bình giảm dần
-        sorted_indices = np.argsort(aggregated_similarity)[::-1]
-
-        recommended_products = []
-        seen_tool_ids = set()
-        count = 0
-        for index in sorted_indices:
-            product = self.product_data_cache[index]
-            tool_id = str(product['toolId'])
-            # Chỉ gợi ý các sản phẩm chưa tương tác và chưa được gợi ý trước đó
-            if tool_id not in [str(p['toolId']) for p in interacted_products] and tool_id not in seen_tool_ids:
-                recommended_products.append({
-                    'toolId': tool_id,
-                    'score': float(aggregated_similarity[index])
+        try:
+            # Đảm bảo dữ liệu sản phẩm đã được tải
+            if not await self._load_cbf_data_and_embeddings():
+                return []
+            
+            # Khởi tạo LLMGemini để chuẩn hóa query
+            from app.services.llm_gemini import LLMGemini
+            gemini = LLMGemini()
+            
+            # Chuẩn hóa query bằng Gemini
+            normalized_query = await gemini.normalize_search_query(query)
+            logging.info(f"Query chuẩn hóa: {normalized_query}")
+            
+            # Vector hóa query đã chuẩn hóa bằng BERT
+            query_embedding = self.get_bert_embeddings([normalized_query])[0]
+            
+            # Reshape để phù hợp với hàm cosine_similarity
+            query_embedding_reshaped = query_embedding.reshape(1, -1)
+            
+            # Tính độ tương đồng giữa query vector và product embeddings
+            similarity_scores = cosine_similarity(query_embedding_reshaped, self.product_embeddings_cache)[0]
+            
+            # Lấy các chỉ số của top_k sản phẩm có điểm cao nhất
+            top_indices = np.argsort(similarity_scores)[::-1][:top_k]
+            
+            # Tạo danh sách kết quả
+            search_results = []
+            for index in top_indices:
+                product = self.product_data_cache[index]
+                search_results.append({
+                    'toolId': str(product['toolId']),
+                    'score': float(similarity_scores[index]),
+                    'name': product['name'],
+                    'price': product['price'],
+                    'imageUrl': product['imageUrl'],
+                    'toolType': product['toolType']
                 })
-                seen_tool_ids.add(tool_id)
-                count += 1
-                if count >= top_k:
-                    break
+            
+            return search_results
+        
+        except Exception as e:
+            logging.error(f"Lỗi trong tìm kiếm ngữ nghĩa: {str(e)}")
+            return []
 
-        logging.debug(f"CBF recommendations for user {user_id} (using BERT): {recommended_products}")
-        return recommended_products
+    async def hybrid_search(self, query: str, top_k=5):
+        """
+        Kết hợp tìm kiếm từ khóa chính xác và tìm kiếm ngữ nghĩa.
+        Mở rộng truy vấn để tăng khả năng tìm kiếm liên quan.
+        """
+        try:
+            # Đảm bảo dữ liệu sản phẩm đã được tải
+            if not await self._load_cbf_data_and_embeddings():
+                return []
+            
+            # Khởi tạo LLMGemini để chuẩn hóa query
+            from app.services.llm_gemini import LLMGemini
+            gemini = LLMGemini()
+            
+            # Chuẩn hóa query bằng Gemini
+            normalized_query = await gemini.normalize_search_query(query)
+            logging.info(f"Query chuẩn hóa: {normalized_query}")
+            
+            # Tạo 2 biến thể truy vấn bổ sung
+            expand_prompt = f"""
+            Dựa trên câu tìm kiếm sản phẩm sau: '{normalized_query}'
+            
+            Hãy tạo ra 2 biến thể truy vấn tìm kiếm khác nhau có nghĩa tương tự.
+            PHẢI GIỮ ĐÚNG LOẠI SẢN PHẨM gốc, nhưng có thể thêm mô tả.
+            Ví dụ: 'bút chì' có thể thành 'bút chì màu' hoặc 'bút chì vẽ', nhưng KHÔNG được thành 'bút bi'.
+            
+            Trả về 2 biến thể, mỗi biến thể trên một dòng riêng biệt, không đánh số, không thêm giải thích.
+            """
+            
+            expanded_queries_text = await gemini.get_response(expand_prompt)
+            expanded_queries = expanded_queries_text.strip().split('\n')
+            # Đảm bảo chỉ lấy tối đa 2 biến thể
+            expanded_queries = expanded_queries[:2]
+            
+            all_queries = [normalized_query] + expanded_queries
+            logging.info(f"Các biến thể query: {all_queries}")
+            
+            # --- PHẦN 1: TÌM KIẾM TỪ KHÓA CHÍNH XÁC ---
+            exact_matches = []
+            
+            # Trích xuất các từ khóa từ tất cả các query
+            all_keywords = set()
+            for q in all_queries:
+                all_keywords.update(q.lower().split())
+            
+            for i, product in enumerate(self.product_data_cache):
+                product_name = product['name'].lower()
+                product_type = product['toolType'].lower()
+                
+                # Tính điểm khớp từ khóa
+                name_matches = sum(1 for keyword in all_keywords if keyword in product_name)
+                type_matches = sum(1 for keyword in all_keywords if keyword in product_type)
+                
+                if name_matches > 0 or type_matches > 0:
+                    exact_matches.append({
+                        'product': product,
+                        'score': (name_matches * 2 + type_matches) / len(all_keywords)  # Trọng số gấp đôi cho tên sản phẩm
+                    })
+            
+            # --- PHẦN 2: TÌM KIẾM NGỮ NGHĨA ---
+            # Vector hóa tất cả các query
+            query_embeddings = self.get_bert_embeddings(all_queries)
+            
+            # Tính độ tương đồng giữa các query vectors và product embeddings
+            similarity_scores_list = []
+            for query_embedding in query_embeddings:
+                # Reshape để phù hợp với hàm cosine_similarity
+                query_embedding_reshaped = query_embedding.reshape(1, -1)
+                scores = cosine_similarity(query_embedding_reshaped, self.product_embeddings_cache)[0]
+                similarity_scores_list.append(scores)
+            
+            # Tính trung bình các điểm tương đồng
+            average_scores = np.mean(similarity_scores_list, axis=0)
+            
+            # --- PHẦN 3: KẾT HỢP KẾT QUẢ ---
+            # Kết hợp kết quả: ưu tiên kết quả khớp chính xác, sau đó là kết quả ngữ nghĩa
+            exact_matches.sort(key=lambda x: x['score'], reverse=True)
+            
+            # Tạo danh sách kết quả cuối cùng
+            final_results = []
+            seen_ids = set()
+            
+            # Thêm kết quả khớp chính xác
+            for match in exact_matches:
+                product = match['product']
+                product_id = str(product['toolId'])
+                if product_id not in seen_ids and len(final_results) < top_k:
+                    seen_ids.add(product_id)
+                    final_results.append({
+                        'toolId': product_id,
+                        'score': float(match['score']),
+                        'name': product['name'],
+                        'price': product['price'],
+                        'imageUrl': product['imageUrl'],
+                        'toolType': product['toolType'],
+                        'matchType': 'exact'  # Đánh dấu là kết quả khớp chính xác
+                    })
+            
+            # Bổ sung kết quả ngữ nghĩa nếu cần
+            semantic_indices = np.argsort(average_scores)[::-1]
+            for index in semantic_indices:
+                if len(final_results) >= top_k:
+                    break
+                    
+                product = self.product_data_cache[index]
+                product_id = str(product['toolId'])
+                
+                if product_id not in seen_ids:
+                    seen_ids.add(product_id)
+                    final_results.append({
+                        'toolId': product_id,
+                        'score': float(average_scores[index]),
+                        'name': product['name'],
+                        'price': product['price'],
+                        'imageUrl': product['imageUrl'],
+                        'toolType': product['toolType'],
+                        'matchType': 'semantic'  # Đánh dấu là kết quả ngữ nghĩa
+                    })
+            
+            return final_results
+        
+        except Exception as e:
+            logging.error(f"Lỗi trong tìm kiếm hybrid: {str(e)}")
+            return []

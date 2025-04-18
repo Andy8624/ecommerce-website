@@ -158,7 +158,7 @@ const ProductTable = ({ tools, onEdit, onDelete, isDeleting }) => {
                 dataSource={getFilteredTools()}
                 rowKey="toolId"
                 columns={columns}
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: 4 }}
             // expandable={{ expandedRowRender: (record) => <p className="p-4">{record.description}</p> }}
             // rowSelection={rowSelection}
             />

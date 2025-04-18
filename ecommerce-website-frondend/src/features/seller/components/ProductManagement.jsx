@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 const ProductManagement = () => {
     const userId = useSelector(state => state?.account?.user?.id);
     const { tools } = useGetAllToolByUserId(userId);
+    console.log("tools", tools);
     const { deleteTool, isDeleting } = useDeleteTool();
     const navigate = useNavigate();
 

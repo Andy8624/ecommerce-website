@@ -6,9 +6,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { callSearchProductByImage } from "../../services/ImageSearchService";
+import { sematicSearch } from "../../services/RecomendationService";
 
 const InputHeader = () => {
     const [searchText, setSearchText] = useState("");
+    const [isSemanticSearch, setIsSemanticSearch] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -23,7 +25,17 @@ const InputHeader = () => {
         "Giấy A4 Định Lượng Cao",
     ];
 
-    // Xử lý tìm kiếm bằng text
+    // Xử lý thay đổi text trong ô tìm kiếm
+    const handleSearchTextChange = (e) => {
+        const text = e.target.value;
+        setSearchText(text);
+
+        // Kiểm tra xem text có bắt đầu bằng @ không
+        const isStartWithAt = text.startsWith('@');
+        setIsSemanticSearch(isStartWithAt);
+    };
+
+    // Xử lý tìm kiếm văn bản
     const handleSearchText = async () => {
         if (!searchText.trim()) {
             message.warning("Vui lòng nhập từ khóa tìm kiếm.");
@@ -31,10 +43,40 @@ const InputHeader = () => {
         }
 
         try {
-            const path = `http://localhost:8000/python/api/v1/search?query=${encodeURIComponent(searchText)}`;
-            const response = await axios.get(path);
-            console.log("Kết quả tìm kiếm bằng text:", response?.data?.results);
-            message.success("Tìm kiếm thành công!");
+            if (isSemanticSearch) {
+                // Tìm kiếm ngữ nghĩa nếu bắt đầu bằng @
+                const semanticQuery = searchText.substring(1).trim(); // Bỏ @ ở đầu
+                if (!semanticQuery) {
+                    message.warning("Vui lòng nhập từ khóa tìm kiếm sau @.");
+                    return;
+                }
+
+                message.loading({
+                    content: 'Đang tìm kiếm ngữ nghĩa...',
+                    key: 'semanticSearch'
+                });
+
+                const results = await sematicSearch(semanticQuery, 20);
+
+                message.success({
+                    content: `Tìm thấy ${results.results_count} kết quả liên quan đến "${semanticQuery}"`,
+                    key: 'semanticSearch'
+                });
+
+                // Chuyển đến trang kết quả tìm kiếm ngữ nghĩa
+                navigate("/result-semantic-search", {
+                    state: {
+                        searchResults: results,
+                        query: semanticQuery
+                    }
+                });
+            } else {
+                // Tìm kiếm thông thường
+                const path = `http://localhost:8000/python/api/v1/search?query=${encodeURIComponent(searchText)}`;
+                const response = await axios.get(path);
+                console.log("Kết quả tìm kiếm bằng text:", response?.data?.results);
+                message.success("Tìm kiếm thành công!");
+            }
         } catch (error) {
             message.error("Lỗi khi tìm kiếm.");
             console.error("API error:", error);
@@ -43,8 +85,22 @@ const InputHeader = () => {
 
     // Xử lý tìm kiếm bằng ảnh
     const handleUpload = async (file) => {
-        navigate("/result-search-image");
-        callSearchProductByImage(file, dispatch);
+        try {
+            // Tạo URL của ảnh để hiển thị
+            const imageUrl = URL.createObjectURL(file);
+
+            // Chuyển hướng và gửi ảnh kèm theo qua state
+            navigate("/result-search-image", {
+                state: { searchedImage: imageUrl }
+            });
+
+            // Vẫn gọi API tìm kiếm như bình thường
+            callSearchProductByImage(file, dispatch);
+        } catch (error) {
+            console.error("Error processing image:", error);
+            message.error("Có lỗi xảy ra khi xử lý ảnh");
+        }
+
         return false;
     };
 
@@ -54,17 +110,17 @@ const InputHeader = () => {
             <div className="flex items-center space-x-2">
                 {/* Ô nhập tìm kiếm */}
                 <Input
-                    placeholder="Tìm sản phẩm, thương hiệu, và tên shop"
+                    placeholder="Tìm kiếm thường hoặc @tìm kiếm ngữ nghĩa"
                     value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    onPressEnter={handleSearchText} // Nhấn Enter để tìm kiếm
+                    onChange={handleSearchTextChange}
+                    onPressEnter={handleSearchText}
                     suffix={
                         <SearchOutlined
-                            className="text-gray-500 px-2 cursor-pointer text-xl hover:text-[var(--gold-medium)] active:scale-75 transition duration-200"
-                            onClick={handleSearchText} // Click vào icon search để tìm kiếm
+                            className={`px-2 cursor-pointer text-xl hover:text-[var(--gold-medium)] active:scale-75 transition duration-200 ${isSemanticSearch ? 'text-blue-500' : 'text-gray-500'}`}
+                            onClick={handleSearchText}
                         />
                     }
-                    className="w-full ps-4 py-2 rounded-lg border-transparent shadow-sm hover:border-[var(--gold-medium)] focus:border-[var(--gold-medium)] focus-within:border-[var(--gold-medium)] "
+                    className={`w-full ps-4 py-2 rounded-lg border-transparent shadow-sm hover:border-[var(--gold-medium)] focus:border-[var(--gold-medium)] focus-within:border-[var(--gold-medium)] ${isSemanticSearch ? 'text-blue-500' : ''}`}
                     style={{ lineHeight: "0rem" }}
                 />
 
@@ -82,7 +138,6 @@ const InputHeader = () => {
                             <CameraOutlined className=" text-2xl " />
                         </button>
                     </div>
-
                 </Upload>
             </div>
 
@@ -95,7 +150,11 @@ const InputHeader = () => {
                     <span
                         key={index}
                         className="hover:underline cursor-pointer whitespace-nowrap mr-3"
-                        onClick={() => console.log(`Clicked: ${suggestion}`)}
+                        onClick={() => {
+                            setSearchText(suggestion);
+                            setIsSemanticSearch(false);
+                            handleSearchText();
+                        }}
                         title={suggestion}
                     >
                         {truncateDescription(suggestion, 6)}

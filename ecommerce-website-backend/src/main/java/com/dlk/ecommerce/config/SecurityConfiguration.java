@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -62,11 +63,12 @@ public class SecurityConfiguration {
             HttpSecurity http,
             CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
             AuthRedisService authRedisService,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            CorsConfigurationSource corsConfigurationSource
             ) throws Exception {
         http
                 .csrf(c -> c.disable())
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()

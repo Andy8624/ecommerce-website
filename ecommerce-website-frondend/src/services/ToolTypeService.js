@@ -1,7 +1,7 @@
 import axios from "./axios-customize"
 
 export const callGetAllToolTypes = async () => {
-    const path = `/api/v1/tooltypes`;
+    const path = `/api/v1/tooltypes?size=200&page=0`;
     const res = await axios.get(path);
     return res?.data?.result;
 }

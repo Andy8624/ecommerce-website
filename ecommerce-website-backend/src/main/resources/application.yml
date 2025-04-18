@@ -74,3 +74,5 @@ ghn:
   api-url: ${GHN_API_URL}
   token: ${GHN_TOKEN}
 
+server:
+  address: 0.0.0.0

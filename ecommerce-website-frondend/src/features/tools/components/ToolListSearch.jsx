@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import { Spin, Pagination, Empty, Alert } from "antd";
+import { Spin, Pagination, Empty, Alert, Divider, Image } from "antd";
 import { useTools } from "../hooks/useTools";
 import ToolItem from "./ToolItem";
 import { getToolsByToolIds } from "../../../services/ToolService";
 import { useSelector } from "react-redux";
 import SectionTitle from "../../../components/SectionTitle";
+import { useLocation } from 'react-router-dom';
 
 const ToolListSearch = ({ pageSize }) => {
     const { isLoading, error, tools } = useTools();
     const [currentPage, setCurrentPage] = useState(1);
     const [productsSearch, setProductsSearch] = useState([]);
     const imageSearch = useSelector((state) => state?.search?.imageSearchResults) || [];
+    const location = useLocation();
+    const searchedImage = location.state?.searchedImage || null;
     const isLoadingSearchImage = useSelector((state) => state?.search?.searchLoading) || false;
 
     const searchData = [];
@@ -19,7 +22,6 @@ const ToolListSearch = ({ pageSize }) => {
             searchData.push(result?.toolId);
         });
     }
-    // console.log("toolData", imageSearch);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -54,7 +56,6 @@ const ToolListSearch = ({ pageSize }) => {
             <Spin tip="Đang tìm kiếm sản phẩm bằng hình ảnh..." size="large" >
                 <div className="text-center py-6" />
             </Spin>
-
         );
     }
 
@@ -73,9 +74,24 @@ const ToolListSearch = ({ pageSize }) => {
     }
 
     return (
-        <div>
+        <div className="">
+            {/* Hiển thị ảnh người dùng đã tìm kiếm */}
+            {searchedImage && (
+                <>
+                    <SectionTitle>Hình ảnh bạn đang tìm:</SectionTitle>
+                    <div className="w-80 h-80 mx-auto bg-white shadow-sm border border-gray-100 rounded-md p-2 flex items-center justify-center">
+                        <Image
+                            src={searchedImage}
+                            alt="Ảnh tìm kiếm"
+                            style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                        />
+                    </div>
+                </>
+            )}
             <SectionTitle>Kết quả tìm kiếm bằng hình ảnh</SectionTitle>
 
+
+            <Divider className="my-4" />
 
             {/* Danh sách sản phẩm */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">

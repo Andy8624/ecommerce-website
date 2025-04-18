@@ -38,13 +38,13 @@ export const callGetToolByToolId = async (id) => {
 }
 
 export const callGetAllToolByUserId = async (id) => {
-  const path = `/api/v1/tools/user-tools/${id}?size=2&page=0&sort=createdAt,desc`;
+  const path = `/api/v1/tools/user-tools/${id}?size=200&page=0&sort=createdAt,desc`;
   const res = await axios.get(path);
   return res?.data?.result;
 }
 
 export const searchToolByName = async (searchTerm) => {
-  const path = `/api/v1/tools/name?filter=name ~ '${searchTerm}'&page=1&size=5`;
+  const path = `/api/v1/tools/name?filter=name ~ '${searchTerm}'&page=1&size=200`;
   const res = await axios.get(path);
   return res?.data;
 }

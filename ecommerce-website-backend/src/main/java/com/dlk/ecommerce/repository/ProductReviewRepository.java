@@ -2,14 +2,15 @@ package com.dlk.ecommerce.repository;
 
 import com.dlk.ecommerce.domain.entity.ProductReview;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface ProductReviewRepository extends
-        JpaRepository<ProductReview, Long>,
-        JpaSpecificationExecutor<ProductReview> {
+@Repository
+public interface ProductReviewRepository extends JpaRepository<ProductReview, Long> {
+    List<ProductReview> findByTool_ToolIdAndUser_UserId(Long toolId, String userId);
+
     List<ProductReview> findByTool_ToolId(Long toolId);
 
-    List<ProductReview> findByTool_ToolIdAndUser_UserId(long tool_toolId, String user_userId);
+    List<ProductReview> findByUser_UserId(String userId);
 }

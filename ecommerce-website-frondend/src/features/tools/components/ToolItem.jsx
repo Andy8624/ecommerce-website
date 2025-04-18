@@ -64,6 +64,8 @@ const ToolItem = ({ tool, similarProduct = [] }) => {
                             <span
                                 className="text-sm cursor-pointer text-two-lines product-name min-h-[40px]"
                                 onClick={navigateToDetailPage}
+                                style={{ fontWeight: 500 }}
+                                title={realTool?.name}
                             >
                                 {realTool?.name}
                             </span>

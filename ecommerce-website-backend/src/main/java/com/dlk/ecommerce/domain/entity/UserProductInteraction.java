@@ -28,6 +28,5 @@ public class UserProductInteraction extends BaseEntity {
     Tool tool;
 
     @Column(nullable = false)
-    // Ví dụ: ADD_CART, CLICK, PURCHASE, RATING, etc.
     InteractionType interactionType;
 }

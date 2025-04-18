@@ -7,6 +7,7 @@ const ProductGallery = ({ tool }) => {
     const [hoveredImage, setHoveredImage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const images = tool?.imageTools || [];
+    console.log("images", images);
     const openModal = (imageUrl) => {
         setSelectedImage(imageUrl);
         setIsModalOpen(true);

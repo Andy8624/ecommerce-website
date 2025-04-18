@@ -18,8 +18,16 @@ import java.util.List;
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("*")
-                .withSockJS();
+        registry.addEndpoint("/ws").setAllowedOriginPatterns(
+                "http://localhost:3000",
+                "http://localhost:4173",
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:5175",
+                "http://localhost:5176",
+                "https://d61vkntn-5173.asse.devtunnels.ms",
+                "https://9860-2402-800-63b5-b8af-9c9-39fb-97c3-eea.ngrok-free.app"
+        ).withSockJS();
     }
 
     @Override

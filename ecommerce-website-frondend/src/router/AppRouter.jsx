@@ -27,6 +27,7 @@ import ProductForm from "../features/seller/components/ProductForm";
 import SearchProductPage from "../pages/SearchProductPage";
 import SimilarProductList from "../features/tools/components/SimilarProductList";
 import AuthPage from '../features/auth/pages/AuthPage';
+import SemanticSearchResults from "../features/tools/components/SemanticSearchResults";
 
 const router = createBrowserRouter(
     [
@@ -79,6 +80,10 @@ const router = createBrowserRouter(
                 {
                     path: "result-search-image",
                     element: <SearchProductPage />,
+                },
+                {
+                    path: "result-semantic-search",
+                    element: <SemanticSearchResults />,
                 },
                 {
                     path: "similar-products/:toolId",

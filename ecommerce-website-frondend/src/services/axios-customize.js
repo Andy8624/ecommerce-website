@@ -4,9 +4,10 @@ import { store } from "../redux/store";
 import { setRefreshTokenAction } from "../redux/slices/accountSlice";
 import { Modal, notification } from "antd";
 import Cookies from "js-cookie";
+import { BASE_URL } from "../utils/Config";
 
 const instance = axios.create({
-    baseURL: "http://localhost:8080/",
+    baseURL: `${BASE_URL}/`,
     withCredentials: true,
 });
 
