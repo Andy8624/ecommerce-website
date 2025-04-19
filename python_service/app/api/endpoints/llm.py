@@ -21,7 +21,7 @@ async def semantic_search(
     API tìm kiếm ngữ nghĩa sản phẩm dựa trên từ khóa người dùng nhập vào.
     Sử dụng Gemini để chuẩn hóa và mở rộng câu truy vấn, sau đó dùng BERT để tìm kiếm ngữ nghĩa.
     """
-    search_results = await cbf_service.hybrid_search(query, top_k)
+    search_results = await cbf_service.semantic_search(query, top_k)
     return {
         "query": query,
         "results_count": len(search_results),

@@ -144,6 +144,10 @@ const router = createBrowserRouter(
                 {
                     path: "product-form",
                     element: <ProductForm />
+                },
+                {
+                    path: "product-form/:toolId",
+                    element: <ProductForm />
                 }
             ]
         },

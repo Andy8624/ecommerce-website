@@ -53,13 +53,14 @@ const InputHeader = () => {
 
                 message.loading({
                     content: 'Đang tìm kiếm ngữ nghĩa...',
-                    key: 'semanticSearch'
+                    key: 'semanticSearch',
+                    duration: 50,
                 });
 
-                const results = await sematicSearch(semanticQuery, 20);
+                const results = await sematicSearch(semanticQuery, 200);
 
                 message.success({
-                    content: `Tìm thấy ${results.results_count} kết quả liên quan đến "${semanticQuery}"`,
+                    content: `Tìm kiếm thành công kết quả liên quan đến "${semanticQuery}"`,
                     key: 'semanticSearch'
                 });
 

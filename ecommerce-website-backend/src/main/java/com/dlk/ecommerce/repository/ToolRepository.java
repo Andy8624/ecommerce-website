@@ -21,6 +21,6 @@ public interface ToolRepository extends JpaRepository<Tool, Long>,
     Optional<Tool> findByIdIfNotDeleted(@Param("id") Long id);
 
     @Query("SELECT new com.dlk.ecommerce.domain.response.recommendation.CBFResponse(t.toolId, t.name, t.description, tt.name, t.brand, t.imageUrl, t.price) " +
-            "FROM Tool t JOIN t.toolType tt")
+            "FROM Tool t JOIN t.toolType tt WHERE t.deleted = false")
     List<CBFResponse> findCBFResponseData();
 }

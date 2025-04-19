@@ -10,7 +10,12 @@ const { Text, Title } = Typography;
 const SemanticSearchResults = ({ pageSize = 18 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const location = useLocation();
+    const [isClosed, setIsClosed] = useState(false);
+    const handleClose = () => {
+        setIsClosed(true);
+    };
     const searchResults = location.state?.searchResults;
+    console.log("searchResults", searchResults);
     const query = location.state?.query || "";
 
     if (!searchResults) {
@@ -28,16 +33,8 @@ const SemanticSearchResults = ({ pageSize = 18 }) => {
         return <Empty description="Không tìm thấy sản phẩm nào phù hợp" />;
     }
 
-    // Nhóm sản phẩm theo matchType
-    const exactMatches = products.filter(p => p.matchType === "exact");
-    const semanticMatches = products.filter(p => p.matchType === "semantic");
-
-    // Hiển thị sản phẩm theo trang hiện tại
-    const handleGetPageData = () => {
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return products.slice(startIndex, endIndex);
-    };
+    // Sắp xếp các sản phẩm theo điểm số (score) giảm dần
+    const sortedProducts = [...products].sort((a, b) => b.score - a.score);
 
     return (
         <div className="p-7">
@@ -48,22 +45,31 @@ const SemanticSearchResults = ({ pageSize = 18 }) => {
                     <Tag color="blue" className="text-base px-3 py-1">
                         {query}
                     </Tag>
+                    <Text className="ml-4">Tìm thấy {products.length} sản phẩm</Text>
                 </div>
-                <Alert
+                {!isClosed && <Alert
                     icon={<InfoCircleOutlined />}
                     message="Tìm kiếm ngữ nghĩa"
-                    description="Tìm kiếm ngữ nghĩa giúp bạn tìm được các sản phẩm liên quan đến ngữ cảnh của từ khóa, không chỉ dựa trên từng từ riêng lẻ."
-                    type="info"
+                    description="Công nghệ tìm kiếm ngữ nghĩa hiểu được ý định tìm kiếm của bạn, giúp hiển thị các sản phẩm liên quan dựa trên ngữ cảnh và ý nghĩa chứ không chỉ từng từ khóa đơn lẻ. Kết quả được sắp xếp theo mức độ liên quan nhất với nhu cầu thực tế của bạn." type="info"
                     showIcon
                     className="mb-4"
-                />
+                    action={
+                        <button
+                            className="text-blue-500 hover:text-blue-700 bg-white px-2 border border-blue-500 rounded hover:bg-blue-100 transition duration-300"
+                            onClick={handleClose}
+                        >
+                            Đóng
+                        </button>
+                    }
+                />}
             </div>
 
-            {exactMatches.length > 0 && (
+            {/* Hiển thị các sản phẩm có điểm số cao nhất ở đầu */}
+            {sortedProducts.length > 0 && (
                 <div className="mb-6">
-                    <SectionTitle>Kết quả chính xác ({exactMatches.length})</SectionTitle>
+                    <SectionTitle>Kết quả tìm kiếm hàng đầu</SectionTitle>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-4">
-                        {exactMatches.slice(0, 6).map((product) => (
+                        {sortedProducts.slice(0, 6).map((product) => (
                             <ToolItem
                                 key={product.toolId}
                                 tool={{
@@ -74,25 +80,20 @@ const SemanticSearchResults = ({ pageSize = 18 }) => {
                                     toolType: product.toolType
                                 }}
                                 score={product.score}
-                                isExactMatch={true}
+                                isHighlight={true}
                             />
                         ))}
                     </div>
-                    {/* {exactMatches.length > 6 && (
-                        <div className="text-center">
-                            <span className="text-blue-500 cursor-pointer hover:underline">
-                                Xem thêm {exactMatches.length - 6} sản phẩm khác
-                            </span>
-                        </div>
-                    )} */}
                 </div>
             )}
 
-            {semanticMatches.length > 0 && (
-                <div className="mb-6">
-                    <SectionTitle>Kết quả liên quan ({semanticMatches.length})</SectionTitle>
+            {sortedProducts.length > 6 && (
+                <>
+                    <Divider className="my-4" />
+
+                    <SectionTitle>Các kết quả khác</SectionTitle>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                        {semanticMatches.slice(0, 12).map((product) => (
+                        {sortedProducts.slice(6).slice((currentPage - 1) * pageSize, currentPage * pageSize).map((product) => (
                             <ToolItem
                                 key={product.toolId}
                                 tool={{
@@ -106,34 +107,14 @@ const SemanticSearchResults = ({ pageSize = 18 }) => {
                             />
                         ))}
                     </div>
-                </div>
+                </>
             )}
 
-            <Divider className="my-4" />
-
-            <SectionTitle>Tất cả kết quả</SectionTitle>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {handleGetPageData().map((product) => (
-                    <ToolItem
-                        key={product.toolId}
-                        tool={{
-                            toolId: product.toolId,
-                            name: product.name,
-                            price: product.price,
-                            imageUrl: product.imageUrl,
-                            toolType: product.toolType
-                        }}
-                        score={product.score}
-                        isExactMatch={product.matchType === "exact"}
-                    />
-                ))}
-            </div>
-
-            {products.length > pageSize && (
+            {sortedProducts.length > 6 + pageSize && (
                 <div className="mt-6 flex justify-center">
                     <Pagination
                         current={currentPage}
-                        total={products.length}
+                        total={sortedProducts.length - 6} // Trừ 6 sản phẩm đã hiển thị ở phần đầu
                         pageSize={pageSize}
                         onChange={setCurrentPage}
                         showSizeChanger={false}

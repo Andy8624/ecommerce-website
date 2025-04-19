@@ -13,7 +13,7 @@ const { Title, Text } = Typography;
 const SimilarProductList = ({ pageSize = 18 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const { toolId } = useParams();
-    const { cbf_tools, isLoading: isLoadingCBF, error: cbfError } = useCBFProduct(toolId, 18);
+    const { cbf_tools, isLoading: isLoadingCBF, error: cbfError } = useCBFProduct(toolId, 100);
     const [sortedProducts, setSortedProducts] = useState([]);
     const [currentTool, setCurrentTool] = useState(null);
     const [isLoading, setIsLoading] = useState(true);

@@ -1,20 +1,21 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { callUpdateTool } from "../../../services/ToolService";
-import { toast } from "react-toastify";
 
-export function useUpdateTool() {
-    const queryClient = useQueryClient();
+export const useUpdateTool = () => {
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    const { mutate: updateTool, isLoading: isUpdating } = useMutation({
-        mutationFn: ({ toolId, updatedTool }) => callUpdateTool(toolId, updatedTool),
-        onSuccess: () => {
-            queryClient.invalidateQueries(["tools"]);
-            toast.success("Cập nhật sản phẩm thành công!");
-        },
-        onError: () => {
-            toast.error("Cập nhật sản phẩm thất bại. Vui lòng thử lại.");
-        },
-    });
+    const updateTool = async (toolId, updatedTool) => {
+        setIsUpdating(true);
+        try {
+            const response = await callUpdateTool(toolId, updatedTool);
+            return response;
+        } catch (error) {
+            console.error("Error updating tool:", error);
+            return null;
+        } finally {
+            setIsUpdating(false);
+        }
+    };
 
     return { updateTool, isUpdating };
-}
+};

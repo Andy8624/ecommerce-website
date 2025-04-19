@@ -11,9 +11,11 @@ logging.basicConfig(level=logging.DEBUG)
 class UserBasedCollaborativeFiltering:
     def __init__(self, 
                     cf_data_url="http://host.docker.internal:8080/api/v1/recommendation/cf-data",
+                    tool_data_url="http://host.docker.internal:8080/api/v1/tools",
                     model_path = '5CD-AI/Vietnamese-Sentiment-visobert'
                  ):
         self.cf_data_url = cf_data_url
+        self.tool_data_url = tool_data_url
         self.model_path = model_path
         
         # Khởi tạo mô hình phân tích cảm xúc
@@ -242,13 +244,45 @@ class UserBasedCollaborativeFiltering:
         # Trả về danh sách top_k sản phẩm được gợi ý
         return [(tool_id, score) for tool_id, score in recommended_items[:top_k]]
 
+    async def get_latest_items(self, top_k=5):
+        """
+        Lấy các sản phẩm mới nhất khi không có dữ liệu tương tác hoặc đánh giá nào.
+        """
+        async with httpx.AsyncClient() as client:
+            try:
+                # Gọi API để lấy tất cả sản phẩm
+                response = await client.get(
+                    self.tool_data_url, 
+                    params={"page": 0, "pageSize": top_k, "sortBy": "createdAt", "sortOrder": "desc"}
+                )
+                response.raise_for_status()
+                
+                data = response.json()
+                result = data.get("data", {}).get("result", [])
+                
+                # Trả về danh sách các sản phẩm mới nhất
+                latest_items = []
+                for item in result:
+                    latest_items.append((str(item["toolId"]), 1.0))  # Gán score mặc định là 1.0
+                    
+                return latest_items
+                
+            except Exception as e:
+                logging.error(f"Lỗi khi lấy sản phẩm mới nhất: {e}", exc_info=True)
+                return []
+
     async def get_popular_items(self, cf_data, top_k=5):
         """
-            Lấy các sản phẩm phổ biến nhất dựa trên số lượng tương tác và đánh giá.
-            Dược sử dụng cho người dùng mới (cold start).
+        Lấy các sản phẩm phổ biến nhất dựa trên số lượng tương tác và đánh giá.
+        Được sử dụng cho người dùng mới (cold start).
         """
         interactions = cf_data.get("interactions", [])
         reviews = cf_data.get("reviews", [])
+        
+        # Nếu cả interactions và reviews đều rỗng, lấy sản phẩm mới nhất
+        if not interactions and not reviews:
+            logging.info("Không có dữ liệu tương tác và đánh giá, lấy sản phẩm mới nhất")
+            return await self.get_latest_items(top_k)
         
         # Tổng hợp tất cả tương tác theo sản phẩm
         item_popularity = {}
@@ -281,10 +315,10 @@ class UserBasedCollaborativeFiltering:
         popular_items = sorted(item_popularity.items(), key=lambda x: x[1], reverse=True)
         
         return popular_items[:top_k]
-    
+
     async def get_recommendations(self, user_id: str, top_k=12):
         """
-            Hàm chính để lấy danh sách các sản phẩm gợi ý cho một người dùng
+        Hàm chính để lấy danh sách các sản phẩm gợi ý cho một người dùng
         """
         # Gọi API để lấy dữ liệu CF
         data = await self.fetch_cf_data()
@@ -292,25 +326,29 @@ class UserBasedCollaborativeFiltering:
         interactions = cf_data.get("interactions", [])
         reviews = cf_data.get("reviews", [])
 
+        # Nếu cả interactions và reviews đều rỗng, trả về sản phẩm mới nhất
+        if not interactions and not reviews:
+            logging.info("Không có dữ liệu tương tác và đánh giá, trả về sản phẩm mới nhất")
+            return await self.get_latest_items(top_k)
+
         # Kiểm tra xem user_id có trong danh sách tương tác không
         user_exists = any(interaction["userId"] == user_id for interaction in interactions)
         
         # Nếu là người dùng mới (không có tương tác), sử dụng gợi ý phổ biến
         if not user_exists:
-            logging.debug("Người dùng mới, sử dụng gợi ý phổ biến.")
+            logging.info("Người dùng mới, sử dụng gợi ý phổ biến.")
             return await self.get_popular_items(cf_data, top_k)
 
-        # Nếu người dùng đã có tương tác
         # Xây dựng ma trận user-item từ dữ liệu tương tác
         user_item_matrix_df = self.build_user_item_matrix(interactions)
-
+        
         # Chuẩn hóa ma trận user-item
         user_item_matrix_df = self.normalize_matrix(user_item_matrix_df)
-
+        
         # Chuyển đổi ma trận thành định dạng sparse matrix (CSR)
-        # Tich hợp thông tin đánh giá vào ma trận user-item
+        # Tích hợp thông tin đánh giá vào ma trận user-item
         user_item_matrix_df, csr_matrix = self.integrate_reviews(user_item_matrix_df, reviews)
-
+        
         # Gọi hàm gợi ý sản phẩm dựa trên User-Based Collaborative Filtering
         recommended_products = self.recommend_by_user_based(user_id, user_item_matrix_df, csr_matrix, top_k)
         return recommended_products

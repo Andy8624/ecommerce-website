@@ -3,51 +3,51 @@ import { Row, Col } from 'antd';
 const categories = [
     {
         name: 'Bút Bi',
-        image: 'https://via.assets.so/watch.png?id=1',
+        image: 'assets/category/butbi.webp',
     },
     {
         name: 'Bút Chì',
-        image: 'https://via.assets.so/watch.png?id=2',
+        image: 'assets/category/butchi.png  ',
     },
     {
         name: 'Tẩy',
-        image: 'https://via.assets.so/watch.png?id=3',
+        image: 'assets/category/gom.png',
     },
     {
         name: 'Thước Kẻ',
-        image: 'https://via.assets.so/watch.png?id=4',
+        image: 'assets/category/thuoc.webp',
     },
     {
         name: 'Giấy Note',
-        image: 'https://via.assets.so/watch.png?id=5',
+        image: 'assets/category/giaynote.webp',
     },
     {
-        name: 'Kẹp Giấy',
-        image: 'https://via.assets.so/watch.png?id=6',
+        name: 'Kéo',
+        image: 'assets/category/keo.jpg',
     },
     {
-        name: 'Băng Dính',
-        image: 'https://via.assets.so/watch.png?id=7',
+        name: 'Bút xóa',
+        image: 'assets/category/butxoa.webp',
     },
     {
-        name: 'Ghim Bấm',
-        image: 'https://via.assets.so/watch.png?id=8',
+        name: 'Giấy',
+        image: 'assets/category/giay.jpeg',
     },
     {
         name: 'Bìa Hồ Sơ',
-        image: 'https://via.assets.so/watch.png?id=9',
+        image: 'assets/category/biasomi.webp',
     },
     {
         name: 'Sổ Tay',
-        image: 'https://via.assets.so/watch.png?id=10',
+        image: 'assets/category/sotay.jpeg',
     },
     {
         name: 'Bảng Trắng',
-        image: 'https://via.assets.so/watch.png?id=11',
+        image: 'assets/category/bang.webp',
     },
     {
         name: 'Phấn Viết Bảng',
-        image: 'https://via.assets.so/watch.png?id=12',
+        image: 'assets/category/phan.jpeg',
     },
 ];
 

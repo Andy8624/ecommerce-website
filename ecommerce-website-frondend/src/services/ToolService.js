@@ -13,9 +13,6 @@ export const createTool = async (newTool) => {
 
 export const callUpdateTool = async (toolId, updatedTool) => {
   const res = await axios.put(`/api/v1/tools/${toolId}`, updatedTool);
-  // console.log("Request update gửi đi");
-  // console.log(updatedTool);
-
   return res?.data;
 }
 
