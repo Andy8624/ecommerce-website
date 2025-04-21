@@ -1,18 +1,19 @@
 import { CameraOutlined, SearchOutlined } from "@ant-design/icons";
 import { Input, Upload, message } from "antd";
 import { truncateDescription } from "../../utils/truncaseDesc";
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { callSearchProductByImage } from "../../services/ImageSearchService";
 import { sematicSearch } from "../../services/RecomendationService";
+import { searchToolByName } from "../../services/ToolService";
 
 const InputHeader = () => {
     const [searchText, setSearchText] = useState("");
     const [isSemanticSearch, setIsSemanticSearch] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const debounceTimerRef = useRef(null);
 
     const suggestionList = [
         "Bút Máy Cao Cấp",
@@ -25,7 +26,7 @@ const InputHeader = () => {
         "Giấy A4 Định Lượng Cao",
     ];
 
-    // Xử lý thay đổi text trong ô tìm kiếm
+    // Xử lý thay đổi text trong ô tìm kiếm với debounce
     const handleSearchTextChange = (e) => {
         const text = e.target.value;
         setSearchText(text);
@@ -36,16 +37,27 @@ const InputHeader = () => {
     };
 
     // Xử lý tìm kiếm văn bản
-    const handleSearchText = async () => {
-        if (!searchText.trim()) {
+    const handleSearchText = async (customText) => {
+        // Hủy timer debounce cũ nếu có
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+
+        // Sử dụng customText nếu được cung cấp, ngược lại sử dụng searchText từ state
+        const textToSearch = customText !== undefined ? customText : searchText;
+
+        if (!textToSearch.trim()) {
             message.warning("Vui lòng nhập từ khóa tìm kiếm.");
             return;
         }
 
         try {
-            if (isSemanticSearch) {
+            // Kiểm tra lại có phải tìm kiếm ngữ nghĩa hay không
+            const isSearchSemantic = textToSearch.startsWith('@');
+
+            if (isSearchSemantic) {
                 // Tìm kiếm ngữ nghĩa nếu bắt đầu bằng @
-                const semanticQuery = searchText.substring(1).trim(); // Bỏ @ ở đầu
+                const semanticQuery = textToSearch.substring(1).trim(); // Bỏ @ ở đầu
                 if (!semanticQuery) {
                     message.warning("Vui lòng nhập từ khóa tìm kiếm sau @.");
                     return;
@@ -73,16 +85,57 @@ const InputHeader = () => {
                 });
             } else {
                 // Tìm kiếm thông thường
-                const path = `http://localhost:8000/python/api/v1/search?query=${encodeURIComponent(searchText)}`;
-                const response = await axios.get(path);
-                console.log("Kết quả tìm kiếm bằng text:", response?.data?.results);
-                message.success("Tìm kiếm thành công!");
+                message.loading({
+                    content: 'Đang tìm kiếm...',
+                    key: 'normalSearch',
+                    duration: 50,
+                });
+
+                // Gọi API tìm kiếm sản phẩm theo tên
+                const results = await searchToolByName(textToSearch);
+
+                message.success({
+                    content: `Đã tìm thấy ${results?.length || 0} kết quả cho "${textToSearch}"`,
+                    key: 'normalSearch'
+                });
+
+                // Chuyển đến trang kết quả tìm kiếm
+                navigate("/search-results", {
+                    state: {
+                        searchResults: results,
+                        query: textToSearch
+                    }
+                });
             }
         } catch (error) {
             message.error("Lỗi khi tìm kiếm.");
             console.error("API error:", error);
         }
     };
+
+    // Debounce việc tìm kiếm khi người dùng nhập
+    useEffect(() => {
+        // Chỉ áp dụng debounce cho tìm kiếm thông thường, không phải tìm kiếm ngữ nghĩa
+        if (searchText && !isSemanticSearch && searchText.trim()) {
+            // Hủy timer debounce cũ nếu có
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+
+            // Tạo timer mới - chỉ tìm kiếm sau 500ms người dùng ngừng gõ
+            debounceTimerRef.current = setTimeout(() => {
+                // Không tự tìm kiếm khi gõ, chỉ khi nhấn Enter hoặc nút tìm kiếm
+                debounceTimerRef.current = null;
+            }, 500);
+        }
+
+        // Cleanup function
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, [searchText, isSemanticSearch]);
 
     // Xử lý tìm kiếm bằng ảnh
     const handleUpload = async (file) => {
@@ -105,6 +158,15 @@ const InputHeader = () => {
         return false;
     };
 
+    // Xử lý khi click vào gợi ý
+    const handleSuggestionClick = (suggestion) => {
+        const newSearchText = "@" + suggestion;
+        setSearchText(newSearchText);
+        setIsSemanticSearch(true);
+        // Truyền trực tiếp giá trị mới vào hàm tìm kiếm
+        handleSearchText(newSearchText);
+    };
+
     return (
         <div className="relative w-[50%] mt-2">
             {/* Thanh tìm kiếm */}
@@ -114,11 +176,11 @@ const InputHeader = () => {
                     placeholder="Tìm kiếm thường hoặc @tìm kiếm ngữ nghĩa"
                     value={searchText}
                     onChange={handleSearchTextChange}
-                    onPressEnter={handleSearchText}
+                    onPressEnter={() => handleSearchText()}
                     suffix={
                         <SearchOutlined
                             className={`px-2 cursor-pointer text-xl hover:text-[var(--gold-medium)] active:scale-75 transition duration-200 ${isSemanticSearch ? 'text-blue-500' : 'text-gray-500'}`}
-                            onClick={handleSearchText}
+                            onClick={() => handleSearchText()}
                         />
                     }
                     className={`w-full ps-4 py-2 rounded-lg border-transparent shadow-sm hover:border-[var(--gold-medium)] focus:border-[var(--gold-medium)] focus-within:border-[var(--gold-medium)] ${isSemanticSearch ? 'text-blue-500' : ''}`}
@@ -151,11 +213,7 @@ const InputHeader = () => {
                     <span
                         key={index}
                         className="hover:underline cursor-pointer whitespace-nowrap mr-3"
-                        onClick={() => {
-                            setSearchText(suggestion);
-                            setIsSemanticSearch(false);
-                            handleSearchText();
-                        }}
+                        onClick={() => handleSuggestionClick(suggestion)}
                         title={suggestion}
                     >
                         {truncateDescription(suggestion, 6)}

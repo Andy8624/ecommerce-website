@@ -6,6 +6,18 @@ export const readTools = async () => {
   return res?.data?.result;
 }
 
+export const getAllToolByToolTypeId = async (toolTypeId) => {
+  const path = `/api/v1/tools?size=100&page=0&sort=createdAt,desc&filter=toolType.toolTypeId=${toolTypeId}`;
+  const res = await axios.get(path);
+  return res?.data?.result;
+}
+
+export const getAllToolByToolName = async (toolName) => {
+  const path = `/api/v1/tools?size=100&page=0&sort=createdAt,desc&filter=name~'${toolName}'`;
+  const res = await axios.get(path);
+  return res?.data?.result;
+}
+
 export const createTool = async (newTool) => {
   const res = await axios.post(`/api/v1/tools`, newTool);
   return res?.data;
@@ -41,9 +53,14 @@ export const callGetAllToolByUserId = async (id) => {
 }
 
 export const searchToolByName = async (searchTerm) => {
-  const path = `/api/v1/tools/name?filter=name ~ '${searchTerm}'&page=1&size=200`;
-  const res = await axios.get(path);
-  return res?.data;
+  try {
+    const path = `/api/v1/tools?size=100&page=0&sort=createdAt,desc&filter=name~'${searchTerm}'`;
+    const res = await axios.get(path);
+    return res?.data?.result || [];
+  } catch (error) {
+    console.error("Error searching tools by name:", error);
+    return [];
+  }
 }
 
 export const getToolsByToolIds = async (data) => {

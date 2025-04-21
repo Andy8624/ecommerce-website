@@ -28,6 +28,9 @@ import SearchProductPage from "../pages/SearchProductPage";
 import SimilarProductList from "../features/tools/components/SimilarProductList";
 import AuthPage from '../features/auth/pages/AuthPage';
 import SemanticSearchResults from "../features/tools/components/SemanticSearchResults";
+import ShopDetailPage from "../pages/ShopDetailPage";
+import TypeProductListPage from "../pages/TypeProductListPage";
+import SearchResultsPage from "../pages/SearchResultsPage";
 
 const router = createBrowserRouter(
     [
@@ -92,6 +95,18 @@ const router = createBrowserRouter(
                             <SimilarProductList />
                             <ScrollRestoration />
                         </>
+                },
+                {
+                    path: "shop/:shopId",
+                    element: <ShopDetailPage />
+                },
+                {
+                    path: "type/:typeId",
+                    element: <TypeProductListPage />
+                },
+                {
+                    path: "search-results",
+                    element: <SearchResultsPage />,
                 }
             ]
         },

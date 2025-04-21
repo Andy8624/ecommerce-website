@@ -1,11 +1,16 @@
 import { Button, Row, Col, Typography, message } from "antd";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom"; // Add this import
+import { useGetUserById } from "../../../hooks/useGetUserById";
 
 const { Text } = Typography;
 
 const ShopInfo = ({ shop }) => {
+    const navigate = useNavigate(); // Add this
     const currentUser = useSelector(state => state.account?.user);
-
+    const shopId = shop?.userId;
+    const { getUserById } = useGetUserById(shopId);
+    console.log("ShopInfo", getUserById);
     // Hàm xử lý khi click vào nút Chat Ngay
     const handleChatNow = () => {
         // console.log("Chat Now clicked", currentUser);
@@ -35,6 +40,15 @@ const ShopInfo = ({ shop }) => {
             detail: shopContact
         });
         window.dispatchEvent(openChatWindowEvent);
+    };
+
+    // Thêm hàm xử lý khi click vào nút Xem Shop
+    const handleViewShop = () => {
+        if (shop && shop.userId) {
+            navigate(`/shop/${shop.userId}`);
+        } else {
+            message.error("Không thể xem thông tin shop này");
+        }
     };
 
     return (
@@ -107,7 +121,7 @@ const ShopInfo = ({ shop }) => {
                             borderRadius: "6px",
                             width: "100px",
                         }}
-                        onClick={() => { message.info("Chức năng đang phát triển") }}
+                        onClick={handleViewShop} // Thay đổi đoạn này
                     >
                         Xem Shop
                     </Button>
