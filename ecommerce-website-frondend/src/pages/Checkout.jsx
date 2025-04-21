@@ -9,9 +9,11 @@ import { useGetAllPaymentMethod } from '../features/checkout/hooks/payment-metho
 import { toast } from 'react-toastify';
 import { useCartContext } from '../hooks/useCartContext';
 import { useAddressUser } from '../hooks/useAddressUser';
+import { saveInteraction } from "../services/RecomendationService"; // Import saveInteraction
 
 import useShippingCostMutation from "../hooks/useShippingCost";
 import OrderProductList from '../features/checkout/Components/OrderProductList';
+import { set } from 'react-hook-form';
 const { Content } = Layout;
 
 const CheckoutPage = () => {
@@ -135,98 +137,151 @@ const CheckoutPage = () => {
 
     const { createOrder } = useCreateOrder();
 
-    // console.log(groupedCheckoutProducts)
+    // Hàm ghi nhận tương tác mua hàng
+    const logPurchaseInteraction = (userId, productId, quantity) => {
+        if (!userId || !productId) return;
+
+        try {
+            // Ghi nhận tương tác PURCHASE với sản phẩm và số lượng
+            saveInteraction(userId, productId, 'PURCHASE', quantity);
+            console.log(`Logged PURCHASE interaction: User ${userId} bought product ${productId}, quantity: ${quantity}`);
+        } catch (error) {
+            console.error("Error logging purchase interaction:", error);
+        }
+    };
+
+    const [loading, setIsloading] = useState(false);
+
     const handleCheckout = async () => {
-        if (selectedAddress == null) {
-            toast.error("Vui lòng chọn địa chỉ giao hàng");
-            return;
-        }
-        if (selectedPaymentMethod == null) {
-            toast.error("Vui lòng chọn phương thức thanh toán");
-            return;
-        }
-
-        for (const sellerGroup of Object.values(groupedCheckoutProducts)) {
-            console.log("sellerGroup products", sellerGroup?.products);
-            const order = {
-                status: "pending",
-                shippingCost: sellerGroup?.shippingCost,
-                totalToolCost: sellerGroup?.totalSellerAmount,
-                user: {
-                    userId: userId,
-                    email: user?.email,
-                    imageUrl: user?.imageUrl,
-                    phone: user?.phone,
-                    fullName: user?.fullName,
-                },
-                cartId: user?.cartId,
-                paymentMethod: selectedPaymentMethod,
-                address: selectedAddress,
-                type: "PRODUCT",
-                orderTools: sellerGroup?.products,
-                shopId: sellerGroup?.products[0]?.ownerUser?.userId,
-            }
-            const data = await createOrder(order);
-            if (data === false) {
-                toast.warning("Sản phẩm bạn đặt đã hết, xin hãy quay lại sau!");
-                navigate("/cart");
+        try {
+            // Kiểm tra đầu vào
+            if (selectedAddress == null) {
+                toast.error("Vui lòng chọn địa chỉ giao hàng");
                 return;
-            } else {
-                toast.success("Đặt hàng thành công");
-                navigate("/");
+            }
+            if (selectedPaymentMethod == null) {
+                toast.error("Vui lòng chọn phương thức thanh toán");
+                return;
             }
 
+            setIsloading(true);
 
-            // -------------------------------------------------
+            // Xử lý đơn hàng từ giỏ hàng
+            if (!isBuyNow) {
 
-            // // Mua ngay
-            // if (selectedItems?.length == 0) {
-            //     let newOrderItem = {
-            //         quantity: buyNowItem?.quantity,
-            //         order: { orderId },
-            //         tool: { toolId: buyNowItem?.product?.toolId }
-            //     }
-            //     createOrderTool(newOrderItem);
-            //     newOrderItem = {}
-            //     navigate("/")
-            //     toast.success("Thanh toán thành công");
-            // }
+                for (const sellerGroup of Object.values(groupedCheckoutProducts)) {
+                    try {
+                        console.log("sellerGroup products", sellerGroup?.products);
+                        const order = {
+                            status: "pending",
+                            shippingCost: sellerGroup?.shippingCost,
+                            totalToolCost: sellerGroup?.totalSellerAmount,
+                            user: {
+                                userId: userId,
+                                email: user?.email,
+                                imageUrl: user?.imageUrl,
+                                phone: user?.phone,
+                                fullName: user?.fullName,
+                            },
+                            cartId: user?.cartId,
+                            paymentMethod: selectedPaymentMethod,
+                            address: selectedAddress,
+                            type: "PRODUCT",
+                            orderTools: sellerGroup?.products,
+                            shopId: sellerGroup?.products[0]?.ownerUser?.userId,
+                        }
 
-            // // Mua trong gio hang
-            // if (selectedItems?.length != 0) {
-            //     // const checkoutItem = cartItems?.filter(item => selectedItems?.includes(item?.id));
-            //     const checkoutItem = sellerGroup?.products;
-            //     console.log("checkoutItem", checkoutItem);
+                        const data = await createOrder(order);
 
-            //     let newOrderItems = {};
-            //     checkoutItem?.forEach((item) => {
-            //         newOrderItems = {
-            //             quantity: item?.quantity,
-            //             order: { orderId },
-            //             tool: { toolId: item?.toolId },
-            //             name: item?.name,
-            //             price: item?.price,
-            //         }
-            //         console.log("newOrderItems", newOrderItems);
-            //         createOrderTool(newOrderItems);
-            //         newOrderItems = {};
-            //     });
 
-            //     setCartItems((prevCartItems) => prevCartItems?.filter(item => !checkoutItem?.includes(item?.id)));
-            //     selectedItems?.forEach(itemId => deleteCartTool(itemId));
+                        if (data === null) {
+                            toast.warning("Sản phẩm bạn đặt đã hết, xin hãy quay lại sau!");
+                            navigate("/cart");
+                            return;
+                        } else {
+                            // Ghi nhận tương tác mua hàng cho từng sản phẩm trong đơn hàng
+                            sellerGroup.products.forEach(product => {
+                                logPurchaseInteraction(
+                                    userId,
+                                    product.toolId,
+                                    product.quantity
+                                );
+                            });
+                        }
+                    } catch (orderError) {
+                        console.error("Lỗi khi tạo đơn hàng:", orderError);
+                        toast.error(`Lỗi khi xử lý đơn hàng từ shop ${sellerGroup?.seller?.fullName || 'không xác định'}: ${orderError.message || 'Không thể tạo đơn hàng'}`);
+                        // Tiếp tục với seller tiếp theo nếu có lỗi với một seller
+                    }
+                }
+            }
 
-            //     setCartQuantity(cartQuantity - selectedItems?.length);
-            //     setSelectedItems([]);
-            //     navigate("/");
-            //     toast.success("Thanh toán thành công");
-            // }
+            // Xử lý đơn hàng mua ngay
+            else if (isBuyNow && buyNowItem) {
+                try {
+                    // Tạo đơn hàng cho mua ngay
+                    const buyNowPrice = buyNowItem?.product?.discountedPrice || buyNowItem?.product?.price;
+                    const buyNowOrder = {
+                        status: "pending",
+                        shippingCost: 0, // Tính phí vận chuyển cho mua ngay
+                        totalToolCost: buyNowItem.quantity * buyNowPrice,
+                        user: {
+                            userId: userId,
+                            email: user?.email,
+                            imageUrl: user?.imageUrl,
+                            phone: user?.phone,
+                            fullName: user?.fullName,
+                        },
+                        paymentMethod: selectedPaymentMethod,
+                        address: selectedAddress,
+                        type: "PRODUCT",
+                        orderTools: [
+                            {
+                                ...buyNowItem.product,
+                                quantity: buyNowItem.quantity
+                            }
+                        ],
+                        shopId: buyNowItem.product?.ownerUser?.userId,
+                    };
+
+                    const buyNowData = await createOrder(buyNowOrder);
+
+                    if (buyNowData === false) {
+                        toast.warning("Sản phẩm bạn đặt đã hết, xin hãy quay lại sau!");
+                        navigate(-1); // Quay lại trang trước
+                        return;
+                    } else {
+                        // Ghi nhận tương tác mua hàng
+                        logPurchaseInteraction(
+                            userId,
+                            buyNowItem.product.toolId,
+                            buyNowItem.quantity
+                        );
+                    }
+                } catch (buyNowError) {
+                    console.error("Lỗi khi xử lý đơn hàng mua ngay:", buyNowError);
+                    toast.error(`Lỗi khi xử lý đơn hàng mua ngay: ${buyNowError.message || 'Không thể tạo đơn hàng'}`);
+                    navigate(-1);
+                    return;
+                }
+            }
+
+            setIsloading(false);
+
+            // Xử lý thành công
+            toast.success("Đặt hàng thành công");
+            navigate("/");
+
+        } catch (error) {
+            console.error("Lỗi tổng thể khi thanh toán:", error);
+            toast.error(`Có lỗi xảy ra trong quá trình đặt hàng: ${error.message || 'Vui lòng thử lại sau'}`);
         }
-
     };
 
     return (
         <Layout className="min-h-screen bg-gradient-to-r from-indigo-100 to-purple-200 flex items-center justify-center">
             <Content className="w-[80%] p-4 ">
+
                 <h2 className="text-center font-bold text-2xl mb-3 p-3 bg-white shadow-lg rounded-lg text-[var(--primary-color)]">
                     Thanh toán
                 </h2>
@@ -246,6 +301,7 @@ const CheckoutPage = () => {
                     totalAmount={totalAmount}
                     shipCost={totalShippingCost}
                     onConfirm={handleCheckout}
+                    loading={loading}
                 />
 
             </Content>

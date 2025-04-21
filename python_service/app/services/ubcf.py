@@ -210,7 +210,7 @@ class UserBasedCollaborativeFiltering:
             # Kiểm tra kích thước ma trận
             num_users = csr_matrix.shape[0]
             logging.debug(f"Số lượng người dùng trong ma trận: {num_users}")
-            if num_users <= 1:
+            if num_users < 1:
                 logging.warning("Không đủ người dùng để thực hiện recommendation")
                 return []
             
@@ -274,14 +274,14 @@ class UserBasedCollaborativeFiltering:
                         
                         if user_item_value > 0:
                             # Giảm điểm số nếu NGƯỜI DÙNG HIỆN TẠI đã tương tác (tránh gợi ý lại)
-                            weighted_scores[str(tool_id)] = weighted_scores.get(str(tool_id), 0) + similarity * 0.2
+                            weighted_scores[str(tool_id)] = weighted_scores.get(str(tool_id), 0)*0.05 + similarity * 0.05
                         else:
                             # Cộng điểm số dựa trên độ tương đồng và mức độ tương tác của người dùng tương tự
                             weighted_scores[str(tool_id)] = weighted_scores.get(str(tool_id), 0) + similarity * interaction_value
 
             # Sắp xếp các sản phẩm theo điểm số dự đoán giảm dần
             recommended_items = sorted(weighted_scores.items(), key=lambda x: x[1], reverse=True)
-
+            logging.debug(f"Sản phẩm được gợi ý cho {user_id}: {recommended_items}")
             # Trả về danh sách top_k sản phẩm được gợi ý
             return [(tool_id, score) for tool_id, score in recommended_items[:top_k]]
         

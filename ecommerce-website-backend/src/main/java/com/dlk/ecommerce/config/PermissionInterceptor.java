@@ -41,10 +41,10 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
         String requestURI = request.getRequestURI();
         String httpMethod = request.getMethod();
-        System.out.println(">>> RUN preHandle");
-        System.out.println(">>> path= " + path);
-        System.out.println(">>> http Method " + httpMethod );
-        System.out.println(">>> requestURI " + requestURI);
+//        System.out.println(">>> RUN preHandle");
+//        System.out.println(">>> path= " + path);
+//        System.out.println(">>> http Method " + httpMethod );
+//        System.out.println(">>> requestURI " + requestURI);
 
         String email = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()

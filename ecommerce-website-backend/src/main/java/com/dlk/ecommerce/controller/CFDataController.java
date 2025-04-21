@@ -28,7 +28,7 @@ public class CFDataController {
      */
     @GetMapping
     public ResponseEntity<CFResponse> getCFData() {
-        log.info("Getting CF data for recommendation system");
+//        log.info("Getting CF data for recommendation system");
 
         // Lấy tất cả tương tác người dùng
         List<InteractionDTO> interactions = userProductInteractionService.getAllInteractions();
@@ -37,7 +37,7 @@ public class CFDataController {
         List<ReviewDTO> reviews = productReviewService.getAllReviewsAsDTO();
 
         CFResponse response = new CFResponse(interactions, reviews);
-        LogFormatter.logFormattedRequest("Response CF data", response);
+//        LogFormatter.logFormattedRequest("Response CF data", response);
         return ResponseEntity.ok(response);
     }
 
@@ -49,7 +49,7 @@ public class CFDataController {
             @RequestParam String userId,
             @RequestParam Long toolId,
             @RequestParam String interactionType) {
-        log.info("Saving new interaction for user: {}, product: {}, type: {}", userId, toolId, interactionType);
+//        log.info("Saving new interaction for user: {}, product: {}, type: {}", userId, toolId, interactionType);
 
         try {
             InteractionType type = InteractionType.valueOf(interactionType);

@@ -18,11 +18,11 @@ const TopHeaderSeller = ({ currentNamePage }) => {
     const dispatch = useDispatch();
 
     const handleLogout = async () => {
+        navigate('/');
         const old_access_token = localStorage.getItem('access_token');
         await callLogout({ old_access_token });
         dispatch(setLogoutUser({}));
         toast.success("Đăng xuất thành công!");
-        navigate('/');
     };
 
 

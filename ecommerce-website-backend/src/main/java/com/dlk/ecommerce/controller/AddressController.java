@@ -7,6 +7,7 @@ import com.dlk.ecommerce.domain.response.address.ResUpdateAddressDTO;
 import com.dlk.ecommerce.service.AddressService;
 import com.dlk.ecommerce.util.annotation.ApiMessage;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ public class AddressController {
 
     @PostMapping
     @ApiMessage("Create a address")
-    public ResponseEntity<ResCreateAddressDTO> create(@Valid @RequestBody Address address) throws IdInvalidException {
+    public ResponseEntity<ResCreateAddressDTO> create(@Valid @RequestBody Address address) throws IdInvalidException, JsonProcessingException {
         return ResponseEntity.status(HttpStatus.CREATED).body(addressService.createAddress(address));
     }
 

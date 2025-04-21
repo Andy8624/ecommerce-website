@@ -48,7 +48,7 @@ public class CategoryService {
                 }
             }
         }
-            LogFormatter.logFormattedRequest("categoryDetail", categoryDetail);
+//            LogFormatter.logFormattedRequest("categoryDetail", categoryDetail);
         for (CategoryDetailRequest request : categoryDetail) {
             // Tạo chi tiết giá và số lượng sản phẩm từng loại
             ProductVariant productVariant = new ProductVariant();

@@ -134,21 +134,27 @@ public class OrderService {
         return order;
     }
 
-    private boolean createAllOrderToolsOrRollback(List<OrderToolRequest> orderTools, Order order) {
+    @Transactional
+    public boolean createAllOrderToolsOrRollback(List<OrderToolRequest> orderTools, Order order) throws IdInvalidException {
         boolean allSuccessful = true;
         List<String> failedOrderTools = new ArrayList<>();
 
         for (OrderToolRequest orderTool : orderTools) {
             try {
                 Boolean res = orderToolService.createOrderTool(orderTool, order);
+
                 if (res == null || !res) {
                     allSuccessful = false;
                     failedOrderTools.add(orderTool.toString());
+                    throw new RuntimeException("Order created failed because of order tool");
                 }
             } catch (Exception e) {
                 allSuccessful = false;
                 failedOrderTools.add(orderTool.toString() + ": " + e.getMessage());
                 log.error("Failed to create order tool: {}", e.getMessage(), e);
+
+                throw new RuntimeException("Order created failed because of order tool");
+
             }
         }
 
@@ -257,10 +263,10 @@ public class OrderService {
     }
 
     public Void updateOrderStatus(String orderId, OrderStatusRequest status) throws IdInvalidException {
-        LogFormatter.logFormattedRequest("status", status);
+//        LogFormatter.logFormattedRequest("status", status);
 
         Order order = getOrderById(orderId);
-        LogFormatter.logFormattedRequest("order", order);
+//        LogFormatter.logFormattedRequest("order", order);
 
         order.setStatus(status.getStatus());
         orderRepository.save(order);

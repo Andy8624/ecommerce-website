@@ -18,6 +18,7 @@ import com.turkraft.springfilter.converter.FilterSpecification;
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import com.turkraft.springfilter.parser.FilterParser;
 import com.turkraft.springfilter.parser.node.FilterNode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -53,12 +54,22 @@ public class OrderToolService {
         return orderToolMapper.mapToOrderToolDTO(dbOrderTool);
     }
 
+    @Transactional
     public Boolean createOrderTool(OrderToolRequest request, Order order) throws IdInvalidException {
         if (request == null) {
             throw new IdInvalidException("Order tool request cannot be null");
         }
 
-        Tool tool = toolService.getToolById(request.getToolId());
+        Tool tool = toolService.getToolByIdForUpdate(request.getToolId());
+
+//        try {
+//            System.out.println("Đơn hàng: " + order.getOrderId() + " đã được tạo. Bắt đầu delay...");
+//            Thread.sleep(10000);
+//            System.out.println("Đơn hàng: " + order.getOrderId() + " đã hết delay.");
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//            System.err.println("Luồng bị gián đoạn trong quá trình delay: " + e.getMessage());
+//        }
 
         // Check if variantDetail1 exists before accessing its properties
         Integer stockDB;
@@ -66,8 +77,8 @@ public class OrderToolService {
             String productVariantId = request.getVariantDetail1().getProduct_variant_id();
             if (productVariantId != null) {
                 // If we have a second variant, get stock from product variant service
-                stockDB = productVariantService.getStockById(productVariantId);
-                LogFormatter.logFormattedRequest("Stock", stockDB);
+                stockDB = productVariantService.getStockByIdForUpdate(productVariantId);
+//                LogFormatter.logFormattedRequest("Stock", stockDB);
             } else {
                 // If no product variant ID is found, fall back to tool stock
                 stockDB = tool.getStockQuantity();
@@ -78,7 +89,7 @@ public class OrderToolService {
         }
 
         if (stockDB < request.getQuantity()) {
-            return false;
+            throw new RuntimeException("Not enough stock for tool: " + tool.getToolId());
         } else {
             // Co phan loai
             if (request.getVariantDetail1() != null && request.getVariantDetail1().getProduct_variant_id() != null) {
@@ -90,7 +101,7 @@ public class OrderToolService {
                 toolService.updateStockQuantity(tool.getToolId(), newStock);
             }
 
-            // Vi neu tao chi tiet order thanh cong roi moi xoa san pham gio han    g
+            // Vi neu tao chi tiet order thanh cong roi moi xoa san pham gio hang
             // Nen khong can phai rollback
             // Xoa san pham da mua khoi gio hang
             cartToolService.deleteCartTool(request.getId());
@@ -119,7 +130,7 @@ public class OrderToolService {
                 .build();
 
         OrderTool orderToolNew = orderToolRepository.save(orderTool);
-        LogFormatter.logFormattedRequest("orderToolNew", orderToolNew);
+//        LogFormatter.logFormattedRequest("orderToolNew", orderToolNew);
         return true;
     }
 //

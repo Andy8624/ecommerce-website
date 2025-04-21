@@ -1,6 +1,6 @@
 import { Button } from 'antd';
 
-const CheckoutSummary = ({ totalAmount, shipCost, onConfirm }) => {
+const CheckoutSummary = ({ totalAmount, shipCost, onConfirm, loading }) => {
     const finalAmount = totalAmount + shipCost;
 
     return (
@@ -35,6 +35,7 @@ const CheckoutSummary = ({ totalAmount, shipCost, onConfirm }) => {
                         type="primary"
                         onClick={onConfirm}
                         className="w-full rounded-lg py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold shadow-md"
+                        loading={loading}
                     >
                         Xác nhận thanh toán
                     </Button>

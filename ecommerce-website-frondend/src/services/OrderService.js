@@ -3,9 +3,6 @@ import axios from "./axios-customize"
 export const callCreateOrder = async (order) => {
     const path = `/api/v1/orders`;
     const res = await axios.post(path, order);
-    if (res?.status == 500) {
-        return false;
-    }
     return res?.data;
 }
 

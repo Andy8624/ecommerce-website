@@ -23,7 +23,7 @@ public class CartToolController {
     @GetMapping("/{id}")
     @ApiMessage("Get cart tool by ID")
     public ResponseEntity<CartTool> getById(@PathVariable("id") long id) throws IdInvalidException {
-        LogFormatter.logFormattedRequest("CartToolID", id);
+//        LogFormatter.logFormattedRequest("CartToolID", id);
         return ResponseEntity.ok(cartToolService.getCartToolById(id));
     }
 

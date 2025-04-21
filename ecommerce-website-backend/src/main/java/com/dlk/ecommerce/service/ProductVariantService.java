@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +29,15 @@ public class ProductVariantService {
         return productVariant.getStock();
     }
 
+    public Integer getStockByIdForUpdate(String id) throws IdInvalidException {
+        ProductVariant productVariant = productVariantRepository.findByIdForUpdate(id).orElse(null);
+        assert productVariant != null;
+        return productVariant.getStock();
+    }
+
 
     public void reduceStock(String productVariantId, int quantity) throws IdInvalidException {
-        ProductVariant productVariant = productVariantRepository.findById(productVariantId).orElseThrow(
+        ProductVariant productVariant = productVariantRepository.findByIdForUpdate(productVariantId).orElseThrow(
                 () -> new IdInvalidException("Không tìm thấy categoryDetail")
         );
         productVariant.setStock(productVariant.getStock() - quantity);

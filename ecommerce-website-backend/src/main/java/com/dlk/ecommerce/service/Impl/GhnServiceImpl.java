@@ -5,6 +5,7 @@ import com.dlk.ecommerce.domain.entity.Address;
 import com.dlk.ecommerce.domain.entity.User;
 import com.dlk.ecommerce.domain.request.ghn.*;
 import com.dlk.ecommerce.domain.request.user.ReqCreateShop;
+import com.dlk.ecommerce.repository.AddressRepository;
 import com.dlk.ecommerce.repository.UserRepository;
 import com.dlk.ecommerce.service.AddressService;
 import com.dlk.ecommerce.service.GhnService;
@@ -22,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +32,7 @@ public class GhnServiceImpl implements GhnService {
     private final UserService userService;
     private final GhnApiUtil ghnApiUtil;
     private final UserRepository userRepository;
-    private final AddressService addressService;
+    private final AddressRepository addressRepository;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -141,7 +139,7 @@ public class GhnServiceImpl implements GhnService {
     public Object getEstimatedDeliveryTime(DeliveryTimeRequest request) {
         HttpHeaders headers = ghnApiUtil.createHeaders();
         headers.set("ShopId", userService.getShopId());
-        log.info("Request: {}", request);
+//        log.info("Request: {}", request);
         Map<String, Object> data = new HashMap<>();
         data.put("from_district_id", getDistrictIdByName(
                 new GetDistrictIDRequest(request.getFrom_province(), request.getFrom_district()))
@@ -159,7 +157,7 @@ public class GhnServiceImpl implements GhnService {
         );
         data.put("service_id", 53320);
 
-        log.info("data: {}", data);
+//        log.info("data: {}", data);
         return ghnApiUtil.callGhnApi("/v2/shipping-order/leadtime", HttpMethod.POST, data);
     }
 
@@ -305,26 +303,18 @@ public class GhnServiceImpl implements GhnService {
         // Lấy user từ DB và kiểm tra id có tồn tại không
         User dbUser = userService.findUserByEmail(user.getEmail());
 
-        // Kiểm tra shop name đã tồn tại chưa
-        boolean isExistShopName = userRepository.existsByShopName(user.getShopName());
-        if (isExistShopName) {
-            throw new IdInvalidException("Shop name: '" + user.getShopName() + "' already exists");
-        } else {
+        if (user.getShopName() != null) {
             dbUser.setShopName(user.getShopName());
+        } else {
+            dbUser.setShopName("Shop " + dbUser.getFullName());
         }
 
-        // Kiểm tra user đã có số điện thoại chưa
-        if (dbUser.getPhone() == null || dbUser.getPhone().isEmpty()) {
-            // Nếu chưa có thì kiểm tra số điện thoại mới nhập vào đã tồn tại chưa
-            boolean isExistPhone = userRepository.existsByPhone(user.getPhone());
-            if (isExistPhone) {
-                throw new IdInvalidException("Phone: '" + user.getPhone() + "' already exists");
-            } else {
-                dbUser.setPhone(user.getPhone());
-            }
+        if (user.getPhone() != null) {
+            dbUser.setPhone(user.getPhone());
         }
 
-        Address shopAddress = addressService.getAddressById(user.getShopAddressId());
+        Address shopAddress = addressRepository.findByAddressId(user.getShopAddressId()).orElse(null);
+
         GetDistrictIDRequest districtRequest = new GetDistrictIDRequest(shopAddress.getCity(), shopAddress.getDistrict());
         GetWardIDRequest wardRequest = new GetWardIDRequest(shopAddress.getCity(), shopAddress.getDistrict(), shopAddress.getWard());
         ReqCreateShop reqCreateShop = ReqCreateShop.builder()

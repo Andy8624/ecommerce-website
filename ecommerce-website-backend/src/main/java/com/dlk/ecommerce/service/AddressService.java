@@ -9,6 +9,7 @@ import com.dlk.ecommerce.domain.response.address.ResUpdateAddressDTO;
 import com.dlk.ecommerce.repository.AddressRepository;
 import com.dlk.ecommerce.util.PaginationUtil;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.turkraft.springfilter.converter.FilterSpecification;
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import com.turkraft.springfilter.parser.FilterParser;
@@ -26,7 +27,7 @@ public class AddressService {
     private final FilterSpecificationConverter filterSpecificationConverter;
     private final UserService userService;
     private final AddressMapper addressMapper;
-
+    private final GhnService ghnService;
 
     public Address getAddressByIdAdmin(String id) throws IdInvalidException {
         return addressRepository.findByAddressId(id).orElseThrow(
@@ -87,14 +88,21 @@ public class AddressService {
         return addressMapper.mapToUpdateAddressDTO(updatedAddress);
     }
 
-    public ResCreateAddressDTO createAddress(Address address) throws IdInvalidException {
+    public ResCreateAddressDTO createAddress(Address address) throws IdInvalidException, JsonProcessingException {
         if (address.getUser() != null) {
             User user = userService.fetchUserById(address.getUser().getUserId());
             address.setUser(user);
-        }
 
-        Address newAddress = addressRepository.save(address);
-        return addressMapper.mapToCreateAddressDTO(newAddress);
+            Address newAddress = addressRepository.save(address);
+            user.setShopAddressId(newAddress.getAddressId());
+            if (user.getShopId() == null) {
+                ghnService.createShopInfo(user);
+            }
+            return addressMapper.mapToCreateAddressDTO(newAddress);
+        }
+        else {
+            throw new IdInvalidException("User ID is required to create an address");
+        }
     }
 
     public ResPaginationDTO getAddressByUserId(Pageable pageable,String id) throws IdInvalidException {

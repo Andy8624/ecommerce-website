@@ -59,7 +59,7 @@ public class ProductReviewService {
      * @return Danh sách các đánh giá dưới dạng ReviewDTO
      */
     public List<ReviewDTO> getAllReviewsAsDTO() {
-        log.info("Fetching all product reviews for recommendation system");
+//        log.info("Fetching all product reviews for recommendation system");
         List<ProductReview> productReviews = productPreviewRepository.findAll();
         return convertToReviewDTOs(productReviews);
     }
@@ -71,7 +71,7 @@ public class ProductReviewService {
      * @return Danh sách các đánh giá của người dùng
      */
     public List<ReviewDTO> getReviewsByUserId(String userId) {
-        log.info("Fetching reviews for user ID: {}", userId);
+//        log.info("Fetching reviews for user ID: {}", userId);
         List<ProductReview> productReviews = productPreviewRepository.findByUser_UserId(userId);
         return convertToReviewDTOs(productReviews);
     }

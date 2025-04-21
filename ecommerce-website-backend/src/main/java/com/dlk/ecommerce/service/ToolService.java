@@ -54,6 +54,10 @@ public class ToolService {
         );
     }
 
+    public Tool getToolByIdForUpdate(long toolId) throws IdInvalidException {
+        return toolRepository.findByIdIfNotDeletedForUpdate(toolId).orElse(null);
+    }
+
     public ResToolDTO getToolByIdDTO(long toolId) throws IdInvalidException {
         Tool tool = toolRepository.findByIdIfNotDeleted(toolId).orElseThrow(
                 () -> new IdInvalidException("Tool with id: " + toolId + " not found")
@@ -65,7 +69,7 @@ public class ToolService {
         User dbUser = userService.fetchUserById(request.getUser().getUserId());
         ToolType dbToolType = toolTypeService.getToolTypeById(request.getToolType().getToolTypeId());
 
-        LogFormatter.logFormattedRequest("Request tạo sp", request);
+//        LogFormatter.logFormattedRequest("Request tạo sp", request);
 
         Tool tool = new Tool().toBuilder()
                 .user(dbUser)

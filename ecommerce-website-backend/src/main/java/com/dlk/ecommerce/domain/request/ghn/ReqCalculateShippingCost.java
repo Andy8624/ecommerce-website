@@ -6,7 +6,7 @@ import java.util.List;
 @Data
 public class ReqCalculateShippingCost {
 
-    private int service_type_id;
+    private int service_type_id = 2;
     private int from_district_id;
     private String from_ward_code;
     private int to_district_id;

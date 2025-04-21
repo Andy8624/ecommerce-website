@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUserRecommendations } from '../../../hooks/useUserRecommendations';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { Spin, Pagination, Empty, Alert } from "antd";
 
 const ToolListUBCF = ({ pageSize = 10 }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortedTools, setSortedTools] = useState([]);
     const user = useSelector(state => state.account?.user);
 
     // Get recommendations using custom hook
@@ -32,6 +33,33 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
         queryFn: () => getToolsByToolIds(toolIds),
         enabled: toolIds.length > 0,
     });
+
+    // Sắp xếp sản phẩm theo điểm (score) giảm dần
+    useEffect(() => {
+        if (tools && tools.length > 0 && recommendations && recommendations.length > 0) {
+            // Tạo bản đồ điểm từ recommendations để tra cứu nhanh
+            const scoreMap = new Map();
+            recommendations.forEach(rec => {
+                scoreMap.set(rec.toolId.toString(), rec.score);
+            });
+
+            // Tạo bản sao của tools và gán điểm
+            const toolsWithScores = tools.map(tool => ({
+                ...tool,
+                score: scoreMap.get(tool.toolId?.toString()) || 0
+            }));
+
+            // Sắp xếp theo điểm giảm dần
+            const sorted = toolsWithScores.sort((a, b) => b.score - a.score);
+            setSortedTools(sorted);
+
+            console.log("Sorted tools:", sorted.map(t => ({ id: t.toolId, score: t.score })));
+        } else {
+            setSortedTools([]);
+        }
+    }, [tools, recommendations]);
+
+    console.log("Recommendations:", recommendations);
 
     const isLoading = isLoadingRecommendations || isLoadingTools;
     const error = recommendationsError || toolsError;
@@ -84,24 +112,24 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
     }
 
     // Show empty state
-    if (!tools || tools.length === 0) {
+    if (!sortedTools || sortedTools.length === 0) {
         return <Empty description="Không có gợi ý sản phẩm nào" />;
     }
 
     return (
         <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {tools.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((tool) => (
+                {sortedTools.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((tool) => (
                     <ToolItem key={tool.id || tool.toolId} tool={tool} />
                 ))}
             </div>
 
             {/* Phân trang */}
-            {tools.length > pageSize && (
+            {sortedTools.length > pageSize && (
                 <div className="mt-6 flex justify-center">
                     <Pagination
                         current={currentPage}
-                        total={tools.length}
+                        total={sortedTools.length}
                         pageSize={pageSize}
                         onChange={setCurrentPage}
                         showSizeChanger={false}

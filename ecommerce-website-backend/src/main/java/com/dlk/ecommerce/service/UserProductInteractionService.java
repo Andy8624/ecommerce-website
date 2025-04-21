@@ -35,12 +35,12 @@ public class UserProductInteractionService {
                 .tool(tool)
                 .interactionType(interactionType)
                 .build();
-        LogFormatter.logFormattedRequest("Save interaction", interaction);
+//        LogFormatter.logFormattedRequest("Save interaction", interaction);
         return interactionRepository.save(interaction);
     }
 
     public List<InteractionDTO> getAllInteractions() {
-        log.info("Fetching all user product interactions");
+//        log.info("Fetching all user product interactions");
         List<UserProductInteraction> interactions = interactionRepository.findAll();
         return convertToInteractionDTOs(interactions);
     }

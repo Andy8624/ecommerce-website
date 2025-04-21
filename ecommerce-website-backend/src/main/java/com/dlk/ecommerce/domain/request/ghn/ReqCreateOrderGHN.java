@@ -89,7 +89,7 @@ public class ReqCreateOrderGHN {
     int insurance_value;               // Giá trị bảo hiểm
 
     @NotNull(message = "service_type_id is required")
-    int service_type_id;               // Loại dịch vụ vận chuyển
+    int service_type_id = 2;               // Loại dịch vụ vận chuyển
 
     String coupon;                     // Mã giảm giá (nếu có)
 
