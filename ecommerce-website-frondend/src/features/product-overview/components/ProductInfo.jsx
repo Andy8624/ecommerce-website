@@ -14,6 +14,7 @@ import { useCart } from "../../cart/hooks/useCart";
 import { useCreateCartTool } from "../../cart/hooks/useCreateCartTool";
 import { useCheckExistCartTool } from "../../cart/hooks/useCheckExistCartTool";
 import { toast } from "react-toastify";
+import { saveInteraction } from "../../../services/RecomendationService";
 const { Text, Paragraph } = Typography;
 
 const ProductInfo = ({ tool }) => {
@@ -156,24 +157,29 @@ const ProductInfo = ({ tool }) => {
     const { updateCartItem } = useUpdateCartItem();
     const { checkExist } = useCheckExistCartTool();
     const onAddToCart = async () => {
+        if (userId === '') {
+            toast.warning("Vui lòng đăng nhập để sử dụng tính năng này");
+            return;
+        }
+
         if ((category1 && !selectedOption1) || (category2 && !selectedOption2)) {
-            toast.error("Vui lòng chọn thuộc tính sản phẩm");
+            toast.warning("Vui lòng chọn thuộc tính sản phẩm");
             return;
         }
 
         if (quantity > stockDetail) {
-            toast.error("Số lượng sản phẩm không đủ");
+            toast.warning("Số lượng sản phẩm không đủ");
             return;
         }
         if (quantity < 1) {
-            toast.error("Số lượng sản phẩm không hợp lệ");
+            toast.warning("Số lượng sản phẩm không hợp lệ");
             return;
         }
 
 
 
         if (tool && quantity > 0) {
-            await handleAddToCart({
+            const result = await handleAddToCart({
                 tool,
                 permissions,
                 carts,
@@ -188,6 +194,13 @@ const ProductInfo = ({ tool }) => {
                 variantDetailId1,
                 variantDetailId2
             });
+
+            // Nếu thêm vào giỏ hàng thành công và user đã đăng nhập
+            if (result !== false && userId) {
+                // Ghi nhận tương tác ADD_CART
+                saveInteraction(userId, tool.toolId, 'ADD_CART');
+                console.log(`Logged ADD_CART interaction for user ${userId} on product ${tool.toolId}`);
+            }
         }
     };
 
@@ -311,7 +324,7 @@ const ProductInfo = ({ tool }) => {
                 <Text className="text-gray-500">Số lượng:</Text>
                 <InputNumber
                     min={1}
-                    max={stockDetail}
+                    // max={stockDetail}
                     value={quantity}
                     onChange={(value) => setQuantity(value)}
                     className="ml-2"

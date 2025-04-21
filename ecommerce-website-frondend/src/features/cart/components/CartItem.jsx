@@ -4,6 +4,8 @@ import { TOOL_URL } from "../../../utils/Config"
 import { useQuery } from '@tanstack/react-query';
 import { callGetVariantDetailById } from '../../../services/VariantDetailService';
 import { callGetStockByToolId } from "../../../services/ToolService"
+import { useNavigate } from 'react-router-dom';
+import { useGetToolByToolId } from '../../checkout/hooks/tools/useGetToolByToolId';
 
 const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedItems }) => {
     const { isLoading: isLoadingVariantDetail1, data: variantDetail1 } = useQuery({
@@ -26,6 +28,16 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
         enabled: !!item?.toolId,
         staleTime: 60 * 10 * 1000, // 10p
     })
+
+    const navigate = useNavigate();
+    const { getToolById } = useGetToolByToolId(item.toolId);
+    const navigateToProductDetail = (toolId) => {
+        navigate(`/tool/${toolId}`, {
+            state: {
+                realTool: getToolById
+            }
+        });
+    };
 
     const detailStock = variantDetail1?.stock || stock;
     const price = variantDetail1?.price || item.price;
@@ -54,21 +66,26 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, onToggleSelect, selectedIt
             ]}
         >
             <List.Item.Meta
-                // className="mr-[3rem]"
+                className="cursor-pointer"
                 avatar={
                     <div className="flex items-center space-x-3 mx-2">
                         <Checkbox
                             checked={selectedItems.includes(item.id)}
                             onChange={() => onToggleSelect(item.id)}
                         />
-                        <img src={TOOL_URL + item.image} alt={item.name} className="w-16 h-16 object-cover rounded" /> {/* Giảm kích thước hình ảnh */}
+                        <img
+                            src={TOOL_URL + item.image} alt={item.name}
+                            className="w-16 h-16 object-cover rounded shadow-md cursor-pointer"
+                            onClick={() => navigateToProductDetail(item.toolId)}
+                        />
                     </div>
                 }
                 title={
                     <div className="w-64">
                         <span
-                            className="text-sm text-base overflow-hidden line-clamp-1 w-full text-two-lines"
+                            className="text-sm text-base overflow-hidden line-clamp-1 w-full text-two-lines cursor-pointer"
                             title={item.name}
+                            onClick={() => navigateToProductDetail(item.toolId)}
                         >
                             {item.name}
                         </span>

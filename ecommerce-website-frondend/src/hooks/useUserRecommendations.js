@@ -10,10 +10,10 @@ export const useUserRecommendations = (quantity = 10) => {
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['userRecommendations', userId, quantity],
         queryFn: async () => {
-            if (!userId) return { recommendations: [] };
+            // if (!userId) return { recommendations: [] };
             return await getRecommendationList(userId, quantity);
         },
-        enabled: !!userId,
+        // enabled: !!userId,
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
 

@@ -117,6 +117,11 @@ const ProductPreview = () => {
 
     return (
         <div className="p-4 bg-white rounded-md mt-4">
+            {/* Title */}
+            <h4 className="text-2xl text-gray-800 mb-5">
+                Đánh giá sản phẩm
+            </h4>
+
             {/* User's reviews if exist - Collapsible section */}
             {userReviews && userReviews.length > 0 && (
                 <div className="mb-6 border border-blue-100 rounded-md overflow-hidden">
@@ -205,10 +210,6 @@ const ProductPreview = () => {
 
             {/* Reviews Section */}
             <div>
-                {/* Title */}
-                <h4 className="text-2xl text-gray-800 mb-5">
-                    Đánh giá sản phẩm
-                </h4>
 
                 {/* Rating Summary */}
                 <div className="mt-3">

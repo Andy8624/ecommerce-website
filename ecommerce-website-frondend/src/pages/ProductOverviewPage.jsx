@@ -1,7 +1,8 @@
-import { Row, Layout } from "antd";
+import { Row, Layout, Divider } from "antd";
+import { useEffect } from "react"; // Thêm useEffect và useRef
+import { useSelector } from "react-redux"; // Thêm useSelector để lấy thông tin user
 import ProductGallery from "../features/product-overview/components/ProductGallery";
 import ProductInfo from "../features/product-overview/components/ProductInfo";
-// import ShopInfo from "../features/product-overview/components/ShopInfo";
 import ProductDetails from "../features/product-overview/components/ProductDetails";
 import CardContainer from "../components/CardContainer";
 import DescriptionProduct from "../features/product-overview/components/DescriptionProduct";
@@ -14,30 +15,41 @@ import { AVT_URL } from "../utils/Config";
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useGetTotalRatedOfProductByShopId, useTotalSoldTool, useTotalTool } from "../hooks/useTotalTool";
-
+import { saveInteraction } from "../services/RecomendationService"; // Thêm import saveInteraction
+import ShopOtherProduct from "../features/product-overview/components/ShopOtherProduct";
+import SimilarProductList from "../features/tools/components/SimilarProductList";
 const { Content } = Layout;
 
 const ProductOverviewPage = () => {
     const location = useLocation();
-    // const isSimilar = location?.state?.isSimilar;
     const realTool = location?.state?.realTool;
-
     const { getToolById } = useGetToolByToolId(realTool?.toolId);
-    // const tool = isSimilar ? getToolById : realTool;
     const tool = getToolById;
     const shopId = tool?.user?.userId;
     const { getUserById } = useGetUserById(shopId);
-    // console.log("getUserById", getUserById);
-    // console.log("created_at", getUserById?.createdAt);
-
     const { totalTool } = useTotalTool(shopId);
-
     const { totalSoldTool } = useTotalSoldTool(shopId);
-
     const { totalRated } = useGetTotalRatedOfProductByShopId(shopId);
-    // console.log("totalRated", totalRated);
+
+    // Lấy thông tin user từ Redux store
+    const user = useSelector(state => state.account?.user);
+
+    // Ghi nhận tương tác VIEW khi người dùng xem trang sản phẩm
+    useEffect(() => {
+        // Chỉ thực hiện khi có thông tin tool và user
+        if (tool?.toolId && user?.id) {
+            // Set timeout để tránh gọi API quá sớm khi component vẫn đang rendering
+            const timer = setTimeout(() => {
+                saveInteraction(user.id, tool.toolId, 'VIEW');
+                console.log(`Logged VIEW interaction for user ${user.id} on product ${tool.toolId}`);
+            }, 2000); // Đợi 2 giây để đảm bảo người dùng thực sự xem sản phẩm
+
+            return () => clearTimeout(timer); // Cleanup để tránh memory leak
+        }
+    }, [tool?.toolId, user?.id]);
 
     const formatJoinedTime = (createdAtStr) => {
+        // Giữ nguyên code hiện tại
         if (!createdAtStr) return "Chưa xác định";
 
         try {
@@ -62,9 +74,6 @@ const ProductOverviewPage = () => {
             return "Chưa xác định";
         }
     };
-
-    // Kiểm tra dữ liệu shop trước khi truyền vào ShopInfo
-    // console.log("getUserById", getUserById);
 
     const shopData = {
         userId: shopId,
@@ -117,6 +126,20 @@ const ProductOverviewPage = () => {
                 <CardContainer>
                     <ProductPreview />
                 </CardContainer>
+
+                <div className="px-7">
+                    <ShopOtherProduct
+                        shopId={shopId}
+                        currentToolId={tool?.toolId}
+                        pageSize={12}
+                    />
+                </div>
+
+                <Divider />
+
+                <div>
+                    <SimilarProductList pageSize={12} showFindingProduct={false} />
+                </div>
             </Content>
         </Layout >
     );

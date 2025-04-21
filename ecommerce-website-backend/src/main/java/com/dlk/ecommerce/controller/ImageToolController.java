@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/image-tools")
+@RequestMapping("/api/v1/image-tools")
 public class ImageToolController {
     private final ImageToolService imageToolService;
 

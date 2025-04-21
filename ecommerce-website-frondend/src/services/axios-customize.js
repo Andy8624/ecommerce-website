@@ -36,6 +36,8 @@ const handleRefreshToken = async () => {
 
 
 instance.interceptors.request.use(function (config) {
+    // console.log(`API Call: ${config.method?.toUpperCase() || 'GET'} ${config.baseURL}${config.url}`);
+
     // thêm access_token (từ localStorage nếu có) vào header cho mỗi request
     if (
         typeof window !== "undefined" &&

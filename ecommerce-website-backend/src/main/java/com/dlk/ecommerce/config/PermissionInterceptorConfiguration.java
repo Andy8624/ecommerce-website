@@ -33,8 +33,10 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
                 "/api/v1/image-tools/**",
                 "/api/v1/categories/**",
                 "/api/v1/variant-detail/**",
-                "/api/v1/product-reviews/**"
+                "/api/v1/product-reviews/**",
+                "/api/v1/recommendation/cf-data/**"
         };
+
         registry.addInterceptor(getPermissionInterceptor())
                 .excludePathPatterns(whiteList)
                 .order(Ordered.HIGHEST_PRECEDENCE);

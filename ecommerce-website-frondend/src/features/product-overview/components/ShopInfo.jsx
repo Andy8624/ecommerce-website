@@ -1,19 +1,17 @@
 import { Button, Row, Col, Typography, message } from "antd";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 
 const ShopInfo = ({ shop }) => {
     const currentUser = useSelector(state => state.account?.user);
-    const navigate = useNavigate();
 
     // Hàm xử lý khi click vào nút Chat Ngay
     const handleChatNow = () => {
+        // console.log("Chat Now clicked", currentUser);
         // Kiểm tra nếu người dùng chưa đăng nhập
-        if (!currentUser) {
+        if (currentUser?.id === '') {
             message.warning("Vui lòng đăng nhập để sử dụng tính năng chat");
-            navigate("/auth/login");
             return;
         }
 

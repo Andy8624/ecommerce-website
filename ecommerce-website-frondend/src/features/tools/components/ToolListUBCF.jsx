@@ -54,7 +54,7 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
     if (isLoading) {
         return (
             <div className="text-center py-6">
-                <Spin tip="Đang tải gợi ý sản phẩm..." size="large">
+                <Spin tip="Đang tải sản phẩm phù hợp với bạn..." size="large">
                     <div style={{ height: "200px" }} />
                 </Spin>
             </div>
@@ -90,23 +90,24 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
 
     return (
         <div>
-            {/* Danh sách sản phẩm */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {tools.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((tool) => (
-                    <ToolItem key={tool.id} tool={tool} />
+                    <ToolItem key={tool.id || tool.toolId} tool={tool} />
                 ))}
             </div>
 
             {/* Phân trang */}
-            <div className="mt-6 flex justify-center">
-                <Pagination
-                    current={currentPage}
-                    total={tools.length}
-                    pageSize={pageSize}
-                    onChange={setCurrentPage}
-                    showSizeChanger={false}
-                />
-            </div>
+            {tools.length > pageSize && (
+                <div className="mt-6 flex justify-center">
+                    <Pagination
+                        current={currentPage}
+                        total={tools.length}
+                        pageSize={pageSize}
+                        onChange={setCurrentPage}
+                        showSizeChanger={false}
+                    />
+                </div>
+            )}
         </div>
     );
 };

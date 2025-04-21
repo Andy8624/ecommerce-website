@@ -35,6 +35,7 @@ class ImageSearchService:
         # logging.debug("Vector {}", vector)
         return vector
 
+    # HAM NAY KHONG SU DUNG (CHI DE TEST MO HINH)
     async def search_similar_images(self, image_content: bytes):
         """Tìm tất cả ảnh có khoảng cách < 150 từ chỉ mục FAISS"""
         query_image = Image.open(BytesIO(image_content)).convert("RGB")

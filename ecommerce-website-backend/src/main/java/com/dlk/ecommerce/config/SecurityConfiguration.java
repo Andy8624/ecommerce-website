@@ -56,6 +56,13 @@ public class SecurityConfiguration {
             "/api/v1/product-reviews/**",
             "/api/v1/messages/**",
             "/api/v1/kafka/**",
+            "/api/v1/product-reviews/**",
+            "/api/v1/tooltypes/**",
+            "/api/v1/orders/**",
+            "/api/v1/variant-detail/**",
+            "/api/user-interaction/**",
+            "/api/v1/users/**",
+            "/api/v1/recommendation/cf-data/**"
     };
 
     @Bean

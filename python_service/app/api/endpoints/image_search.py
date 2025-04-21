@@ -8,6 +8,7 @@ import numpy as np
 router = APIRouter()
 image_search_service = ImageSearchService()
 
+# API nay khong su dung (chi de test)
 @router.post("/image-search")
 async def search_image(
         file: UploadFile = File(..., description="Hình ảnh sản phẩm cần tìm kiếm")

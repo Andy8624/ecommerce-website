@@ -7,6 +7,7 @@ import com.dlk.ecommerce.domain.response.recommendation.InteractionDTO;
 import com.dlk.ecommerce.repository.UserProductInteractionRepository;
 import com.dlk.ecommerce.util.constant.InteractionType;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class UserProductInteractionService {
                 .tool(tool)
                 .interactionType(interactionType)
                 .build();
-
+        LogFormatter.logFormattedRequest("Save interaction", interaction);
         return interactionRepository.save(interaction);
     }
 

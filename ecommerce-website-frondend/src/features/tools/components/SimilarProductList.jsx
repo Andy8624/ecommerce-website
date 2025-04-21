@@ -10,7 +10,7 @@ import { TOOL_URL } from "../../../utils/Config";
 
 const { Title, Text } = Typography;
 
-const SimilarProductList = ({ pageSize = 18 }) => {
+const SimilarProductList = ({ pageSize = 18, showFindingProduct = true }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const { toolId } = useParams();
     const { cbf_tools, isLoading: isLoadingCBF, error: cbfError } = useCBFProduct(toolId, 100);
@@ -114,7 +114,7 @@ const SimilarProductList = ({ pageSize = 18 }) => {
     return (
         <div className="p-8">
             {/* Hiển thị sản phẩm hiện tại */}
-            {currentTool && (
+            {(currentTool && showFindingProduct) && (
                 <div className="mb-8">
                     <SectionTitle>
                         Sản phẩm đang tìm kiếm
@@ -148,10 +148,10 @@ const SimilarProductList = ({ pageSize = 18 }) => {
                             </div>
                         </div>
                     </Card>
+                    <Divider className="my-6" />
                 </div>
             )}
 
-            <Divider className="my-6" />
 
             <SectionTitle>Các sản phẩm tương tự</SectionTitle>
 
