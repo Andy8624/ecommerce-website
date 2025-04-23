@@ -374,7 +374,7 @@ const OrderHistory = () => {
 
                         <Descriptions bordered size="small" column={2} className="mb-4">
                             <Descriptions.Item label="Cửa hàng">
-                                {order?.orderTools[0]?.tool?.user?.fullName}
+                                {order?.orderTools[0]?.tool?.user?.shopName || order?.orderTools[0]?.tool?.user?.fullName}
                             </Descriptions.Item>
                             <Descriptions.Item label="Ngày đặt"
                                 className="w-[200px]">

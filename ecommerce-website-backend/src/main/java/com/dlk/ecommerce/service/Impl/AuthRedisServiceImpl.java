@@ -27,6 +27,9 @@ public class AuthRedisServiceImpl implements AuthRedisService {
     private static final String LOGIN_HISTORY_PREFIX = "auth:login_history:";
     private static final int MAX_DEVICES = 3;
 
+    private static final String PASSWORD_RESET_OTP_PREFIX = "auth:password_reset_otp:";
+    private static final int OTP_EXPIRATION_SECONDS = 300; // 5 minutes
+
     @Override
     public void addToBlacklist(String token, long timeoutInSeconds) {
         redisService.set(ACCESS_TOKEN_BLACKLIST + token, "blacklisted");
@@ -140,4 +143,29 @@ public class AuthRedisServiceImpl implements AuthRedisService {
         String key = LOGIN_HISTORY_PREFIX + userId;
         return redisService.getListRange(key, 0, limit - 1);
     }
+
+    @Override
+    public void savePasswordResetOTP(String email, String otp) {
+        String key = PASSWORD_RESET_OTP_PREFIX + email;
+        redisService.set(key, otp);
+        redisService.setTimeToLive(key, 300L);
+        log.info("Saved OTP for {} with 5 minutes expiration OTP: {}", email, otp);
+    }
+
+    @Override
+    public boolean validatePasswordResetOTP(String email, String otp) {
+        String key = PASSWORD_RESET_OTP_PREFIX + email;
+        String storedOTP = (String) redisService.get(key);
+
+        // Check if OTP exists and matches
+        if (storedOTP != null && storedOTP.equals(otp)) {
+            // Delete the OTP after successful validation to prevent reuse
+            redisService.delete(key);
+            return true;
+        }
+
+        return false;
+    }
+
+
 }

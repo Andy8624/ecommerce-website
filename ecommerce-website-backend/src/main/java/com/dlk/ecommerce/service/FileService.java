@@ -190,7 +190,7 @@ public class FileService {
     // Chuyển từ float array thành byte array
     public static byte[] convertFloatArrayToByteArray(float[] featureVector) {
         ByteBuffer buffer = ByteBuffer.allocate(featureVector.length * 4); // 4 bytes per float
-        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Chỉ định byte order (LITTLE_ENDIAN)
+        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Chỉ định byte order (LITTLE_ENDIAN) (từ phải sang trái)
 
         for (float f : featureVector) {
             buffer.putFloat(f); // Ghi giá trị float vào ByteBuffer

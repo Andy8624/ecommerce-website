@@ -94,11 +94,47 @@ public class AuthController {
             if (email == null) {
                 return ResponseEntity.badRequest().body("Email is required");
             }
-            authService.resetPassword(email);
+            authService.sendResetPasswordOTP(email);
             return ResponseEntity.ok("Reset password email sent");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error sending reset password email: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    @ApiMessage("Verify OTP")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String otp = request.get("otp");
+            if (email == null || otp == null) {
+                return ResponseEntity.badRequest().body("Email and OTP are required");
+            }
+            boolean isValid = authService.validatePasswordResetOTP(email, otp);
+            return ResponseEntity.ok(isValid);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error verifying OTP: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/update-password")
+    @ApiMessage("Update password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String newPassword = request.get("newPassword");
+            log.info("Email reset {}", email);
+            log.info("New password reset {}", newPassword);
+            if (email == null || newPassword == null) {
+                return ResponseEntity.badRequest().body("Email and new password are required");
+            }
+            authService.updatePassword(email, newPassword);
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating password: " + e.getMessage());
         }
     }
 }

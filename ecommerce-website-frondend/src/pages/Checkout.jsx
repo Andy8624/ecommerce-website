@@ -13,7 +13,6 @@ import { saveInteraction } from "../services/RecomendationService"; // Import sa
 
 import useShippingCostMutation from "../hooks/useShippingCost";
 import OrderProductList from '../features/checkout/Components/OrderProductList';
-import { set } from 'react-hook-form';
 const { Content } = Layout;
 
 const CheckoutPage = () => {
@@ -22,6 +21,9 @@ const CheckoutPage = () => {
     const buyNowItem = location.state?.buyNowItem;
     const checkoutProduct = location.state?.checkoutProduct;
 
+    // Thêm state cho phí vận chuyển khi mua ngay
+    const [buyNowShippingCost, setBuyNowShippingCost] = useState(0);
+
     const {
         selectedItems
     } = useCartContext();
@@ -29,10 +31,13 @@ const CheckoutPage = () => {
     const [isBuyNow, setIsBuyNow] = useState(false);
 
     useEffect(() => {
-        if (selectedItems?.length == 0) {
+        // Kiểm tra nếu là mua ngay từ tham số truyền vào
+        if (buyNowItem) {
+            setIsBuyNow(true);
+        } else if (selectedItems?.length == 0) {
             setIsBuyNow(true);
         }
-    }, [selectedItems]);
+    }, [buyNowItem, selectedItems]);
 
     const user = useSelector(state => state?.account?.user);
     const userId = user?.id;
@@ -106,14 +111,38 @@ const CheckoutPage = () => {
         calculateShippingCosts();
     }, [groupedCheckoutProducts, addressUser, calculateShippingCostAsync, selectedAddress]);
 
+    // Đoạn code đã có trong file Checkout.jsx - kiểm tra lại để đảm bảo tính nhất quán
+
+    // Xử lý phí vận chuyển cho mua ngay
+    useEffect(() => {
+        const calculateBuyNowShippingCost = async () => {
+            if (isBuyNow && buyNowItem && addressUser && addressUser.length > 0) {
+                console.log("buyNowItem", buyNowItem)
+                try {
+                    const result = await calculateShippingCostAsync({
+                        products: [buyNowItem?.product], // Chuyển sản phẩm mua ngay thành mảng
+                        buyerAddress: selectedAddress || addressUser[0],
+                    });
+                    // Lưu phí vận chuyển vào state
+                    setBuyNowShippingCost(result?.total || buyNowItem?.shippingCost || 0);
+                } catch (err) {
+                    console.error("Error calculating shipping cost for buy now item:", err);
+                }
+            }
+        };
+
+        calculateBuyNowShippingCost();
+    }, [isBuyNow, buyNowItem, addressUser, selectedAddress, calculateShippingCostAsync]);
+
     let totalAmount = 0;
     let totalShippingCost = 0;
 
     if (isBuyNow) {
         const buyNowPrice = buyNowItem?.product?.discountedPrice || buyNowItem?.product?.price;
         totalAmount = buyNowItem?.quantity * buyNowPrice;
-        console.log(buyNowItem);
-
+        // Cập nhật totalShippingCost với buyNowShippingCost khi đang ở mode mua ngay
+        totalShippingCost = buyNowShippingCost;
+        console.log('Mua ngay - Sản phẩm:', buyNowItem, 'Phí ship:', buyNowShippingCost);
     } else {
         // Tính tổng tiền từ groupedCheckoutProducts
         totalAmount = Object.values(groupedCheckoutProducts).reduce((total, seller) => {
@@ -223,7 +252,7 @@ const CheckoutPage = () => {
                     const buyNowPrice = buyNowItem?.product?.discountedPrice || buyNowItem?.product?.price;
                     const buyNowOrder = {
                         status: "pending",
-                        shippingCost: 0, // Tính phí vận chuyển cho mua ngay
+                        shippingCost: buyNowShippingCost, // Sử dụng phí vận chuyển đã tính
                         totalToolCost: buyNowItem.quantity * buyNowPrice,
                         user: {
                             userId: userId,

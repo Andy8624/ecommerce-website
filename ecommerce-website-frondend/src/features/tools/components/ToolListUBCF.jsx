@@ -5,38 +5,47 @@ import { useQuery } from '@tanstack/react-query';
 import { ReloadOutlined } from '@ant-design/icons';
 import { getToolsByToolIds } from '../../../services/ToolService';
 import ToolItem from './ToolItem';
-import { Spin, Pagination, Empty, Alert } from "antd";
+import { Spin, Pagination, Empty, Alert, Button } from "antd";
 
 const ToolListUBCF = ({ pageSize = 10 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortedTools, setSortedTools] = useState([]);
+    const [retryCount, setRetryCount] = useState(0);
     const user = useSelector(state => state.account?.user);
 
     // Get recommendations using custom hook
     const {
         recommendations,
         isLoading: isLoadingRecommendations,
+        isFetching: isFetchingRecommendations,
         error: recommendationsError,
         refreshRecommendations
     } = useUserRecommendations(pageSize);
 
     // Extract tool IDs from recommendations
-    const toolIds = recommendations.map(rec => rec.toolId);
+    const toolIds = recommendations?.map(rec => rec.toolId) || [];
 
     // Fetch tool details for each recommended tool
     const {
         data: tools,
         isLoading: isLoadingTools,
-        error: toolsError
+        error: toolsError,
+        isFetching: isFetchingTools
     } = useQuery({
-        queryKey: ['tools', 'recommendations', toolIds],
+        queryKey: ['tools', 'recommendations', toolIds, retryCount],
         queryFn: () => getToolsByToolIds(toolIds),
         enabled: toolIds.length > 0,
+        retry: 1,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
     });
 
     // Sắp xếp sản phẩm theo điểm (score) giảm dần
     useEffect(() => {
-        if (tools && tools.length > 0 && recommendations && recommendations.length > 0) {
+        // Chỉ chạy khi tools và recommendations thực sự thay đổi và có giá trị
+        if (!tools || !recommendations) return;
+
+        if (tools.length > 0 && recommendations.length > 0) {
             // Tạo bản đồ điểm từ recommendations để tra cứu nhanh
             const scoreMap = new Map();
             recommendations.forEach(rec => {
@@ -51,23 +60,32 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
 
             // Sắp xếp theo điểm giảm dần
             const sorted = toolsWithScores.sort((a, b) => b.score - a.score);
-            setSortedTools(sorted);
 
-            console.log("Sorted tools:", sorted.map(t => ({ id: t.toolId, score: t.score })));
+            // So sánh kết quả mới với state hiện tại để tránh cập nhật không cần thiết
+            if (JSON.stringify(sorted) !== JSON.stringify(sortedTools)) {
+                setSortedTools(sorted);
+            }
         } else {
-            setSortedTools([]);
+            if (sortedTools.length > 0) {
+                setSortedTools([]);
+            }
         }
     }, [tools, recommendations]);
 
-    console.log("Recommendations:", recommendations);
+    // Handle manual refresh
+    const handleRefresh = () => {
+        setRetryCount(prev => prev + 1);
+        refreshRecommendations();
+    };
 
     const isLoading = isLoadingRecommendations || isLoadingTools;
+    const isFetching = isFetchingRecommendations || isFetchingTools;
     const error = recommendationsError || toolsError;
 
     // Show login prompt if user is not logged in
-    if (!user) {
+    if (!user?.id) {
         return (
-            <div className="text-center py-10">
+            <div className="text-center py-5 mb-2 bg-white rounded-lg shadow-sm">
                 <Alert
                     message="Cần đăng nhập"
                     description="Vui lòng đăng nhập để nhận gợi ý sản phẩm phù hợp."
@@ -79,11 +97,11 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
     }
 
     // Show loading state
-    if (isLoading) {
+    if (isLoading && !error) {
         return (
-            <div className="text-center py-6">
+            <div className="text-center py-5 mb-2 bg-white rounded-lg shadow-sm">
                 <Spin tip="Đang tải sản phẩm phù hợp với bạn..." size="large">
-                    <div style={{ height: "200px" }} />
+                    <div style={{ height: "100px" }} />
                 </Spin>
             </div>
         );
@@ -92,20 +110,27 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
     // Show error state
     if (error) {
         return (
-            <div className="text-center py-10">
+            <div className="text-center py-5 mb-2 bg-white rounded-lg shadow-sm">
                 <Alert
-                    message="Lỗi tải dữ liệu"
-                    description={error.message || 'Có lỗi xảy ra khi tải gợi ý sản phẩm.'}
+                    message="Không thể tải đề xuất sản phẩm"
+                    description={
+                        <div>
+                            <p>Có thể hệ thống gợi ý đang gặp sự cố. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.</p>
+                            <div className="mt-3">
+                                <Button
+                                    type="primary"
+                                    icon={<ReloadOutlined />}
+                                    onClick={handleRefresh}
+                                    loading={isFetching}
+                                    disabled={isFetching}
+                                >
+                                    {isFetching ? 'Đang thử lại...' : 'Thử lại'}
+                                </Button>
+                            </div>
+                        </div>
+                    }
                     type="error"
                     showIcon
-                    action={
-                        <button
-                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
-                            onClick={refreshRecommendations}
-                        >
-                            <ReloadOutlined className="mr-2" /> Thử lại
-                        </button>
-                    }
                 />
             </div>
         );
@@ -113,7 +138,14 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
 
     // Show empty state
     if (!sortedTools || sortedTools.length === 0) {
-        return <Empty description="Không có gợi ý sản phẩm nào" />;
+        return (
+            <div className="py-5 mb-2 bg-white rounded-lg shadow-sm">
+                <Empty
+                    description="Chưa có gợi ý sản phẩm nào cho bạn"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+            </div>
+        );
     }
 
     return (

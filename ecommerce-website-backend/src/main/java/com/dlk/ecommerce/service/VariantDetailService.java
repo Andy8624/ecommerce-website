@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Var;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class VariantDetailService {
@@ -22,12 +24,12 @@ public class VariantDetailService {
     }
 
     public VariantDetailResponse getVariantDetailById(String id) throws IdInvalidException {
-       VariantDetail variantDetail = variantDetailRepository.findById(id).orElse(null);
-       if (variantDetail == null) {
-           return null;
-       }
-       String product_variant_id = variantDetail.getProductVariant().getId();
-       String category_detail_id = variantDetail.getCategoryDetail().getId();
+        VariantDetail variantDetail = variantDetailRepository.findById(id).orElse(null);
+        if (variantDetail == null) {
+            return null;
+        }
+        String product_variant_id = variantDetail.getProductVariant().getId();
+        String category_detail_id = variantDetail.getCategoryDetail().getId();
 
         ProductVariant productVariant = productVariantService.getById(product_variant_id);
         CategoryDetail categoryDetail = categoryDetailService.findById(category_detail_id);
@@ -41,5 +43,10 @@ public class VariantDetailService {
                 .category_detail_name(categoryDetail.getName())
                 .category_name(categoryDetail.getCategory().getName())
                 .build();
+    }
+
+    // And this method in VariantDetailService
+    public List<VariantDetail> findByProductVariant(ProductVariant productVariant) {
+        return variantDetailRepository.findByProductVariant(productVariant);
     }
 }

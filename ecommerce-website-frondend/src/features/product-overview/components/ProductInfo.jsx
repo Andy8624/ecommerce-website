@@ -15,6 +15,7 @@ import { useCreateCartTool } from "../../cart/hooks/useCreateCartTool";
 import { useCheckExistCartTool } from "../../cart/hooks/useCheckExistCartTool";
 import { toast } from "react-toastify";
 import { saveInteraction } from "../../../services/RecomendationService";
+import { useNavigate } from "react-router-dom"; // Thêm import useNavigate
 const { Text, Paragraph } = Typography;
 
 const ProductInfo = ({ tool }) => {
@@ -204,14 +205,53 @@ const ProductInfo = ({ tool }) => {
         }
     };
 
-    // const handleBuyNow = async () => {
-    //     const buyNowItem = {
-    //         product,
-    //         quantity,
-    //         userId
-    //     }
-    //     navigate('/checkout', { state: { buyNowItem: buyNowItem } });
-    // };
+    // Thêm useNavigate để điều hướng đến trang thanh toán
+    const navigate = useNavigate();
+
+    // Thêm hàm xử lý chức năng "Mua ngay"
+    const handleBuyNow = () => {
+        if (userId === '') {
+            toast.warning("Vui lòng đăng nhập để sử dụng tính năng này");
+            return;
+        }
+
+        if ((category1 && !selectedOption1) || (category2 && !selectedOption2)) {
+            toast.warning("Vui lòng chọn thuộc tính sản phẩm");
+            return;
+        }
+
+        if (quantity > stockDetail) {
+            toast.warning("Số lượng sản phẩm không đủ");
+            return;
+        }
+        if (quantity < 1) {
+            toast.warning("Số lượng sản phẩm không hợp lệ");
+            return;
+        }
+
+        // Chuẩn bị dữ liệu cho mua ngay
+        const buyNowProduct = {
+            ...tool,
+            price: detailPrice || tool.price,
+            quantity: quantity,
+            // Thêm thông tin biến thể nếu có
+            variantDetailId1: variantDetailId1,
+            variantDetailId2: variantDetailId2,
+            ownerUser: tool.user // Đảm bảo thông tin người bán được truyền đi
+        };
+
+        // Điều hướng đến trang thanh toán với thông tin mua ngay
+        navigate('/checkout', {
+            state: {
+                buyNowItem: {
+                    product: buyNowProduct,
+                    quantity: quantity,
+                    userId: userId,
+                    shippingCost: estimatedShippingCost?.total || 10500,
+                }
+            }
+        });
+    };
 
     const formattedShippingCost = "₫" + (estimatedShippingCost?.total.toLocaleString() || "10,500");
 
@@ -349,6 +389,7 @@ const ProductInfo = ({ tool }) => {
                 </Col>
                 <Col>
                     <button
+                        onClick={handleBuyNow}
                         className="px-4 py-2 
                         rounded transition-all 
                         border

@@ -103,7 +103,7 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
                     {productImages.length < 9 ? <PlusOutlined /> : null}
                 </Upload>
             </Form.Item>
-            <div className="text-error">{validProductImage || "Bạn cần thêm ít nhất một ảnh sản phẩm"}</div>
+            <div className="text-error">{!validProductImage && "Bạn cần thêm ít nhất một ảnh sản phẩm"}</div>
 
             <Form.Item
                 label={`Ảnh bìa (${coverImage.length}/1)`}
@@ -119,7 +119,7 @@ const BasicInfo = ({ setProductImages, setCoverImage, coverImage, productImages,
                     {coverImage.length < 1 ? <PlusOutlined /> : null}
                 </Upload>
             </Form.Item>
-            <div className="text-error">{validCoverImage || "Bạn cần thêm ít nhất một ảnh bìa sản phẩm"}</div>
+            <div className="text-error">{!validCoverImage && "Bạn cần thêm ít nhất một ảnh bìa sản phẩm"}</div>
 
             {
                 previewImage && (

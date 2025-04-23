@@ -104,7 +104,9 @@ public class OrderToolService {
             // Vi neu tao chi tiet order thanh cong roi moi xoa san pham gio hang
             // Nen khong can phai rollback
             // Xoa san pham da mua khoi gio hang
-            cartToolService.deleteCartTool(request.getId());
+            if (request.getId() != null) {
+                cartToolService.deleteCartTool(request.getId());
+            }
         }
 
         OrderTool orderTool = new OrderTool().toBuilder()

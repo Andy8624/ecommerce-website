@@ -36,7 +36,9 @@ class LLMGemini:
         Hàm chuyên biệt để chuẩn hóa query tìm kiếm
         """
         normalize_prompt = f"""
-        Chuẩn hóa câu tìm kiếm sau đây, sửa lỗi chính tả và làm rõ nghĩa và mở rộng truy vấn dài hơn để có thể tìm được các sản phẩm đúng với yêu cầu:
+        Chuẩn hóa câu tìm kiếm sau đây, 
+        sửa lỗi chính tả và làm rõ nghĩa và mở rộng truy vấn dài hơn 
+        để có thể tìm được các sản phẩm đúng với yêu cầu:
         '{query}'
         
         CHỈ TRẢ VỀ CÂU ĐÃ CHUẨN HÓA, không thêm bất kỳ giải thích nào.

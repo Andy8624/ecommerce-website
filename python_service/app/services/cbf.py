@@ -145,7 +145,7 @@ class ContentBasedFiltering:
             
             expanded_queries_text = await gemini.get_response(expand_prompt)
             expanded_queries = expanded_queries_text.strip().split('\n')
-            # Đảm bảo chỉ lấy tối đa 2 biến thể
+            # Đảm bảo chỉ lấy tối đa 5 biến thể
             expanded_queries = expanded_queries[:5]
             
             all_queries = [normalized_query] + expanded_queries

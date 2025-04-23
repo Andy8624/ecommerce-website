@@ -15,8 +15,15 @@ const ProductManagement = () => {
 
     const [filter, setFilter] = useState("Tất cả");
 
-    const handleCreateOrUpdate = () => {
-        navigate("/seller/product-form");
+    const handleCreateOrUpdate = (toolToEdit = null) => {
+        navigate("/seller/product-form", {
+            state: { editMode: !!toolToEdit, toolToEdit }
+        });
+    };
+
+    const handleEditProduct = (tool) => {
+        console.log("toolId", tool);
+        handleCreateOrUpdate(tool);
     };
 
     const handleDelete = async (toolId) => {
@@ -51,13 +58,15 @@ const ProductManagement = () => {
                     className="rounded-lg p-2 shadow-md border border-gray-300"
                 />
 
-                <Button onClick={handleCreateOrUpdate} type="primary">
+                <Button onClick={() => handleCreateOrUpdate()} type="primary">
                     Thêm sản phẩm
                 </Button>
             </div>
 
             <ProductTable
-                tools={filteredTools} onDelete={handleDelete} isDeleting={isDeleting} />
+                tools={filteredTools} onDelete={handleDelete} isDeleting={isDeleting}
+                onEdit={handleEditProduct}
+            />
         </div>
     );
 };

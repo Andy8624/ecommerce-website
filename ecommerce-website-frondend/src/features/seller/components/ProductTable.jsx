@@ -45,7 +45,7 @@ const ProductTable = ({ tools, onEdit, onDelete, isDeleting }) => {
             )
         },
         {
-            title: "Giá (Khuyến mãi)",
+            title: "Giá",
             dataIndex: ["price", "discountedPrice"],
             key: "price_discountedPrice",
             width: "10rem",

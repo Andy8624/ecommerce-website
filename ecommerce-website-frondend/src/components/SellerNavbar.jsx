@@ -33,12 +33,12 @@ const SellerNavbar = ({ collapsed, setCollapsed, setCurrentNamePage }) => {
             label: <Link to="/seller/orders">Đơn hàng</Link>,
             name: "Quản lý đơn hàng"
         },
-        {
-            key: "/seller/statistics",
-            icon: <BarChartOutlined style={{ fontSize: "20px" }} />,
-            label: <Link to="/seller/statistics">Thống kê</Link>,
-            name: "Thống kê"
-        },
+        // {
+        //     key: "/seller/statistics",
+        //     icon: <BarChartOutlined style={{ fontSize: "20px" }} />,
+        //     label: <Link to="/seller/statistics">Thống kê</Link>,
+        //     name: "Thống kê"
+        // },
         {
             key: "/",
             icon: <RollbackOutlined style={{ fontSize: "20px" }} />,

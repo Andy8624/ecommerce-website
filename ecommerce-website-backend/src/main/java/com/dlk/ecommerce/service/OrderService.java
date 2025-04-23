@@ -136,6 +136,7 @@ public class OrderService {
 
     @Transactional
     public boolean createAllOrderToolsOrRollback(List<OrderToolRequest> orderTools, Order order) throws IdInvalidException {
+        LogFormatter.logFormattedRequest("OrderTool", orderTools);
         boolean allSuccessful = true;
         List<String> failedOrderTools = new ArrayList<>();
 

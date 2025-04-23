@@ -9,8 +9,10 @@ import com.dlk.ecommerce.domain.response.ResPaginationDTO;
 import com.dlk.ecommerce.domain.response.auth.ResAuthDTO;
 import com.dlk.ecommerce.domain.response.auth.ResLoginDTO;
 import com.dlk.ecommerce.domain.response.user.ResCreateUserDTO;
+import com.dlk.ecommerce.repository.UserRepository;
 import com.dlk.ecommerce.util.SecurityUtil;
 import com.dlk.ecommerce.util.error.IdInvalidException;
+import com.dlk.ecommerce.util.helper.LogFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,10 +24,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +41,8 @@ public class AuthService {
     private final RolePermissionService rolePermissionService;
     private final AuthRedisService authRedisService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     @Value("${dlk.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
@@ -236,15 +242,55 @@ public class AuthService {
         return userDb != null;
     }
 
-    public void resetPassword(String email) {
+//    public void resetPassword(String email) {
+//        MailDTO dto = new MailDTO();
+//        String username = email.substring(0, email.indexOf("@"));
+//        dto.setTo(email);
+//        dto.setToName(username);
+//        dto.setSubject("Welcome to our platform");
+//        dto.setContent("Welcome " +  username + " to our platform");
+//
+//        kafkaTemplate.send("reset-password", dto);
+//    }
+
+
+    public String generateOTP() {
+        Random random = new Random();
+        // Tạo số ngẫu nhiên từ 1000 đến 9999 (bao gồm cả hai)
+        int otp = random.nextInt(9000) + 1000;
+        return String.valueOf(otp);
+    }
+
+    public void sendResetPasswordOTP(String email) {
         MailDTO dto = new MailDTO();
         String username = email.substring(0, email.indexOf("@"));
+        String otp = generateOTP();
+        log.info("OTP: {}", otp);
+        authRedisService.savePasswordResetOTP(email, otp);
+
         dto.setTo(email);
         dto.setToName(username);
-        dto.setSubject("Welcome to our platform");
-        dto.setContent("Welcome " +  username + " to our platform");
+        dto.setSubject("Mã OTP Đặt Lại Mật Khẩu");
+        dto.setContent(otp);
 
         kafkaTemplate.send("reset-password", dto);
+    }
+
+    public boolean validatePasswordResetOTP(String email, String otp) {
+        return authRedisService.validatePasswordResetOTP(email, otp);
+    }
+
+    public void updatePassword(String email, String newPassword) {
+        User user = userService.findUserByEmail(email);
+        LogFormatter.logFormattedRequest("User", user);
+        if (user != null) {
+            log.info("New password {}", newPassword);
+            String  hashPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(hashPassword);
+            userRepository.save(user);
+        } else {
+            log.error("User not found with email: {}", email);
+        }
     }
 }
 

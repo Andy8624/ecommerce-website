@@ -114,6 +114,63 @@ export const resetPassword = async (email) => {
     }
 };
 
+export const setNewPassword = async (email, newPassword) => {
+    console.log("email", email);
+    console.log("newPassword", newPassword);
+    try {
+        // Gửi email và mật khẩu mới trong đối tượng JSON
+        const response = await axios.post('/api/v1/auth/update-password', {
+            email: email,
+            newPassword: newPassword
+        });
+
+        return {
+            success: true,
+            message: "Mật khẩu đã được đặt lại thành công",
+            data: response.data
+        };
+    } catch (error) {
+        console.error("Set new password error:", error);
+
+        const errorMessage = error.response?.data ||
+            "Không thể đặt lại mật khẩu. Vui lòng thử lại sau.";
+
+        return {
+            success: false,
+            message: errorMessage,
+            error: error.response?.data || error.message
+        };
+    }
+}
+
+export const verifyOtp = async (email, otp) => {
+    try {
+        const response = await axios.post('/api/v1/auth/verify-otp', {
+            email: email,
+            otp: otp
+        });
+
+        return {
+            success: true,
+            message: "Xác thực OTP thành công",
+            data: response.data
+        };
+    } catch (error) {
+        console.error("Verify OTP error:", error);
+
+        const errorMessage = error.response?.data ||
+            "Xác thực OTP không thành công. Vui lòng thử lại.";
+
+        return {
+            success: false,
+            message: errorMessage,
+            error: error.response?.data || error.message
+        };
+    }
+
+}
+
+
 
 export const getAccount = async () => {
     const path = `/api/v1/auth/account`;

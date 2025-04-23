@@ -24,6 +24,8 @@ export const createTool = async (newTool) => {
 }
 
 export const callUpdateTool = async (toolId, updatedTool) => {
+  console.log("toolId", toolId);
+  console.log("updatedTool", updatedTool);
   const res = await axios.put(`/api/v1/tools/${toolId}`, updatedTool);
   return res?.data;
 }

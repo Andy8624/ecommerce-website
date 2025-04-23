@@ -81,7 +81,7 @@ class UserBasedCollaborativeFiltering:
             # Sử dụng log để giảm ảnh hưởng của nhiều lần tương tác
             repetition_factor = 1 + 0.5 * (info["count"] - 1) / info["count"] if info["count"] > 1 else 1
             
-            # Trọng số cuối cùng
+            # Trọng số cuối cùng    
             final_weight = base_weight * repetition_factor
             
             # Thêm dữ liệu
@@ -146,9 +146,10 @@ class UserBasedCollaborativeFiltering:
                         # Thêm cột mới với giá trị mặc định là 0
                         user_item_matrix[tool_id] = 0
                     
-                    # Khởi tạo trọng số từ rating (thang điểm 1-5 chuyển thành -0.4 đến 0.4)
-                    weight = (rating - 3) * 0.2
-                    
+                    # Khởi tạo trọng số từ rating (thang điểm 1-5 chuyển thành -0.2 đến 0.2)
+                    rating_weight = (rating - 3) * 0.1
+                    sentiment_weight = 0  # Khởi tạo mặc định
+
                     # Kiểm tra xem người dùng có bình luận không
                     if comment.strip():
                         try:
@@ -168,22 +169,26 @@ class UserBasedCollaborativeFiltering:
                                 sentiment_value = -sentiment_score
                             elif sentiment_label == "NEU":
                                 # Bình luận trung tính nên có ảnh hưởng nhỏ hơn bình luận tích cực
-                                sentiment_value = sentiment_score * 0.3 
+                                sentiment_value = sentiment_score * 0.3
 
                             #  Nhân với scale để tăng giảm ảnh hưởng của bình luận
-                            weight += sentiment_value * scaling_factor
+                            sentiment_weight = sentiment_value * scaling_factor
                         except Exception as e:
                             logging.error(f"Lỗi khi phân tích cảm xúc cho bình luận: {e}")
+                            # Vẫn giữ sentiment_weight = 0
+
+                    # Tính trọng số cuối cùng, luôn đảm bảo có giá trị
+                    final_weight = (rating_weight + sentiment_weight * 0.5) * 0.3  # Giảm ảnh hưởng của sentiment
 
                     # Cập nhật ma trận user-item với trọng số mới (Thêm điểm đánh giá cảm xúc)
                     if user_id in user_item_matrix.index:
                         # Nếu người dùng đã có trong ma trận, cộng thêm trọng số 
-                        user_item_matrix.at[user_id, tool_id] += weight
+                        user_item_matrix.at[user_id, tool_id] += final_weight
                     else:
                         # Nếu người dùng chưa có trong ma trận, thêm một hàng mới với trọng số
                         # Tạo một Series mới với các giá trị 0 cho tất cả các cột
                         new_row = pd.Series(0, index=user_item_matrix.columns)
-                        new_row[tool_id] = weight
+                        new_row[tool_id] = final_weight
                         # Gán Series vào ma trận
                         user_item_matrix.loc[user_id] = new_row
                 except Exception as inner_e:

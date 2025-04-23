@@ -18,4 +18,7 @@ public interface AuthRedisService {
     void saveLoginHistory(String userId, String ip, String userAgent);
 
     List<Object> getRecentLogins(String userId, int limit);
+
+    void savePasswordResetOTP(String email, String otp);
+    boolean validatePasswordResetOTP(String email, String otp);
 }

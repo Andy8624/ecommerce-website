@@ -63,7 +63,8 @@ public class SecurityConfiguration {
             "/api/v1/variant-detail/**",
             "/api/user-interaction/**",
             "/api/v1/users/**",
-            "/api/v1/recommendation/cf-data/**"
+            "/api/v1/recommendation/cf-data/**",
+            "/api/v1/auth/**"
     };
 
     @Bean
