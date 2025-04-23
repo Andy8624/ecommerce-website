@@ -102,7 +102,11 @@ const router = createBrowserRouter(
                 },
                 {
                     path: "type/:typeId",
-                    element: <TypeProductListPage />
+                    element:
+                        <>
+                            <TypeProductListPage />
+                            <ScrollRestoration />
+                        </>
                 },
                 {
                     path: "search-results",

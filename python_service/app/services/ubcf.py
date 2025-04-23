@@ -368,7 +368,7 @@ class UserBasedCollaborativeFiltering:
             
             # Chuyển đổi ma trận thành định dạng sparse matrix (CSR)
             # Tích hợp thông tin đánh giá vào ma trận user-item
-            user_item_matrix_df, csr_mat = self.integrate_reviews(user_item_matrix_df, reviews)
+            user_item_matrix_df, csr_mat = self.integrate_reviews(user_item_matrix_df, reviews)     
             
             logging.info("After review integration:")
 

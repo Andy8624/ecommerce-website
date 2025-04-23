@@ -93,3 +93,34 @@ async def get_similar_products(
     except Exception as e:
         logging.error(f"Error in get_similar_products: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while fetching similar products.")
+    
+
+@router.get("/cbf/recent-interactions/{user_id}", response_model=CBF_Response)
+async def get_recommendations_from_recent(
+        user_id: str = Path(..., title="ID của người dùng cần lấy gợi ý"),
+        per_product: int = Query(10, description="Số sản phẩm tương đồng cho mỗi sản phẩm gần đây"),
+        max_results: int = Query(30, description="Số lượng kết quả tối đa trả về")
+    ):
+    try:
+        similar_products = await cbf_service.get_recommendations_from_recent_interactions(user_id, per_product)
+        
+        # Giới hạn số lượng kết quả trả về
+        similar_products = similar_products[:max_results]
+        
+        recommendation_details = [
+            CBF_SimilarProductsByToolIdResponse(
+                toolId=rec['toolId'],
+                score=rec['score'],
+                name=rec.get('name'),
+                price=rec.get('price'),
+                imageUrl=rec.get('imageUrl')
+            )
+            for rec in similar_products
+        ]
+
+        return CBF_Response(
+            recommendations=recommendation_details
+        )
+    except Exception as e:
+        logging.error(f"Error in get_recommendations_from_recent: {e}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

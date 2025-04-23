@@ -1,26 +1,35 @@
 import { useState, useEffect } from 'react';
-import { useUserRecommendations } from '../../../hooks/useUserRecommendations';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { ReloadOutlined } from '@ant-design/icons';
+import { getCBFRecomendationList } from '../../../services/RecomendationService';
 import { getToolsByToolIds } from '../../../services/ToolService';
 import ToolItem from './ToolItem';
-import { Spin, Pagination, Empty, Alert, Button } from "antd";
+import { Spin, Pagination, Alert, Button } from "antd";
+import SectionTitle from '../../../components/SectionTitle';
 
-const ToolListUBCF = ({ pageSize = 10 }) => {
+const ToolListCBF = ({ pageSize = 10 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortedTools, setSortedTools] = useState([]);
     const [retryCount, setRetryCount] = useState(0);
     const user = useSelector(state => state.account?.user);
+    const userId = user?.id || '';
 
-    // Get recommendations using custom hook
+    // Fetch recommendations using getCBFRecomendationList
     const {
-        recommendations,
+        data: recommendations,
         isLoading: isLoadingRecommendations,
         isFetching: isFetchingRecommendations,
         error: recommendationsError,
-        refreshRecommendations
-    } = useUserRecommendations(24);
+        refetch: refreshRecommendations
+    } = useQuery({
+        queryKey: ['cbf-recommendations', userId, retryCount],
+        queryFn: () => getCBFRecomendationList(userId),
+        enabled: !!userId,
+        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnWindowFocus: false,
+    });
 
     // Extract tool IDs from recommendations
     const toolIds = recommendations?.map(rec => rec.toolId) || [];
@@ -32,7 +41,7 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
         error: toolsError,
         isFetching: isFetchingTools
     } = useQuery({
-        queryKey: ['tools', 'recommendations', toolIds, retryCount],
+        queryKey: ['tools', 'cbf-recommendations', toolIds, retryCount],
         queryFn: () => getToolsByToolIds(toolIds),
         enabled: toolIds.length > 0,
         retry: 1,
@@ -42,7 +51,6 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
 
     // Sắp xếp sản phẩm theo điểm (score) giảm dần
     useEffect(() => {
-        // Chỉ chạy khi tools và recommendations thực sự thay đổi và có giá trị
         if (!tools || !recommendations) return;
 
         if (tools.length > 0 && recommendations.length > 0) {
@@ -82,25 +90,21 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
     const isFetching = isFetchingRecommendations || isFetchingTools;
     const error = recommendationsError || toolsError;
 
+    // Don't render anything if no recommendations or not logged in
+    if ((!recommendations || recommendations.length === 0) && !isLoading && !error) {
+        return null;
+    }
+
     // Show login prompt if user is not logged in
-    if (!user?.id) {
-        return (
-            <div className="text-center py-5 mb-2 bg-white rounded-lg shadow-sm">
-                <Alert
-                    message="Cần đăng nhập"
-                    description="Vui lòng đăng nhập để nhận gợi ý sản phẩm phù hợp."
-                    type="info"
-                    showIcon
-                />
-            </div>
-        );
+    if (!userId) {
+        return null; // Don't show this section if user is not logged in
     }
 
     // Show loading state
     if (isLoading && !error) {
         return (
             <div className="text-center py-5 mb-2 bg-white rounded-lg shadow-sm">
-                <Spin tip="Đang tải sản phẩm phù hợp với bạn..." size="large">
+                <Spin tip="Đang tải sản phẩm dành cho bạn..." size="large">
                     <div style={{ height: "100px" }} />
                 </Spin>
             </div>
@@ -138,18 +142,23 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
 
     // Show empty state
     if (!sortedTools || sortedTools.length === 0) {
-        return (
-            <div className="py-5 mb-2 bg-white rounded-lg shadow-sm">
-                <Empty
-                    description="Chưa có gợi ý sản phẩm nào cho bạn"
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
-            </div>
-        );
+        return null; // Don't render if no recommendations
     }
 
     return (
-        <div>
+        <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+                <SectionTitle>Sản phẩm bạn quan tâm</SectionTitle>
+                <Button
+                    icon={<ReloadOutlined />}
+                    onClick={handleRefresh}
+                    loading={isFetching}
+                    disabled={isFetching}
+                >
+                    {isFetching ? 'Đang làm mới...' : 'Làm mới'}
+                </Button>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {sortedTools?.slice((currentPage - 1) * pageSize, currentPage * pageSize)?.map((tool) => (
                     <ToolItem key={tool?.id || tool?.toolId} tool={tool} />
@@ -161,10 +170,12 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
                 <div className="mt-6 flex justify-center">
                     <Pagination
                         current={currentPage}
-                        total={sortedTools.length}
+                        total={sortedTools?.length}
                         pageSize={pageSize}
                         onChange={setCurrentPage}
                         showSizeChanger={false}
+                        responsive={true}
+                        hideOnSinglePage={false}
                     />
                 </div>
             )}
@@ -172,4 +183,4 @@ const ToolListUBCF = ({ pageSize = 10 }) => {
     );
 };
 
-export default ToolListUBCF;
+export default ToolListCBF;

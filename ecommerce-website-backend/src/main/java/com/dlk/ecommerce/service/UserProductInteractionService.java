@@ -70,4 +70,16 @@ public class UserProductInteractionService {
                         interaction.getUpdatedAt()))
                 .collect(Collectors.toList());
     }
+
+    public List<Long> getNewInteractionsByUserId(String userId) {
+        log.info("Fetching 3 most recent interactions for user ID: {}", userId);
+        List<UserProductInteraction> interactions = interactionRepository.findByUser_UserId(userId);
+
+        return interactions.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .map(interaction -> interaction.getTool().getToolId())
+                .distinct() // Remove duplicates (same product with multiple interactions)
+                .limit(3) // Take only 3 items
+                .collect(Collectors.toList());
+    }
 }

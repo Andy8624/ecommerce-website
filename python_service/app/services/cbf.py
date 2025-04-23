@@ -108,7 +108,7 @@ class ContentBasedFiltering:
         similar_indices = np.argsort(similarity_scores)[::-1][0:top_k + 1]
 
         similar_products = []
-        for index in similar_indices:
+        for index in similar_indices:   
             similar_products.append({
                 'toolId': str(self.product_data_cache[index]['toolId']),
                 'score': float(similarity_scores[index]),
@@ -186,4 +186,69 @@ class ContentBasedFiltering:
         
         except Exception as e:
             logging.error(f"Lỗi trong tìm kiếm ngữ nghĩa: {str(e)}")
+            return []
+
+            
+    # Thêm phương thức này vào class ContentBasedFiltering trong file cbf.py
+    async def get_recommendations_from_recent_interactions(self, user_id: str, per_product=10):
+        """
+        Lấy sản phẩm gợi ý dựa trên 3 sản phẩm người dùng tương tác gần đây nhất.
+        
+        Args:
+            user_id (str): ID của người dùng cần lấy gợi ý
+            per_product (int): Số lượng sản phẩm tương đồng lấy cho mỗi sản phẩm gần đây
+            
+        Returns:
+            list: Danh sách các sản phẩm tương đồng được sắp xếp theo điểm số giảm dần
+        """
+        try:
+            # Gọi API để lấy danh sách ID sản phẩm tương tác gần đây
+            recent_items_url = f"http://host.docker.internal:8080/api/v1/recommendation/cbf-data/new-interactions/{user_id}"
+            logging.info(f"Đang lấy sản phẩm tương tác gần đây cho user {user_id}")
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.get(recent_items_url)
+                response.raise_for_status()
+                recent_item_ids = response.json().get("data", [])
+                
+            if not recent_item_ids:
+                logging.warning(f"Không tìm thấy sản phẩm tương tác gần đây cho user {user_id}")
+                return []
+                
+            # Giới hạn số lượng sản phẩm để xử lý (tối đa 3)
+            recent_item_ids = recent_item_ids[:3]
+            logging.info(f"Tìm thấy {len(recent_item_ids)} sản phẩm tương tác gần đây: {recent_item_ids}")
+            
+            # Lấy sản phẩm tương đồng cho mỗi sản phẩm trong danh sách
+            all_similar_products = []
+            for tool_id in recent_item_ids:
+                similar_products = await self.get_similar_products(str(tool_id), per_product)
+                
+                # Bỏ qua sản phẩm gốc nếu có trong kết quả
+                similar_products = [p for p in similar_products if p['toolId'] != str(tool_id)]
+                
+                # Thêm trường để theo dõi nguồn gợi ý
+                for product in similar_products:
+                    product['sourceToolId'] = str(tool_id)
+                
+                all_similar_products.extend(similar_products)
+                
+            # Loại bỏ các sản phẩm trùng lặp, giữ lại điểm cao nhất
+            unique_products = {}
+            for product in all_similar_products:
+                tool_id = product['toolId']
+                if tool_id not in unique_products or product['score'] > unique_products[tool_id]['score']:
+                    unique_products[tool_id] = product
+                    
+            # Sắp xếp theo điểm giảm dần
+            sorted_products = sorted(
+                unique_products.values(), 
+                key=lambda x: x['score'], 
+                reverse=True
+            )
+            
+            return sorted_products
+            
+        except Exception as e:
+            logging.error(f"Lỗi khi lấy gợi ý từ tương tác gần đây: {e}", exc_info=True)
             return []
